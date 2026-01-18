@@ -1,0 +1,3 @@
+# Claude Code logs (session logs are local only)
+.claude/logs/
+!.claude/logs/.gitkeep
