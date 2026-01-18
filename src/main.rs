@@ -7,7 +7,10 @@ use bevy::prelude::*;
 mod hex;
 mod map;
 mod plugins;
+mod render;
 mod tile;
+
+use render::RenderPlugin;
 
 fn main() {
     App::new()
@@ -19,6 +22,6 @@ fn main() {
             }),
             ..default()
         }))
-        // Future: .add_plugins(GamePlugin)
+        .add_plugins(RenderPlugin)
         .run();
 }
