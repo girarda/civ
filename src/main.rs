@@ -5,6 +5,7 @@
 use bevy::prelude::*;
 
 mod hex;
+mod map;
 mod plugins;
 mod tile;
 

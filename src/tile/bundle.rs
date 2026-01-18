@@ -169,6 +169,21 @@ impl TileBuilder {
         self
     }
 
+    /// Set the feature for this tile from an Option.
+    ///
+    /// Convenience method for map generation where feature may or may not exist.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// let feature: Option<TileFeature> = generator.determine_feature(...);
+    /// let builder = TileBuilder::new(pos, terrain).feature_opt(feature);
+    /// ```
+    pub fn feature_opt(mut self, feature: Option<TileFeature>) -> Self {
+        self.feature = feature;
+        self
+    }
+
     /// Set the resource for this tile.
     pub fn resource(mut self, resource: TileResource) -> Self {
         self.resource = Some(resource);
@@ -355,6 +370,32 @@ mod tests {
         assert_eq!(components.bundle.yields.food, 2);
         assert_eq!(components.bundle.yields.production, 1);
         assert_eq!(components.bundle.yields.gold, 0);
+    }
+
+    #[test]
+    fn test_builder_with_feature_opt_some() {
+        let pos = TilePosition::new(1, 1);
+        let components = TileBuilder::new(pos, Terrain::Grassland)
+            .feature_opt(Some(TileFeature::Forest))
+            .build();
+
+        assert_eq!(components.feature, Some(TileFeature::Forest));
+        // Grassland (2F) + Forest (+1P) = 2F, 1P
+        assert_eq!(components.bundle.yields.food, 2);
+        assert_eq!(components.bundle.yields.production, 1);
+    }
+
+    #[test]
+    fn test_builder_with_feature_opt_none() {
+        let pos = TilePosition::new(1, 1);
+        let components = TileBuilder::new(pos, Terrain::Grassland)
+            .feature_opt(None)
+            .build();
+
+        assert_eq!(components.feature, None);
+        // Grassland (2F) with no feature = 2F, 0P
+        assert_eq!(components.bundle.yields.food, 2);
+        assert_eq!(components.bundle.yields.production, 0);
     }
 
     // ============ Tile Marker Tests ============
