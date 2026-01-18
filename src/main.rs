@@ -6,6 +6,7 @@ use bevy::prelude::*;
 
 mod hex;
 mod plugins;
+mod tile;
 
 fn main() {
     App::new()
