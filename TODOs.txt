@@ -5,11 +5,10 @@
  - [X] B
  - [X] C 
  - [X] D
- - [ ] E(just units) (phase 2 in research)
+ - [ ] E(just units) (phase 2 in progress)
  - [ ] E produce buildings
  - [ ] F (depends on D, E)
 - [ ] server-client architecture
-- [ ] CLI-integration
 - [X] /research is running… the unit movement and turns don't play well together. eg i can move units on the first turn,
 but that's it. look into what it would take to fix that
 
@@ -23,8 +22,8 @@ but that's it. look into what it would take to fix that
 
 
 - 2026-01-18-cli-integration-architecture.md
-- phase 1,2,3 in progress
+- [ ] phase 2,3 (in progress)
 - [ ] phase 4
 - [ ] phase 5
 
-- [ ] Future: Consider toast notification when unit spawns
+- [ ] toast notifications (in progress)
