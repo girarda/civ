@@ -9,7 +9,8 @@ import { PopulationComponent, ProductionComponent } from '../ecs/cityComponents'
 import { getAllCities } from '../ecs/citySystems';
 import { TerritoryManager } from './Territory';
 import { calculateCityYields, calculateNetFood } from './CityYields';
-import { buildableToUnitType, getBuildableCost } from './Buildable';
+import { BuildableType, buildableToUnitType, getBuildableCost } from './Buildable';
+import { ProductionQueue } from './ProductionQueue';
 import { calculateGrowthThreshold, FOOD_PER_POPULATION } from './CityData';
 import { UNIT_TYPE_DATA } from '../unit/UnitType';
 import { TilePosition } from '../hex/TilePosition';
@@ -28,10 +29,21 @@ export interface PopulationGrowthEvent {
   newPopulation: number;
 }
 
+export interface QueueAdvancedEvent {
+  cityEid: number;
+  nextItem: BuildableType;
+  remainingQueue: number;
+  overflowApplied: number;
+}
+
 export interface CityProcessorCallbacks {
   onProductionCompleted?: (event: ProductionCompletedEvent) => void;
   onPopulationGrowth?: (event: PopulationGrowthEvent) => void;
+  onQueueAdvanced?: (event: QueueAdvancedEvent) => void;
 }
+
+/** Overflow cap as percentage of next item's cost */
+const OVERFLOW_CAP_PERCENT = 0.5;
 
 /**
  * Processes cities at turn end.
@@ -41,16 +53,19 @@ export class CityProcessor {
   private territoryManager: TerritoryManager;
   private tileMap: Map<string, GeneratedTile>;
   private callbacks: CityProcessorCallbacks;
+  private productionQueue: ProductionQueue;
 
   constructor(
     world: IWorld,
     territoryManager: TerritoryManager,
     tileMap: Map<string, GeneratedTile>,
+    productionQueue: ProductionQueue,
     callbacks: CityProcessorCallbacks = {}
   ) {
     this.world = world;
     this.territoryManager = territoryManager;
     this.tileMap = tileMap;
+    this.productionQueue = productionQueue;
     this.callbacks = callbacks;
   }
 
@@ -67,6 +82,10 @@ export class CityProcessor {
 
   setTileMap(tileMap: Map<string, GeneratedTile>): void {
     this.tileMap = tileMap;
+  }
+
+  setProductionQueue(productionQueue: ProductionQueue): void {
+    this.productionQueue = productionQueue;
   }
 
   /**
@@ -114,6 +133,11 @@ export class CityProcessor {
     const playerId = OwnerComponent.playerId[cityEid];
     const position = new TilePosition(q, r);
 
+    // Calculate overflow before spawning
+    const progress = ProductionComponent.progress[cityEid];
+    const cost = ProductionComponent.cost[cityEid];
+    const overflow = Math.max(0, progress - cost);
+
     // Find spawn position (city tile or adjacent)
     const spawnPos = this.findSpawnPosition(position);
     if (!spawnPos) {
@@ -132,12 +156,7 @@ export class CityProcessor {
       unitData.movement
     );
 
-    // Reset production
-    ProductionComponent.currentItem[cityEid] = 0;
-    ProductionComponent.progress[cityEid] = 0;
-    ProductionComponent.cost[cityEid] = 0;
-
-    // Notify callback
+    // Notify production completed callback
     if (this.callbacks.onProductionCompleted) {
       this.callbacks.onProductionCompleted({
         cityEid,
@@ -147,6 +166,42 @@ export class CityProcessor {
         playerId,
       });
     }
+
+    // Advance queue
+    const nextItem = this.productionQueue.dequeue(cityEid);
+    if (nextItem !== null) {
+      const overflowApplied = this.startProduction(cityEid, nextItem, overflow);
+
+      if (this.callbacks.onQueueAdvanced) {
+        this.callbacks.onQueueAdvanced({
+          cityEid,
+          nextItem,
+          remainingQueue: this.productionQueue.getQueueLength(cityEid),
+          overflowApplied,
+        });
+      }
+    } else {
+      // Reset to idle
+      ProductionComponent.currentItem[cityEid] = 0;
+      ProductionComponent.progress[cityEid] = 0;
+      ProductionComponent.cost[cityEid] = 0;
+    }
+  }
+
+  /**
+   * Start production of an item with optional overflow from previous item.
+   * Returns the amount of overflow actually applied.
+   */
+  private startProduction(cityEid: number, buildable: BuildableType, overflow: number = 0): number {
+    const cost = getBuildableCost(buildable);
+    const maxOverflow = Math.floor(cost * OVERFLOW_CAP_PERCENT);
+    const cappedOverflow = Math.min(overflow, maxOverflow);
+
+    ProductionComponent.currentItem[cityEid] = buildable;
+    ProductionComponent.progress[cityEid] = cappedOverflow;
+    ProductionComponent.cost[cityEid] = cost;
+
+    return cappedOverflow;
   }
 
   /**
@@ -209,5 +264,39 @@ export class CityProcessor {
     ProductionComponent.currentItem[cityEid] = 0;
     ProductionComponent.progress[cityEid] = 0;
     ProductionComponent.cost[cityEid] = 0;
+  }
+
+  /**
+   * Add an item to a city's production queue.
+   * If city has no current production, starts the item immediately.
+   */
+  queueItem(cityEid: number, buildable: BuildableType): boolean {
+    // If no current production, start immediately
+    if (ProductionComponent.currentItem[cityEid] === 0) {
+      this.setProduction(cityEid, buildable);
+      return true;
+    }
+    return this.productionQueue.enqueue(cityEid, buildable);
+  }
+
+  /**
+   * Get the production queue for a city.
+   */
+  getQueue(cityEid: number): readonly BuildableType[] {
+    return this.productionQueue.getQueue(cityEid);
+  }
+
+  /**
+   * Remove an item from a city's production queue.
+   */
+  removeFromQueue(cityEid: number, index: number): void {
+    this.productionQueue.remove(cityEid, index);
+  }
+
+  /**
+   * Check if a city's queue is full.
+   */
+  isQueueFull(cityEid: number): boolean {
+    return this.productionQueue.isFull(cityEid);
   }
 }

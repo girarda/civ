@@ -361,6 +361,59 @@ canvas {
   display: none;
 }
 
+/* Queue Section */
+.queue-section {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #6a8a6a;
+}
+
+#production-queue {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.queue-empty {
+  color: #808090;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.queue-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: #3a3a5a;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.queue-item-name {
+  flex: 1;
+  color: #e0e0e0;
+}
+
+.queue-item-turns {
+  color: #a0a0b0;
+  font-size: 11px;
+}
+
+.queue-item-remove {
+  background: transparent;
+  border: none;
+  color: #ff6b6b;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.queue-item-remove:hover {
+  color: #ff4444;
+}
+
 /* Notification Container */
 #notification-container {
   position: fixed;

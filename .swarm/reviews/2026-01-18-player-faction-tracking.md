@@ -90,6 +90,22 @@ This feature implements a formal Player/Faction tracking system for OpenCiv. Pre
   - Player color integration: 2 scenarios
   - Error handling: 2 scenarios
 
+## Code Review Findings
+
+### Applied Fixes
+- **Listener array mutation during iteration**: Fixed by creating shallow copy before notification in `PlayerManager.notify()`. Prevents issues if a listener unsubscribes during notification.
+
+### Minor Findings (Documented for Reference)
+
+| Finding | File | Severity | Recommendation |
+|---------|------|----------|----------------|
+| Silent invalid player ID handling | PlayerManager.ts:94 | minor | Consider adding warning log |
+| Fallback color masks bugs | PlayerManager.ts:124 | minor | Consider adding warning log |
+| Test helper duplication | *.test.ts | minor | Could extract to shared utils |
+| ECS queries per elimination check | PlayerManager.ts:96-97 | minor | Could add early-exit path if many checks |
+
+These minor findings don't affect functionality and can be addressed in future iterations.
+
 ## Items for Human Review
 
 ### Architectural Considerations
