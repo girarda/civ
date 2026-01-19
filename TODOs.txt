@@ -1,11 +1,14 @@
 - [ ] resources aren't visible on the map
 - [ ] plan and implement 2026-01-18-solo-worktree-workflow-improvements
 - [ ] 2026-01-18-e2e-game-roadmap.md
- - [ ] A (in progress)
- - [ ] B (depends on A)
- - [ ] C (in progress)
- - [ ] D (depends on A)
+ - [X] A
+ - [ ] B (in plan)
+ - [X] C 
+ - [ ] D (in plan)
  - [ ] E (depends on B)
  - [ ] F (depends on D, E)
+ - [ ] victory condition
 - [ ] server-client architecture
 - [ ] CLI-integration
+- [ ] /research is running… the unit movement and turns don't play well together. eg i can move units on the first turn,
+but that's it. look into what it would take to fix that
