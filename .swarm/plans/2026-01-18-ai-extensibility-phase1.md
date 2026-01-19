@@ -1,7 +1,7 @@
 # Plan: AI Extensibility - Phase 1 Foundation
 
 **Date**: 2026-01-18
-**Status**: Ready for Implementation
+**Status**: Phases 1-6 Complete
 
 ## Overview
 
@@ -29,7 +29,7 @@ Architecture follows self-describing action registry where each action registers
 
 #### Tasks
 
-- [ ] Create directory structure:
+- [x] Create directory structure:
   ```
   src/ai/
     registry/
@@ -37,7 +37,7 @@ Architecture follows self-describing action registry where each action registers
     context/
     controller/
   ```
-- [ ] Create `/Users/alex/workspace/civ/src/ai/registry/ActionDefinition.ts`:
+- [x] Create `/Users/alex/workspace/civ/src/ai/registry/ActionDefinition.ts`:
   - Define `EntityType` type: `'unit' | 'city' | 'player'`
   - Define `ActionDefinition<TCommand>` interface with:
     - `id: string` - Unique action identifier
@@ -46,19 +46,19 @@ Architecture follows self-describing action registry where each action registers
     - `applicableTo: EntityType[]` - What entity types can perform this
     - `generateCandidates(context, entityEid): TCommand[]` - Generate valid commands
     - `scoreCandidate(context, command): number` - Score a candidate (0-100)
-- [ ] Create `/Users/alex/workspace/civ/src/ai/context/AIContext.ts`:
+- [x] Create `/Users/alex/workspace/civ/src/ai/context/AIContext.ts`:
   - Define `AIContext` interface with:
     - Core references: `world`, `playerId`, `gameState`, `tileMap`, `pathfinder`, `territoryManager`
     - Cached queries: `myUnits`, `myCities`, `enemyUnits`, `enemyCities`
     - Helper methods: `getTile()`, `getEnemyUnitAt()`, `getAdjacentEnemies()`
-- [ ] Write unit tests for interface type safety
+- [x] Write unit tests for interface type safety
 
 #### Success Criteria
 
-- [ ] Directory structure created
-- [ ] `ActionDefinition` interface compiles with proper generic constraints
-- [ ] `AIContext` interface includes all required properties
-- [ ] TypeScript compilation passes with no errors
+- [x] Directory structure created
+- [x] `ActionDefinition` interface compiles with proper generic constraints
+- [x] `AIContext` interface includes all required properties
+- [x] TypeScript compilation passes with no errors
 
 ---
 
@@ -68,7 +68,7 @@ Architecture follows self-describing action registry where each action registers
 
 #### Tasks
 
-- [ ] Create `/Users/alex/workspace/civ/src/ai/registry/ActionRegistry.ts`:
+- [x] Create `/Users/alex/workspace/civ/src/ai/registry/ActionRegistry.ts`:
   - Private constructor (singleton pattern)
   - `getInstance(): ActionRegistry` - Get singleton
   - `resetInstance(): void` - Clear for testing
@@ -78,8 +78,8 @@ Architecture follows self-describing action registry where each action registers
   - `getAllActions(): ActionDefinition[]` - Get all registered actions
   - `hasAction(id: string): boolean` - Check if registered
   - `getActionCount(): number` - Count of registered actions
-- [ ] Export convenience function `getActionRegistry(): ActionRegistry`
-- [ ] Create `/Users/alex/workspace/civ/src/ai/registry/ActionRegistry.test.ts`:
+- [x] Export convenience function `getActionRegistry(): ActionRegistry`
+- [x] Create `/Users/alex/workspace/civ/src/ai/registry/ActionRegistry.test.ts`:
   - Test singleton behavior
   - Test register/get operations
   - Test duplicate registration throws error
@@ -88,11 +88,11 @@ Architecture follows self-describing action registry where each action registers
 
 #### Success Criteria
 
-- [ ] Singleton pattern works correctly
-- [ ] Duplicate registration throws descriptive error
-- [ ] `getActionsFor()` correctly filters by entity type
-- [ ] `resetInstance()` clears state for clean test isolation
-- [ ] All unit tests pass
+- [x] Singleton pattern works correctly
+- [x] Duplicate registration throws descriptive error
+- [x] `getActionsFor()` correctly filters by entity type
+- [x] `resetInstance()` clears state for clean test isolation
+- [x] All unit tests pass
 
 ---
 
@@ -102,7 +102,7 @@ Architecture follows self-describing action registry where each action registers
 
 #### Tasks
 
-- [ ] Create `/Users/alex/workspace/civ/src/ai/context/ContextBuilder.ts`:
+- [x] Create `/Users/alex/workspace/civ/src/ai/context/ContextBuilder.ts`:
   - Define `ContextBuilderDeps` interface:
     - `world: IWorld`
     - `gameState: GameState`
@@ -118,7 +118,7 @@ Architecture follows self-describing action registry where each action registers
     - Build enemy units position lookup map for `getEnemyUnitAt()`
     - Implement `getTile()` using `queryTile()`
     - Implement `getAdjacentEnemies()` using `TilePosition.neighbors()`
-- [ ] Create `/Users/alex/workspace/civ/src/ai/context/ContextBuilder.test.ts`:
+- [x] Create `/Users/alex/workspace/civ/src/ai/context/ContextBuilder.test.ts`:
   - Test context creation with mock dependencies
   - Test enemy unit/city enumeration
   - Test `getTile()` returns correct data
@@ -127,11 +127,11 @@ Architecture follows self-describing action registry where each action registers
 
 #### Success Criteria
 
-- [ ] Context is built correctly from game state
-- [ ] Own units/cities are filtered by playerId
-- [ ] Enemy units/cities are grouped by playerId
-- [ ] Helper methods (`getTile`, `getEnemyUnitAt`, `getAdjacentEnemies`) work correctly
-- [ ] All unit tests pass
+- [x] Context is built correctly from game state
+- [x] Own units/cities are filtered by playerId
+- [x] Enemy units/cities are grouped by playerId
+- [x] Helper methods (`getTile`, `getEnemyUnitAt`, `getAdjacentEnemies`) work correctly
+- [x] All unit tests pass
 
 ---
 
@@ -141,12 +141,12 @@ Architecture follows self-describing action registry where each action registers
 
 #### Tasks
 
-- [ ] Create `/Users/alex/workspace/civ/src/ai/actions/EndTurnAction.ts`:
+- [x] Create `/Users/alex/workspace/civ/src/ai/actions/EndTurnAction.ts`:
   - `id: 'END_TURN'`, `applicableTo: ['player']`
   - `generateCandidates()` always returns one EndTurnCommand
   - `scoreCandidate()` returns 100 if no units have actions, 1 otherwise
   - Auto-register on import: `getActionRegistry().register(EndTurnAction)`
-- [ ] Create `/Users/alex/workspace/civ/src/ai/actions/SetProductionAction.ts`:
+- [x] Create `/Users/alex/workspace/civ/src/ai/actions/SetProductionAction.ts`:
   - `id: 'SET_PRODUCTION'`, `applicableTo: ['city']`
   - `generateCandidates()` returns one command per buildable type (use `getAvailableBuildables()`)
   - `scoreCandidate()` basic scoring:
@@ -154,20 +154,20 @@ Architecture follows self-describing action registry where each action registers
     - Warrior: 50
     - Scout: 30
   - Auto-register on import
-- [ ] Create `/Users/alex/workspace/civ/src/ai/actions/EndTurnAction.test.ts`:
+- [x] Create `/Users/alex/workspace/civ/src/ai/actions/EndTurnAction.test.ts`:
   - Test generates exactly one candidate
   - Test score is 100 when no units have actions
   - Test score is 1 when units have actions remaining
-- [ ] Create `/Users/alex/workspace/civ/src/ai/actions/SetProductionAction.test.ts`:
+- [x] Create `/Users/alex/workspace/civ/src/ai/actions/SetProductionAction.test.ts`:
   - Test generates 3 candidates (Warrior, Scout, Settler)
   - Test Settler scoring based on city count
 
 #### Success Criteria
 
-- [ ] EndTurnAction auto-registers on import
-- [ ] SetProductionAction generates correct candidates for each buildable
-- [ ] Scoring logic produces expected values
-- [ ] All unit tests pass
+- [x] EndTurnAction auto-registers on import
+- [x] SetProductionAction generates correct candidates for each buildable
+- [x] Scoring logic produces expected values
+- [x] All unit tests pass
 
 ---
 
@@ -177,7 +177,7 @@ Architecture follows self-describing action registry where each action registers
 
 #### Tasks
 
-- [ ] Create `/Users/alex/workspace/civ/src/ai/actions/FoundCityAction.ts`:
+- [x] Create `/Users/alex/workspace/civ/src/ai/actions/FoundCityAction.ts`:
   - `id: 'FOUND_CITY'`, `applicableTo: ['unit']`
   - `generateCandidates()`:
     - Return empty if unit is not Settler
@@ -185,7 +185,7 @@ Architecture follows self-describing action registry where each action registers
     - Return one FoundCityCommand otherwise
   - `scoreCandidate()` returns 70 (high priority for founding)
   - Auto-register on import
-- [ ] Create `/Users/alex/workspace/civ/src/ai/actions/MoveAction.ts`:
+- [x] Create `/Users/alex/workspace/civ/src/ai/actions/MoveAction.ts`:
   - `id: 'MOVE_UNIT'`, `applicableTo: ['unit']`
   - `generateCandidates()`:
     - Return empty if `!unit.capabilities.canMove`
@@ -193,22 +193,22 @@ Architecture follows self-describing action registry where each action registers
     - Generate MoveUnitCommand for each reachable tile (excluding current position)
   - `scoreCandidate()` returns 10 (base score, refined in Phase 2)
   - Auto-register on import
-- [ ] Create `/Users/alex/workspace/civ/src/ai/actions/FoundCityAction.test.ts`:
+- [x] Create `/Users/alex/workspace/civ/src/ai/actions/FoundCityAction.test.ts`:
   - Test returns empty for non-Settler units
   - Test returns empty when canFoundCity is false
   - Test returns one candidate when valid
-- [ ] Create `/Users/alex/workspace/civ/src/ai/actions/MoveAction.test.ts`:
+- [x] Create `/Users/alex/workspace/civ/src/ai/actions/MoveAction.test.ts`:
   - Test returns empty for units with no movement
   - Test generates correct number of candidates based on reachable tiles
   - Test excludes current position from candidates
 
 #### Success Criteria
 
-- [ ] FoundCityAction correctly validates Settler and position
-- [ ] MoveAction generates candidates for all reachable tiles
-- [ ] Current position is excluded from move candidates
-- [ ] Both actions auto-register on import
-- [ ] All unit tests pass
+- [x] FoundCityAction correctly validates Settler and position
+- [x] MoveAction generates candidates for all reachable tiles
+- [x] Current position is excluded from move candidates
+- [x] Both actions auto-register on import
+- [x] All unit tests pass
 
 ---
 
@@ -218,7 +218,7 @@ Architecture follows self-describing action registry where each action registers
 
 #### Tasks
 
-- [ ] Create `/Users/alex/workspace/civ/src/ai/actions/AttackAction.ts`:
+- [x] Create `/Users/alex/workspace/civ/src/ai/actions/AttackAction.ts`:
   - `id: 'ATTACK'`, `applicableTo: ['unit']`
   - `generateCandidates()`:
     - Return empty if `!unit.capabilities.canAttack`
@@ -233,7 +233,7 @@ Architecture follows self-describing action registry where each action registers
     - -40 if attacker dies
     - +damageRatio bonus (up to 20)
   - Auto-register on import
-- [ ] Create `/Users/alex/workspace/civ/src/ai/actions/AttackAction.test.ts`:
+- [x] Create `/Users/alex/workspace/civ/src/ai/actions/AttackAction.test.ts`:
   - Test returns empty for units without attack capability
   - Test generates candidates for adjacent enemies only
   - Test scoring favors killing enemy
@@ -242,11 +242,11 @@ Architecture follows self-describing action registry where each action registers
 
 #### Success Criteria
 
-- [ ] AttackAction only generates candidates for adjacent enemies
-- [ ] Combat scoring uses CombatCalculator for predictions
-- [ ] Terrain defense modifiers are factored into scoring
-- [ ] Score reflects combat outcome (favors favorable trades)
-- [ ] All unit tests pass
+- [x] AttackAction only generates candidates for adjacent enemies
+- [x] Combat scoring uses CombatCalculator for predictions
+- [x] Terrain defense modifiers are factored into scoring
+- [x] Score reflects combat outcome (favors favorable trades)
+- [x] All unit tests pass
 
 ---
 
