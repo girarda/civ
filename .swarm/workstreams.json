@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-01-18T22:46:00Z",
+  "lastUpdated": "2026-01-18T23:45:00Z",
   "workstreams": {
     "cli-integration-architecture": {
       "id": "cli-integration-architecture",
@@ -10,7 +10,7 @@
       "parent": null,
       "priority": 1,
       "created": "2026-01-18",
-      "updated": "2026-01-18T23:00:00Z",
+      "updated": "2026-01-18T23:30:00Z",
       "description": "Implement a decoupled game engine architecture that separates game logic from rendering, enabling both GUI and CLI frontends.",
       "dependencies": [],
       "artifacts": {
@@ -24,7 +24,7 @@
         "branch": "feature/2026-01-18-cli-integration-architecture",
         "worktree": null,
         "assignedInstance": null,
-        "currentPhase": 1,
+        "currentPhase": 3,
         "totalPhases": 5
       },
       "children": [
@@ -34,17 +34,17 @@
         "cli-integration-architecture/phase-5"
       ],
       "tags": ["architecture", "cli", "engine"],
-      "notes": "Phase 1 merged. Phases 2-3 in progress."
+      "notes": "Phases 1-3 merged. Phases 4-5 (CLI Frontend, Testing & Docs) ready to start."
     },
     "cli-integration-architecture/phase-2": {
       "id": "cli-integration-architecture/phase-2",
       "title": "CLI Integration - Phase 2: Command Layer",
       "type": "phase",
-      "state": "implementing",
+      "state": "merged",
       "parent": "cli-integration-architecture",
       "priority": 1,
       "created": "2026-01-18",
-      "updated": "2026-01-18T23:00:00Z",
+      "updated": "2026-01-18T23:30:00Z",
       "description": "Implement command abstraction layer for game actions",
       "dependencies": [],
       "artifacts": {
@@ -55,7 +55,7 @@
         "checkpoints": []
       },
       "implementation": {
-        "branch": null,
+        "branch": "feature/2026-01-18-command-layer-and-renderer-decoupling",
         "worktree": null,
         "assignedInstance": null,
         "currentPhase": null,
@@ -63,17 +63,18 @@
       },
       "children": [],
       "tags": ["architecture", "cli"],
-      "notes": null
+      "notes": "Command types, validators, executors, and executeCommand() implemented.",
+      "mergedAt": "2026-01-18T22:30:00Z"
     },
     "cli-integration-architecture/phase-3": {
       "id": "cli-integration-architecture/phase-3",
       "title": "CLI Integration - Phase 3: Renderer Decoupling",
       "type": "phase",
-      "state": "implementing",
+      "state": "merged",
       "parent": "cli-integration-architecture",
       "priority": 1,
       "created": "2026-01-18",
-      "updated": "2026-01-18T23:00:00Z",
+      "updated": "2026-01-18T23:30:00Z",
       "description": "Decouple renderers from game logic",
       "dependencies": [
         {
@@ -90,7 +91,7 @@
         "checkpoints": []
       },
       "implementation": {
-        "branch": null,
+        "branch": "feature/2026-01-18-command-layer-and-renderer-decoupling",
         "worktree": null,
         "assignedInstance": null,
         "currentPhase": null,
@@ -98,7 +99,8 @@
       },
       "children": [],
       "tags": ["architecture", "cli"],
-      "notes": null
+      "notes": "GuiFrontend and EventHandlers created. main.ts wiring deferred for incremental adoption.",
+      "mergedAt": "2026-01-18T22:30:00Z"
     },
     "cli-integration-architecture/phase-4": {
       "id": "cli-integration-architecture/phase-4",
@@ -174,11 +176,11 @@
       "id": "player-faction-tracking",
       "title": "Player/Faction Tracking System",
       "type": "feature",
-      "state": "implementing",
+      "state": "merged",
       "parent": null,
       "priority": 1,
       "created": "2026-01-18",
-      "updated": "2026-01-18T23:00:00Z",
+      "updated": "2026-01-18T23:30:00Z",
       "description": "Implement a formal Player/Faction tracking system that provides a single source of truth for player data.",
       "dependencies": [],
       "artifacts": {
@@ -197,7 +199,8 @@
       },
       "children": [],
       "tags": ["game-mechanics", "player"],
-      "notes": "Phases 1,2,3 in progress per TODOs.txt"
+      "notes": "All 3 phases complete. PlayerManager integrated with combat system.",
+      "mergedAt": "2026-01-18T20:30:00Z"
     },
     "notification-system": {
       "id": "notification-system",
@@ -233,11 +236,11 @@
       "id": "production-queue",
       "title": "Production Queue System",
       "type": "feature",
-      "state": "ready",
+      "state": "merged",
       "parent": null,
       "priority": 2,
       "created": "2026-01-18",
-      "updated": "2026-01-18T23:00:00Z",
+      "updated": "2026-01-18T23:30:00Z",
       "description": "Queue multiple items for city production with overflow support.",
       "dependencies": [],
       "artifacts": {
@@ -248,7 +251,7 @@
         "checkpoints": []
       },
       "implementation": {
-        "branch": null,
+        "branch": "feature/2026-01-18-production-queue",
         "worktree": null,
         "assignedInstance": null,
         "currentPhase": null,
@@ -256,17 +259,18 @@
       },
       "children": [],
       "tags": ["game-mechanics", "city", "production"],
-      "notes": null
+      "notes": "Phases 1-2 complete (selection UI, queue). Phase 3 (adjacent spawn) deferred.",
+      "mergedAt": "2026-01-18T21:00:00Z"
     },
     "victory-conditions": {
       "id": "victory-conditions",
       "title": "Victory Conditions System",
       "type": "epic",
-      "state": "idea",
+      "state": "research",
       "parent": null,
       "priority": 2,
       "created": "2026-01-18",
-      "updated": "2026-01-18T23:00:00Z",
+      "updated": "2026-01-18T23:30:00Z",
       "description": "Implement victory condition checking and game-over states.",
       "dependencies": [
         {
@@ -276,7 +280,7 @@
         }
       ],
       "artifacts": {
-        "research": ".swarm/research/2026-01-18-victory-conditions.md",
+        "research": ".swarm/research/2026-01-18-victory-system.md",
         "plan": null,
         "validation": null,
         "review": null,
@@ -291,7 +295,7 @@
       },
       "children": [],
       "tags": ["game-mechanics", "victory"],
-      "notes": "Depends on player-faction-tracking per TODOs.txt"
+      "notes": "Blocker resolved. Research file exists at .swarm/research/2026-01-18-victory-system.md"
     },
     "resources-visible-bug": {
       "id": "resources-visible-bug",
@@ -390,11 +394,11 @@
       "id": "hover-highlight-bug-fix",
       "title": "Hover Highlight Bug Fix",
       "type": "bug",
-      "state": "ready",
+      "state": "merged",
       "parent": null,
       "priority": 3,
       "created": "2026-01-18",
-      "updated": "2026-01-18T23:00:00Z",
+      "updated": "2026-01-18T23:30:00Z",
       "description": "Fix hover highlight visual feedback issues.",
       "dependencies": [],
       "artifacts": {
@@ -413,17 +417,18 @@
       },
       "children": [],
       "tags": ["bug", "ui"],
-      "notes": null
+      "notes": "Fixed via container hierarchy (tilesContainer + overlayContainer).",
+      "mergedAt": "2026-01-18T20:00:00Z"
     },
     "city-system": {
       "id": "city-system",
       "title": "City System",
       "type": "feature",
-      "state": "ready",
+      "state": "merged",
       "parent": null,
       "priority": 2,
       "created": "2026-01-18",
-      "updated": "2026-01-18T23:00:00Z",
+      "updated": "2026-01-18T23:30:00Z",
       "description": "Implement city founding, growth, and management systems.",
       "dependencies": [],
       "artifacts": {
@@ -434,7 +439,7 @@
         "checkpoints": []
       },
       "implementation": {
-        "branch": null,
+        "branch": "feature/2026-01-18-city-system",
         "worktree": null,
         "assignedInstance": null,
         "currentPhase": null,
@@ -442,17 +447,18 @@
       },
       "children": [],
       "tags": ["game-mechanics", "city"],
-      "notes": null
+      "notes": "City founding, territory, production, and UI implemented.",
+      "mergedAt": "2026-01-18T19:00:00Z"
     },
     "combat-system": {
       "id": "combat-system",
       "title": "Combat System",
       "type": "feature",
-      "state": "ready",
+      "state": "merged",
       "parent": null,
       "priority": 2,
       "created": "2026-01-18",
-      "updated": "2026-01-18T23:00:00Z",
+      "updated": "2026-01-18T23:30:00Z",
       "description": "Implement combat mechanics between units.",
       "dependencies": [],
       "artifacts": {
@@ -463,7 +469,7 @@
         "checkpoints": []
       },
       "implementation": {
-        "branch": null,
+        "branch": "feature/2026-01-18-combat-system",
         "worktree": null,
         "assignedInstance": null,
         "currentPhase": null,
@@ -471,7 +477,8 @@
       },
       "children": [],
       "tags": ["game-mechanics", "combat"],
-      "notes": null
+      "notes": "Combat system with terrain modifiers implemented.",
+      "mergedAt": "2026-01-18T19:30:00Z"
     },
     "workstream-tracking-system": {
       "id": "workstream-tracking-system",
@@ -508,6 +515,174 @@
       "tags": ["workflow", "tooling"],
       "notes": "Self-tracking implementation - all 5 phases complete",
       "mergedAt": "2026-01-18T22:46:00Z"
+    },
+    "ai-extensibility": {
+      "id": "ai-extensibility",
+      "title": "Extensible AI System",
+      "type": "epic",
+      "state": "idea",
+      "parent": null,
+      "priority": 2,
+      "created": "2026-01-18",
+      "updated": "2026-01-18T23:45:00Z",
+      "description": "Implement an extensible AI system with self-describing action registry, metadata-driven scoring, and composable strategies. AI automatically discovers and evaluates new actions as game features are added.",
+      "dependencies": [],
+      "artifacts": {
+        "research": ".swarm/research/2026-01-18-ai-extensibility.md",
+        "plan": null,
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": 4
+      },
+      "children": [
+        "ai-extensibility/phase-1",
+        "ai-extensibility/phase-2",
+        "ai-extensibility/phase-3",
+        "ai-extensibility/phase-4"
+      ],
+      "tags": ["ai", "architecture", "game-mechanics"],
+      "notes": "Research complete. 4 phases defined for MVP extensible AI."
+    },
+    "ai-extensibility/phase-1": {
+      "id": "ai-extensibility/phase-1",
+      "title": "AI Extensibility - Phase 1: Foundation",
+      "type": "phase",
+      "state": "idea",
+      "parent": "ai-extensibility",
+      "priority": 2,
+      "created": "2026-01-18",
+      "updated": "2026-01-18T23:45:00Z",
+      "description": "Create Action Registry with ActionDefinition interface, define AIContext, implement base AI Controller that queries registered actions and executes via command system.",
+      "dependencies": [],
+      "artifacts": {
+        "research": ".swarm/research/2026-01-18-ai-extensibility.md",
+        "plan": null,
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["ai", "architecture"],
+      "notes": "Registry pattern, AIContext definition, base controller. Register existing 5 command types as actions."
+    },
+    "ai-extensibility/phase-2": {
+      "id": "ai-extensibility/phase-2",
+      "title": "AI Extensibility - Phase 2: Scoring Infrastructure",
+      "type": "phase",
+      "state": "idea",
+      "parent": "ai-extensibility",
+      "priority": 2,
+      "created": "2026-01-18",
+      "updated": "2026-01-18T23:45:00Z",
+      "description": "Implement scoring modules (ExplorationScorer, SettlementScorer, CombatScorer, DefenseScorer) and WeightedScorer combiner.",
+      "dependencies": [
+        {
+          "target": "ai-extensibility/phase-1",
+          "type": "blocks",
+          "reason": "Scoring requires action registry and AI context from Phase 1"
+        }
+      ],
+      "artifacts": {
+        "research": ".swarm/research/2026-01-18-ai-extensibility.md",
+        "plan": null,
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["ai", "scoring"],
+      "notes": "Modular scorers for exploration, settlement, combat, defense. Weighted combiner."
+    },
+    "ai-extensibility/phase-3": {
+      "id": "ai-extensibility/phase-3",
+      "title": "AI Extensibility - Phase 3: Auto-Discovery",
+      "type": "phase",
+      "state": "idea",
+      "parent": "ai-extensibility",
+      "priority": 2,
+      "created": "2026-01-18",
+      "updated": "2026-01-18T23:45:00Z",
+      "description": "Add ActionCapability ECS component, capability update system, command metadata to COMMAND_TYPES, and probe command generators.",
+      "dependencies": [
+        {
+          "target": "ai-extensibility/phase-2",
+          "type": "blocks",
+          "reason": "Auto-discovery builds on scoring infrastructure from Phase 2"
+        }
+      ],
+      "artifacts": {
+        "research": ".swarm/research/2026-01-18-ai-extensibility.md",
+        "plan": null,
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["ai", "ecs", "discovery"],
+      "notes": "ECS component for O(1) capability checks. Command metadata for AI-relevant info."
+    },
+    "ai-extensibility/phase-4": {
+      "id": "ai-extensibility/phase-4",
+      "title": "AI Extensibility - Phase 4: Strategy Layer",
+      "type": "phase",
+      "state": "idea",
+      "parent": "ai-extensibility",
+      "priority": 2,
+      "created": "2026-01-18",
+      "updated": "2026-01-18T23:45:00Z",
+      "description": "Implement Strategy interface, StrategyComposer, personality presets (Aggressive, Defensive, Expansionist, Balanced), and difficulty scaling via weight multipliers.",
+      "dependencies": [
+        {
+          "target": "ai-extensibility/phase-3",
+          "type": "blocks",
+          "reason": "Strategy layer composes on top of auto-discovery from Phase 3"
+        }
+      ],
+      "artifacts": {
+        "research": ".swarm/research/2026-01-18-ai-extensibility.md",
+        "plan": null,
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["ai", "strategy", "personality"],
+      "notes": "Composable strategies, personality presets, difficulty scaling."
     }
   }
 }

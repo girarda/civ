@@ -474,7 +474,7 @@ The main work remaining is:
 
 ---
 
-### Phase 6: Event System Integration (Optional)
+### Phase 6: Event System Integration
 
 **Goal**: Emit game-over event through EventBus for future extensibility.
 
