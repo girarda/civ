@@ -1,0 +1,11 @@
+- [ ] resources aren't visible on the map
+- [ ] plan and implement 2026-01-18-solo-worktree-workflow-improvements
+- [ ] 2026-01-18-e2e-game-roadmap.md
+ - [ ] A (in progress)
+ - [ ] B (depends on A)
+ - [ ] C (in progress)
+ - [ ] D (depends on A)
+ - [ ] E (depends on B)
+ - [ ] F (depends on D, E)
+- [ ] server-client architecture
+- [ ] CLI-integration
