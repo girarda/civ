@@ -351,6 +351,8 @@ async function main() {
     onTurnEnd: () => {
       // Process city production and growth
       cityProcessor.processTurnEnd();
+      // Refresh city panel to show updated production progress
+      cityInfoPanel.refresh();
       console.log(`Turn ${gameState.getTurnNumber()} ending`);
     },
   });

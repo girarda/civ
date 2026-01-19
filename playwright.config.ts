@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const fullCapture = process.env.PLAYWRIGHT_FULL_CAPTURE === 'true';
+
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
@@ -9,8 +11,9 @@ export default defineConfig({
   reporter: 'html',
   use: {
     baseURL: 'http://localhost:3000',
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
+    video: fullCapture ? 'on' : 'retain-on-failure',
+    trace: fullCapture ? 'on' : 'retain-on-failure',
+    screenshot: 'on',
   },
   projects: [
     {
