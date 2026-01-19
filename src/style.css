@@ -86,3 +86,44 @@ canvas {
 .yield-icon.gold {
   background: #ffd700;
 }
+
+/* Map Controls */
+#map-controls {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(26, 26, 46, 0.85);
+  border: 1px solid #4a4a6a;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #e0e0e0;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 12px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#regenerate-btn {
+  background: #4a4a6a;
+  border: none;
+  border-radius: 4px;
+  color: #ffffff;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+#regenerate-btn:hover {
+  background: #6a6a8a;
+}
+
+#regenerate-btn:focus {
+  outline: 2px solid #a0a0b0;
+  outline-offset: 2px;
+}
+
+#regenerate-btn:active {
+  background: #5a5a7a;
+}

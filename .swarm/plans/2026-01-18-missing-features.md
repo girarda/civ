@@ -535,19 +535,19 @@ hoverState.subscribe((tile) => {
 
 **Goal**: Add quality-of-life features and cleanup.
 
-**Status**: NOT STARTED
+**Status**: COMPLETE
 
 #### Tasks
 
-- [ ] Add seed display in UI corner
-- [ ] Add map regeneration hotkey (R key)
-- [ ] Create `src/ui/MapControls.ts` for controls logic
-- [ ] Add clear() method to TileRenderer for map regeneration
-- [ ] Update index.html with controls container
-- [ ] Update style.css with controls styles
-- [ ] Add JSDoc comments to public APIs
-- [ ] Update CLAUDE.md to reflect current architecture
-- [ ] Verify all E2E tests pass
+- [x] Add seed display in UI corner
+- [x] Add map regeneration hotkey (R key)
+- [x] Create `src/ui/MapControls.ts` for controls logic
+- [x] Add clear() method to TileRenderer for map regeneration (already existed)
+- [x] Update index.html with controls container
+- [x] Update style.css with controls styles
+- [x] Add JSDoc comments to public APIs
+- [x] Update CLAUDE.md to reflect current architecture
+- [x] Verify all E2E tests pass (46 tests)
 
 #### Implementation Details
 
@@ -727,13 +727,13 @@ mapControls.attachKeyboardHandler();
 
 #### Success Criteria
 
-- [ ] Pressing 'R' regenerates map with new random seed
-- [ ] Current seed displays in top-right corner
-- [ ] Regenerate button works same as R key
-- [ ] New seed produces different map; same seed produces identical map
-- [ ] CLAUDE.md is accurate and up to date
-- [ ] Key public functions have JSDoc comments
-- [ ] All existing tests pass after changes
+- [x] Pressing 'R' regenerates map with new random seed
+- [x] Current seed displays in top-right corner
+- [x] Regenerate button works same as R key
+- [x] New seed produces different map; same seed produces identical map
+- [x] CLAUDE.md is accurate and up to date
+- [x] Key public functions have JSDoc comments
+- [x] All existing tests pass after changes
 
 ---
 

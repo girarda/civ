@@ -33,26 +33,28 @@ npm run format           # Format with Prettier
 
 ### Module Structure
 
-- `src/main.ts` - Application entry point, initializes PixiJS and game loop
+- `src/main.ts` - Application entry point, initializes PixiJS, game loop, and map generation/regeneration
 - `src/hex/` - Hex coordinate system
   - `TilePosition.ts` - Hex coordinate wrapper with neighbor/range operations
   - `HexGridLayout.ts` - Hex-to-world coordinate conversions
 - `src/tile/` - Tile data models
   - `Terrain.ts` - 14 terrain types with yields and movement costs
   - `TileFeature.ts` - 6 feature types with modifiers
-  - `TileResource.ts` - 26 resources with bonuses
+  - `TileResource.ts` - 26 resources with bonuses and placement rules
   - `TileYields.ts` - Yield calculation system
   - `RiverEdges.ts` - River edge bitmask
-  - `TileFactory.ts` - Tile entity creation
 - `src/map/` - Map generation
   - `MapConfig.ts` - Map sizes and generation parameters
-  - `MapGenerator.ts` - Procedural terrain generation
+  - `MapGenerator.ts` - Procedural terrain, feature, and resource generation
 - `src/render/` - Rendering systems
-  - `TileRenderer.ts` - Terrain color mapping and sprite creation
+  - `TileRenderer.ts` - Terrain color mapping, sprite creation, and clear/regenerate
+  - `TileHighlight.ts` - Hover highlight visual feedback
   - `CameraController.ts` - Pan and zoom controls
-- `src/ecs/` - ECS setup
-  - `world.ts` - bitECS world and component definitions
-  - `systems.ts` - ECS system functions
+- `src/ui/` - User interface components
+  - `HoverState.ts` - Reactive state for currently hovered tile
+  - `HoverSystem.ts` - Mouse event handling and screen-to-hex conversion
+  - `TileInfoPanel.ts` - HTML/CSS panel displaying tile information
+  - `MapControls.ts` - Seed display and map regeneration controls (R key)
 
 ### Coordinate System
 

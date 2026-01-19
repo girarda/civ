@@ -7,7 +7,7 @@ import { TileHighlight } from './render/TileHighlight';
 import { CameraController } from './render/CameraController';
 import { MapConfig } from './map/MapConfig';
 import { MapGenerator, GeneratedTile } from './map/MapGenerator';
-import { HoverState, HoverSystem, TileInfoPanel } from './ui';
+import { HoverState, HoverSystem, TileInfoPanel, MapControls } from './ui';
 
 console.log('OpenCiv initializing...');
 
@@ -36,23 +36,59 @@ async function main() {
   const tileRenderer = new TileRenderer(worldContainer, layout);
   const camera = new CameraController(worldContainer);
 
-  // Generate map using MapGenerator
-  const config = MapConfig.duel();
-  const generator = new MapGenerator(config);
-  const tiles = generator.generate();
-
-  // Build tile lookup map and render tiles
+  // Tile storage - will be updated on regeneration
   const tileMap = new Map<string, GeneratedTile>();
-  for (const tile of tiles) {
-    tileMap.set(tile.position.key(), tile);
-    tileRenderer.addTile(tile.position, tile.terrain);
-  }
 
   // Initialize hover detection system
   const hoverState = new HoverState();
   const hoverSystem = new HoverSystem(layout, camera, tileMap, hoverState);
   const tileHighlight = new TileHighlight(worldContainer, layout);
   const tileInfoPanel = new TileInfoPanel();
+
+  // Store current seed for display
+  let currentSeed = 42;
+
+  /**
+   * Generate and render map with a given seed.
+   */
+  function generateMap(seed: number): void {
+    // Clear existing tiles
+    tileRenderer.clear();
+    tileMap.clear();
+    hoverState.set(null);
+    tileHighlight.hide();
+
+    // Generate new map
+    const config = MapConfig.duel(seed);
+    const generator = new MapGenerator(config);
+    const tiles = generator.generate();
+
+    // Render tiles and populate tileMap
+    for (const tile of tiles) {
+      tileMap.set(tile.position.key(), tile);
+      tileRenderer.addTile(tile.position, tile.terrain);
+    }
+
+    // Center camera on map
+    const [width, height] = config.getDimensions();
+    const centerPos = layout.hexToWorld(
+      new TilePosition(Math.floor(width / 2), Math.floor(height / 2))
+    );
+    camera.centerOn(centerPos.x, centerPos.y);
+
+    currentSeed = seed;
+    console.log(`Map generated with seed: ${seed}, ${tiles.length} tiles`);
+  }
+
+  // Generate initial map
+  generateMap(currentSeed);
+
+  // Initialize map controls with regeneration callback
+  const mapControls = new MapControls((newSeed) => {
+    generateMap(newSeed);
+  });
+  mapControls.setSeed(currentSeed);
+  mapControls.attachKeyboardHandler();
 
   // Attach hover detection to canvas
   hoverSystem.attach(app.canvas as HTMLCanvasElement);
@@ -68,19 +104,12 @@ async function main() {
     }
   });
 
-  // Center camera on map
-  const [width, height] = config.getDimensions();
-  const centerPos = layout.hexToWorld(
-    new TilePosition(Math.floor(width / 2), Math.floor(height / 2))
-  );
-  camera.centerOn(centerPos.x, centerPos.y);
-
   // Game loop
   app.ticker.add((ticker) => {
     camera.update(ticker.deltaMS / 1000);
   });
 
-  console.log(`OpenCiv initialized successfully! Generated ${tiles.length} tiles.`);
+  console.log(`OpenCiv initialized successfully!`);
 }
 
 main().catch(console.error);
