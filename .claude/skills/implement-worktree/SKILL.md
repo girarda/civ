@@ -99,14 +99,32 @@ if ! git rev-parse --verify "$base_branch" >/dev/null 2>&1; then
   exit 1
 fi
 
-# 4. Check if branch already exists
+# 4. Verify workstream is registered (NEW - enforced check)
+# Extract workstream ID from plan name (remove date prefix)
+workstream_id=$(echo "$plan_name" | sed 's/^[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}-//')
+if [ -f ".swarm/workstreams.json" ]; then
+  exists=$(jq -r --arg id "$workstream_id" '.workstreams[$id] // empty' .swarm/workstreams.json)
+  if [ -z "$exists" ]; then
+    echo "Error: Workstream '$workstream_id' not found in registry."
+    echo ""
+    echo "Before creating a worktree, you must register the workstream:"
+    echo "  /workstream-add \"$workstream_id\" --title \"...\""
+    echo ""
+    echo "Or update the registry manually in .swarm/workstreams.json"
+    exit 1
+  fi
+else
+  echo "Warning: Workstream registry not found, skipping registration check"
+fi
+
+# 5. Check if branch already exists
 if git rev-parse --verify "$branch_name" >/dev/null 2>&1; then
   echo "Error: Branch already exists: $branch_name"
   echo "Use existing worktree or delete branch first"
   exit 1
 fi
 
-# 5. Check if worktree directory already exists
+# 6. Check if worktree directory already exists
 if [[ -d "$worktree_dir" ]]; then
   echo "Error: Worktree directory already exists: $worktree_dir"
   exit 1

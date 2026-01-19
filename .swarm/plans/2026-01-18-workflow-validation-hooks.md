@@ -32,8 +32,8 @@ Existing hooks in `/Users/alex/workspace/civ/.claude/hooks/`:
 
 **Solution**: Create a `PostToolUse(Write)` hook that validates any writes to `.swarm/*.json` files against the appropriate schema.
 
-- [ ] Install `ajv-cli` as a dev dependency for JSON schema validation
-- [ ] Create `/Users/alex/workspace/civ/.claude/hooks/validate-swarm-json.sh`:
+- [x] Install `ajv-cli` as a dev dependency for JSON schema validation
+- [x] Create `/Users/alex/workspace/civ/.claude/hooks/validate-swarm-json.sh`:
   - Parse file path from hook input
   - Check if file matches `.swarm/*.json` pattern
   - Select appropriate schema based on filename:
@@ -42,8 +42,8 @@ Existing hooks in `/Users/alex/workspace/civ/.claude/hooks/`:
   - Run validation with `npx ajv validate`
   - Exit with non-zero status on validation failure (blocks the write)
   - Exit 0 on success or non-matching files
-- [ ] Create `/Users/alex/workspace/civ/.swarm/schemas/instances.schema.json` for instance registry validation
-- [ ] Update `/Users/alex/workspace/civ/.claude/settings.local.json` to register the hook:
+- [x] Create `/Users/alex/workspace/civ/.swarm/schemas/instances.schema.json` for instance registry validation
+- [x] Update `/Users/alex/workspace/civ/.claude/settings.local.json` to register the hook:
   ```json
   "PostToolUse": [
     {
@@ -123,13 +123,13 @@ exit 0
 
 **Solution**: Extend the JSON validation hook (or create a separate hook) to validate state transitions, specifically checking that workstreams transitioning to `implementing` have all blocking dependencies in `merged` state.
 
-- [ ] Create `/Users/alex/workspace/civ/.claude/hooks/validate-workstream-state.sh`:
+- [x] Create `/Users/alex/workspace/civ/.claude/hooks/validate-workstream-state.sh`:
   - Compare previous and new versions of `workstreams.json`
   - Detect any workstreams that changed to `implementing` state
   - For each such workstream, verify all `type: "blocks"` dependencies are `merged`
   - Exit with non-zero status if any blocker is not merged
-- [ ] Wire hook into `PostToolUse(Write)` chain for `workstreams.json`
-- [ ] Add helper function to detect state transitions:
+- [x] Wire hook into `PostToolUse(Write)` chain for `workstreams.json`
+- [x] Add helper function to detect state transitions:
   ```bash
   # Compare old and new JSON, find workstreams that changed to implementing
   old_json=$(git show HEAD:.swarm/workstreams.json 2>/dev/null || echo '{"workstreams":{}}')
@@ -230,16 +230,16 @@ exit 0
 
 We will use approach 2 (modify skill) combined with a lightweight Bash hook for defense-in-depth:
 
-- [ ] Modify `/Users/alex/workspace/civ/.claude/skills/implement-worktree/SKILL.md`:
+- [x] Modify `/Users/alex/workspace/civ/.claude/skills/implement-worktree/SKILL.md`:
   - Add explicit "Verify workstream exists" step before worktree creation
   - If workstream not found, prompt to register via `/workstream-add`
   - Include registry check in skill prerequisites
-- [ ] Create `/Users/alex/workspace/civ/.claude/hooks/verify-worktree-registration.sh`:
+- [x] Create `/Users/alex/workspace/civ/.claude/hooks/verify-worktree-registration.sh`:
   - Triggered on `PostToolUse(Bash)` when command contains `git worktree add`
   - Extract branch name from command
   - Check if matching workstream exists in registry
   - Warn (but don't block) if unregistered - this allows emergency overrides
-- [ ] Update `/Users/alex/workspace/civ/.claude/settings.local.json` to add Bash hook
+- [x] Update `/Users/alex/workspace/civ/.claude/settings.local.json` to add Bash hook
 
 **Files to Create/Modify**:
 
