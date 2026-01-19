@@ -1,7 +1,7 @@
 # Plan: Fix Unit Movement Points Reset Across Turns
 
 **Date**: 2026-01-18
-**Status**: Ready for Implementation
+**Status**: Complete
 
 ## Overview
 
@@ -36,7 +36,7 @@ The `movementExecutor` is already instantiated in `main.ts` (line 77) and is ava
 
 This is the minimal fix - add a single line to the existing `onTurnStart` callback.
 
-- [ ] Modify `main.ts` to call `movementExecutor.resetAllMovementPoints()` in the `onTurnStart` callback
+- [x] Modify `main.ts` to call `movementExecutor.resetAllMovementPoints()` in the `onTurnStart` callback
 
 **Implementation**:
 
@@ -63,8 +63,8 @@ const turnSystem = new TurnSystem(gameState, {
 
 After movement points reset, if a unit is selected, the movement preview should refresh to show the new reachable tiles.
 
-- [ ] After calling `resetAllMovementPoints()`, check if a unit is selected
-- [ ] If selected, refresh the movement preview with the unit's restored movement points
+- [x] After calling `resetAllMovementPoints()`, check if a unit is selected
+- [x] If selected, refresh the movement preview with the unit's restored movement points
 
 **Implementation**:
 
@@ -87,13 +87,13 @@ onTurnStart: () => {
 
 ### Phase 3: Add Unit Test for Turn-Movement Integration
 
-- [ ] Create integration test verifying movement points reset across turns
-- [ ] Test should verify: spawn unit, move unit, end turn, verify movement points restored
+- [x] Create integration test verifying movement points reset across turns
+- [x] Test should verify: spawn unit, move unit, end turn, verify movement points restored
 
 ### Phase 4: Add E2E Test for Movement Across Turns
 
-- [ ] Create or extend E2E test to verify full user flow
-- [ ] Test: select unit, move unit, end turn, verify unit can move again
+- [x] Create or extend E2E test to verify full user flow
+- [x] Test: select unit, move unit, end turn, verify unit can move again
 
 ## Files to Create/Modify
 
@@ -105,13 +105,13 @@ onTurnStart: () => {
 
 ## Success Criteria
 
-- [ ] Units can move on turn 1
-- [ ] After ending turn and starting turn 2, units can move again
-- [ ] Movement points are restored to maximum value at turn start
-- [ ] Movement preview updates correctly after turn change (if unit selected)
-- [ ] All existing tests continue to pass
-- [ ] New unit test verifies movement point reset across turns
-- [ ] E2E test verifies user can move a unit, end turn, and move again
+- [x] Units can move on turn 1
+- [x] After ending turn and starting turn 2, units can move again
+- [x] Movement points are restored to maximum value at turn start
+- [x] Movement preview updates correctly after turn change (if unit selected)
+- [x] All existing tests continue to pass
+- [x] New unit test verifies movement point reset across turns
+- [x] E2E test verifies user can move a unit, end turn, and move again
 
 ## Dependencies & Integration
 

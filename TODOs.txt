@@ -2,9 +2,9 @@
 - [ ] plan and implement 2026-01-18-solo-worktree-workflow-improvements
 - [ ] 2026-01-18-e2e-game-roadmap.md
  - [X] A
- - [ ] B (in plan)
+ - [ ] B (in progress)
  - [X] C 
- - [ ] D (in plan)
+ - [ ] D (in progress)
  - [ ] E (depends on B)
  - [ ] F (depends on D, E)
  - [ ] victory condition
