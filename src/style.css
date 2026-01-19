@@ -127,3 +127,59 @@ canvas {
 #regenerate-btn:active {
   background: #5a5a7a;
 }
+
+/* Turn Controls */
+#turn-controls {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(26, 26, 46, 0.95);
+  border: 2px solid #4a4a6a;
+  border-radius: 8px;
+  padding: 12px 20px;
+  color: #e0e0e0;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 14px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+#turn-display {
+  font-weight: 600;
+  font-size: 18px;
+  color: #ffffff;
+}
+
+#end-turn-btn {
+  background: #5a8a5a;
+  border: none;
+  border-radius: 6px;
+  color: #ffffff;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.15s ease;
+}
+
+#end-turn-btn:hover {
+  background: #6a9a6a;
+}
+
+#end-turn-btn:focus {
+  outline: 2px solid #a0a0b0;
+  outline-offset: 2px;
+}
+
+#end-turn-btn:active {
+  background: #4a7a4a;
+}
+
+#end-turn-btn:disabled {
+  background: #3a3a4a;
+  color: #808090;
+  cursor: not-allowed;
+}

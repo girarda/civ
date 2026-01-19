@@ -7,7 +7,8 @@ import { TileHighlight } from './render/TileHighlight';
 import { CameraController } from './render/CameraController';
 import { MapConfig } from './map/MapConfig';
 import { MapGenerator, GeneratedTile } from './map/MapGenerator';
-import { HoverState, HoverSystem, TileInfoPanel, MapControls } from './ui';
+import { HoverState, HoverSystem, TileInfoPanel, MapControls, TurnControls } from './ui';
+import { GameState, TurnSystem } from './game';
 
 console.log('OpenCiv initializing...');
 
@@ -89,6 +90,31 @@ async function main() {
   });
   mapControls.setSeed(currentSeed);
   mapControls.attachKeyboardHandler();
+
+  // Initialize game state and turn system
+  const gameState = new GameState();
+  const turnSystem = new TurnSystem(gameState, {
+    onTurnStart: () => {
+      console.log(`Turn ${gameState.getTurnNumber()} started`);
+    },
+    onTurnEnd: () => {
+      console.log(`Turn ${gameState.getTurnNumber()} ending`);
+    },
+  });
+  turnSystem.attach();
+
+  // Initialize turn controls
+  const turnControls = new TurnControls();
+  turnControls.updateTurnDisplay(gameState.getTurnNumber());
+  turnControls.onEndTurn(() => {
+    gameState.nextTurn();
+  });
+  turnControls.attachKeyboardHandler();
+
+  // Subscribe to game state changes for UI updates
+  gameState.subscribe((state) => {
+    turnControls.updateTurnDisplay(state.turnNumber);
+  });
 
   // Attach hover detection to canvas
   hoverSystem.attach(app.canvas as HTMLCanvasElement);
