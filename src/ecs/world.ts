@@ -1,4 +1,4 @@
-import { createWorld, defineComponent, Types, addEntity, addComponent, IWorld } from 'bitecs';
+import { createWorld, defineComponent, Types, addEntity, addComponent, IWorld, defineQuery } from 'bitecs';
 
 // Component definitions
 export const Position = defineComponent({
@@ -31,6 +31,20 @@ export const YieldsComponent = defineComponent({
 
 export const RiverComponent = defineComponent({
   edges: Types.ui8,
+});
+
+// Unit-related components
+export const UnitComponent = defineComponent({
+  type: Types.ui8, // UnitType enum value
+});
+
+export const MovementComponent = defineComponent({
+  current: Types.ui8, // Remaining movement points this turn
+  max: Types.ui8, // Maximum movement points
+});
+
+export const OwnerComponent = defineComponent({
+  playerId: Types.ui8,
 });
 
 // Create world
@@ -90,3 +104,31 @@ export function addRiverToEntity(world: IWorld, eid: number, edges: number): voi
   addComponent(world, RiverComponent, eid);
   RiverComponent.edges[eid] = edges;
 }
+
+// Unit entity creation helper
+export function createUnitEntity(
+  world: IWorld,
+  q: number,
+  r: number,
+  unitType: number,
+  playerId: number,
+  maxMovement: number
+): number {
+  const eid = addEntity(world);
+  addComponent(world, Position, eid);
+  addComponent(world, UnitComponent, eid);
+  addComponent(world, MovementComponent, eid);
+  addComponent(world, OwnerComponent, eid);
+
+  Position.q[eid] = q;
+  Position.r[eid] = r;
+  UnitComponent.type[eid] = unitType;
+  MovementComponent.current[eid] = maxMovement;
+  MovementComponent.max[eid] = maxMovement;
+  OwnerComponent.playerId[eid] = playerId;
+
+  return eid;
+}
+
+// Unit queries
+export const unitQuery = defineQuery([Position, UnitComponent, MovementComponent, OwnerComponent]);
