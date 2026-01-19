@@ -177,4 +177,43 @@ test.describe('Tile Hover Detection', () => {
     // App should still be responsive
     await expect(canvas).toBeVisible();
   });
+
+  test('should show highlight after map regeneration', async ({ page }) => {
+    const canvas = page.locator('canvas');
+    const box = await canvas.boundingBox();
+
+    if (!box) {
+      throw new Error('Canvas not found');
+    }
+
+    const centerX = box.x + box.width / 2;
+    const centerY = box.y + box.height / 2;
+
+    // Move mouse to center and verify highlight is shown
+    await page.mouse.move(centerX, centerY);
+    await page.waitForTimeout(200);
+    const beforeRegen = await page.screenshot();
+
+    // Move mouse away so we can see difference
+    await page.mouse.move(box.x + 10, box.y + 10);
+    await page.waitForTimeout(100);
+
+    // Regenerate map by pressing 'R'
+    await page.keyboard.press('KeyR');
+    await page.waitForTimeout(500); // Wait for regeneration
+
+    // Move mouse back to center - highlight should still work after regeneration
+    await page.mouse.move(centerX, centerY);
+    await page.waitForTimeout(200);
+    const afterRegen = await page.screenshot();
+
+    // Take screenshot with mouse moved away to compare with hover
+    await page.mouse.move(box.x + 10, box.y + 10);
+    await page.waitForTimeout(100);
+    const noHoverAfterRegen = await page.screenshot();
+
+    // afterRegen (hovering) should be different from noHoverAfterRegen (not hovering)
+    // This proves the highlight is still visible after regeneration
+    expect(Buffer.compare(afterRegen, noHoverAfterRegen)).not.toBe(0);
+  });
 });

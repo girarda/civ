@@ -31,9 +31,15 @@ async function main() {
   const worldContainer = new Container();
   app.stage.addChild(worldContainer);
 
+  // Create layer hierarchy for proper z-ordering
+  const tilesContainer = new Container();
+  const overlayContainer = new Container();
+  worldContainer.addChild(tilesContainer);
+  worldContainer.addChild(overlayContainer);
+
   // Initialize systems
   const layout = new HexGridLayout(32);
-  const tileRenderer = new TileRenderer(worldContainer, layout);
+  const tileRenderer = new TileRenderer(tilesContainer, layout);
   const camera = new CameraController(worldContainer);
 
   // Tile storage - will be updated on regeneration
@@ -42,7 +48,7 @@ async function main() {
   // Initialize hover detection system
   const hoverState = new HoverState();
   const hoverSystem = new HoverSystem(layout, camera, tileMap, hoverState);
-  const tileHighlight = new TileHighlight(worldContainer, layout);
+  const tileHighlight = new TileHighlight(overlayContainer, layout);
   const tileInfoPanel = new TileInfoPanel();
 
   // Store current seed for display
