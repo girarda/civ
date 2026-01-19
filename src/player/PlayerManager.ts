@@ -142,7 +142,9 @@ export class PlayerManager {
   }
 
   private notify(event: PlayerEvent): void {
-    for (const listener of this.listeners) {
+    // Create a shallow copy to avoid mutation during iteration
+    const listeners = [...this.listeners];
+    for (const listener of listeners) {
       listener(event);
     }
   }
