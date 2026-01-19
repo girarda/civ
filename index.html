@@ -8,6 +8,7 @@
   </head>
   <body>
     <div id="game-container"></div>
+    <div id="notification-container"></div>
     <div id="map-controls">
       <span id="seed-display">Seed: 42</span>
       <button id="regenerate-btn" title="Press R to regenerate">Regenerate (R)</button>
@@ -41,6 +42,14 @@
           <div class="yield-item"><span class="yield-icon production"></span><span id="city-yield-production">0</span></div>
           <div class="yield-item"><span class="yield-icon gold"></span><span id="city-yield-gold">0</span></div>
         </div>
+        <div class="production-section">
+          <div class="section-header">Build:</div>
+          <div id="production-buttons"></div>
+        </div>
+        <div class="queue-section">
+          <div class="section-header">Queue:</div>
+          <div id="production-queue"></div>
+        </div>
       </div>
     </div>
     <div id="combat-preview" class="hidden">
@@ -65,6 +74,10 @@
         </div>
       </div>
       <div class="combat-modifiers" id="defender-modifiers"></div>
+    </div>
+    <div id="debug-overlay" class="hidden">
+      <div class="debug-header">Debug Log (` to close)</div>
+      <div id="debug-log"></div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

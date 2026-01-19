@@ -18,6 +18,12 @@ import {
   CityState,
   CityInfoPanel,
   CombatPreviewPanel,
+  ProductionUI,
+  QueueDisplay,
+  NotificationState,
+  NotificationType,
+  NotificationPanel,
+  DebugOverlay,
 } from './ui';
 import { getCityAtPosition } from './ecs/citySystems';
 import { getUnitAtPosition, getUnitHealth, getUnitOwner } from './ecs/unitSystems';
@@ -46,6 +52,7 @@ import {
   tryFoundCity,
   getCityNameByIndex,
   CityProcessor,
+  ProductionQueue,
 } from './city';
 import {
   CombatExecutor,
@@ -56,7 +63,20 @@ import {
 } from './combat';
 import { PlayerManager } from './player';
 
-console.log('OpenCiv initializing...');
+// Initialize notification system (created before main to capture initialization logs)
+const notificationState = new NotificationState();
+// Panel is instantiated for its side effects (subscribes to state)
+new NotificationPanel(notificationState);
+const debugOverlay = new DebugOverlay(notificationState);
+
+// Debug toggle handler (backtick key)
+window.addEventListener('keydown', (e) => {
+  if (e.key === '`') {
+    debugOverlay.toggle();
+  }
+});
+
+notificationState.push(NotificationType.Debug, '[INIT] OpenCiv initializing...');
 
 async function main() {
   // Create PixiJS application
@@ -124,6 +144,7 @@ async function main() {
   const cityRenderer = new CityRenderer(cityContainer, layout);
   const territoryRenderer = new TerritoryRenderer(territoryContainer, layout);
   let territoryManager = new TerritoryManager();
+  let productionQueue = new ProductionQueue();
 
   // Initialize city UI
   const cityState = new CityState();
@@ -138,11 +159,14 @@ async function main() {
   const playerManager = new PlayerManager();
   playerManager.initialize([0], 2); // Player 0 is human, 2 total players
 
-  // Subscribe to elimination events for logging
+  // Subscribe to elimination events for notifications
   playerManager.subscribe((event) => {
     if (event.type === 'eliminated') {
       const player = playerManager.getPlayer(event.playerId);
-      console.log(`${player?.name ?? 'Unknown player'} has been eliminated!`);
+      notificationState.push(
+        NotificationType.Success,
+        `${player?.name ?? 'Unknown player'} has been eliminated!`
+      );
     }
   });
 
@@ -157,16 +181,60 @@ async function main() {
   );
 
   // Initialize city processor for turn integration
-  const cityProcessor = new CityProcessor(world, territoryManager, tileMap, {
+  const cityProcessor = new CityProcessor(world, territoryManager, tileMap, productionQueue, {
     onProductionCompleted: (event) => {
       // Render the newly spawned unit
       unitRenderer.createUnitGraphic(event.unitEid, event.position, event.unitType, event.playerId);
-      console.log(`Production completed in city ${event.cityEid}: unit ${event.unitEid} spawned`);
+      const unitName = getUnitName(event.unitType);
+      notificationState.push(NotificationType.Success, `${unitName} ready!`);
+      notificationState.push(
+        NotificationType.Debug,
+        '[PRODUCTION] Unit completed',
+        `City ${event.cityEid}: ${unitName} (eid ${event.unitEid}) spawned`
+      );
     },
     onPopulationGrowth: (event) => {
-      console.log(`City ${event.cityEid} grew to population ${event.newPopulation}`);
+      notificationState.push(
+        NotificationType.Info,
+        `City grew to population ${event.newPopulation}`
+      );
+      notificationState.push(
+        NotificationType.Debug,
+        '[CITY] Population growth',
+        `City ${event.cityEid} now at pop ${event.newPopulation}`
+      );
+    },
+    onQueueAdvanced: (event) => {
+      console.log(
+        `Queue advanced in city ${event.cityEid}: now building item ${event.nextItem}, ${event.remainingQueue} items remaining, ${event.overflowApplied} overflow applied`
+      );
+      // Refresh UI to show new queue state
+      queueDisplay.refresh();
+      cityInfoPanel.refresh();
+      productionUI.refresh();
     },
   });
+
+  // Initialize ProductionUI and QueueDisplay after cityProcessor
+  const productionUI = new ProductionUI({
+    onProductionSelected: (cityEid, buildableType) => {
+      cityProcessor.setProduction(cityEid, buildableType);
+      cityInfoPanel.refresh();
+      queueDisplay.refresh();
+      productionUI.setQueueFull(cityProcessor.isQueueFull(cityEid));
+    },
+    onProductionQueued: (cityEid, buildableType) => {
+      const success = cityProcessor.queueItem(cityEid, buildableType);
+      if (success) {
+        queueDisplay.refresh();
+        productionUI.setQueueFull(cityProcessor.isQueueFull(cityEid));
+      } else {
+        console.log('Queue is full');
+      }
+    },
+  });
+
+  const queueDisplay = new QueueDisplay(cityProcessor, territoryManager, tileMap);
 
   // Store current seed for display
   let currentSeed = 42;
@@ -269,11 +337,15 @@ async function main() {
     world = createGameWorld();
     movementExecutor.setWorld(world);
 
-    // Reset territory manager and city processor references
+    // Reset territory manager, production queue and city processor references
     territoryManager = new TerritoryManager();
+    productionQueue = new ProductionQueue();
     cityProcessor.setWorld(world);
     cityProcessor.setTerritoryManager(territoryManager);
     cityProcessor.setTileMap(tileMap);
+    cityProcessor.setProductionQueue(productionQueue);
+    queueDisplay.setTerritoryManager(territoryManager);
+    queueDisplay.setTileMap(tileMap);
 
     // Generate new map
     const config = MapConfig.duel(seed);
@@ -312,7 +384,11 @@ async function main() {
     camera.centerOn(centerPos.x, centerPos.y);
 
     currentSeed = seed;
-    console.log(`Map generated with seed: ${seed}, ${tiles.length} tiles`);
+    notificationState.push(
+      NotificationType.Debug,
+      '[MAP] Generated',
+      `Seed: ${seed}, ${tiles.length} tiles`
+    );
   }
 
   // Generate initial map
@@ -328,7 +404,11 @@ async function main() {
   // Initialize turn system (gameState already created above)
   const turnSystem = new TurnSystem(gameState, {
     onTurnStart: () => {
-      console.log(`Turn ${gameState.getTurnNumber()} started`);
+      notificationState.push(
+        NotificationType.Debug,
+        '[TURN] Started',
+        `Turn ${gameState.getTurnNumber()}`
+      );
       movementExecutor.resetAllMovementPoints();
 
       // Refresh movement preview for selected unit
@@ -344,7 +424,13 @@ async function main() {
     onTurnEnd: () => {
       // Process city production and growth
       cityProcessor.processTurnEnd();
-      console.log(`Turn ${gameState.getTurnNumber()} ending`);
+      // Refresh city panel to show updated production progress
+      cityInfoPanel.refresh();
+      notificationState.push(
+        NotificationType.Debug,
+        '[TURN] Ending',
+        `Turn ${gameState.getTurnNumber()}`
+      );
     },
   });
   turnSystem.attach();
@@ -486,8 +572,13 @@ async function main() {
   cityState.subscribe((cityEid) => {
     if (cityEid !== null) {
       cityInfoPanel.show(cityEid, world, territoryManager, tileMap);
+      productionUI.setCityEid(cityEid);
+      productionUI.setQueueFull(cityProcessor.isQueueFull(cityEid));
+      queueDisplay.setCityEid(cityEid);
     } else {
       cityInfoPanel.hide();
+      productionUI.setCityEid(null);
+      queueDisplay.setCityEid(null);
     }
   });
 
@@ -534,8 +625,10 @@ async function main() {
     if (combatExecutor.hasEnemyAt(selectedUnit, hexPos)) {
       const result = combatExecutor.executeAttack(selectedUnit, hexPos);
       if (result) {
-        console.log(
-          `Combat: Attacker took ${result.attackerDamage} damage, Defender took ${result.defenderDamage} damage`
+        notificationState.push(
+          NotificationType.Debug,
+          '[COMBAT] Result',
+          `Attacker: -${result.attackerDamage} HP, Defender: -${result.defenderDamage} HP`
         );
 
         // Hide combat preview after attack
@@ -582,13 +675,13 @@ async function main() {
       // Check if selected unit is a Settler
       const unitType = UnitComponent.type[selectedUnit];
       if (unitType !== UnitType.Settler) {
-        console.log('Only Settlers can found cities');
+        notificationState.push(NotificationType.Warning, 'Only Settlers can found cities');
         return;
       }
 
       // Check if city can be founded
       if (!canFoundCity(world, selectedUnit, tileMap)) {
-        console.log('Cannot found city here');
+        notificationState.push(NotificationType.Warning, 'Cannot found city here');
         return;
       }
 
@@ -612,7 +705,7 @@ async function main() {
             playerId
           );
 
-          console.log(`Founded city: ${name}`);
+          notificationState.push(NotificationType.Success, `Founded ${name}!`);
         }
       );
 
@@ -623,7 +716,7 @@ async function main() {
         // Deselect since settler is gone
         selectionState.deselect();
       } else if (result.error) {
-        console.log(`Failed to found city: ${result.error}`);
+        notificationState.push(NotificationType.Warning, `Cannot found city: ${result.error}`);
       }
     }
   });
@@ -633,7 +726,7 @@ async function main() {
     camera.update(ticker.deltaMS / 1000);
   });
 
-  console.log(`OpenCiv initialized successfully!`);
+  notificationState.push(NotificationType.Debug, '[INIT] OpenCiv initialized successfully!');
 }
 
 main().catch(console.error);

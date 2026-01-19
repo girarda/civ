@@ -8,22 +8,16 @@ test.describe('Unit System', () => {
   });
 
   test('should spawn a unit on map load', async ({ page }) => {
-    // Check console for map generation log with unit spawn
-    const logs: string[] = [];
-    page.on('console', (msg) => {
-      if (msg.type() === 'log') {
-        logs.push(msg.text());
-      }
-    });
-
-    // Reload to capture logs
-    await page.reload();
-    await page.waitForSelector('canvas', { state: 'visible' });
+    // Enable debug mode and regenerate to capture logs
+    await page.keyboard.press('`');
+    await page.waitForTimeout(500);
+    await page.keyboard.press('r');
     await page.waitForTimeout(1000);
 
-    // Should have map generated log
-    const hasMapLog = logs.some((l) => l.includes('Map generated'));
-    expect(hasMapLog).toBe(true);
+    const debugLog = page.locator('#debug-log');
+    const text = await debugLog.textContent();
+    expect(text).toContain('[MAP]');
+    await page.keyboard.press('`'); // Close debug overlay
   });
 
   test('should select unit on click', async ({ page }) => {

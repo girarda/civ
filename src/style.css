@@ -215,6 +215,46 @@ canvas {
   padding-bottom: 6px;
 }
 
+/* Production Section */
+.production-section {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #6a8a6a;
+}
+
+.section-header {
+  font-weight: 500;
+  color: #a0a0b0;
+  margin-bottom: 8px;
+}
+
+#production-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.production-btn {
+  background: #4a4a6a;
+  border: 1px solid #6a6a8a;
+  border-radius: 4px;
+  color: #e0e0e0;
+  padding: 6px 12px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 13px;
+  transition: background 0.15s ease;
+}
+
+.production-btn:hover {
+  background: #5a5a7a;
+}
+
+.production-btn.active {
+  background: #5a8a5a;
+  border-color: #6a9a6a;
+}
+
 /* Combat Preview Panel */
 #combat-preview {
   position: fixed;
@@ -319,4 +359,164 @@ canvas {
 
 .combat-modifiers:empty {
   display: none;
+}
+
+/* Queue Section */
+.queue-section {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #6a8a6a;
+}
+
+#production-queue {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.queue-empty {
+  color: #808090;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.queue-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: #3a3a5a;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.queue-item-name {
+  flex: 1;
+  color: #e0e0e0;
+}
+
+.queue-item-turns {
+  color: #a0a0b0;
+  font-size: 11px;
+}
+
+.queue-item-remove {
+  background: transparent;
+  border: none;
+  color: #ff6b6b;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.queue-item-remove:hover {
+  color: #ff4444;
+}
+
+/* Notification Container */
+#notification-container {
+  position: fixed;
+  top: 70px;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 200;
+  pointer-events: none;
+  max-width: 320px;
+}
+
+/* Toast Notification */
+.notification-toast {
+  background: rgba(26, 26, 46, 0.95);
+  border: 2px solid #4a4a6a;
+  border-radius: 8px;
+  padding: 10px 16px;
+  color: #e0e0e0;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 14px;
+  animation: slideIn 0.3s ease;
+  pointer-events: auto;
+}
+
+.notification-toast.info {
+  border-color: #4a6a9a;
+}
+.notification-toast.success {
+  border-color: #6a9a6a;
+}
+.notification-toast.warning {
+  border-color: #9a9a6a;
+}
+.notification-toast.error {
+  border-color: #9a4a4a;
+}
+
+.notification-toast.fade-out {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Debug Overlay */
+#debug-overlay {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 400px;
+  max-height: 300px;
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid #333;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+  color: #0f0;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+}
+
+#debug-overlay.hidden {
+  display: none;
+}
+
+.debug-header {
+  padding: 6px 8px;
+  background: #222;
+  border-bottom: 1px solid #333;
+  color: #888;
+  font-size: 11px;
+}
+
+#debug-log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  max-height: 260px;
+}
+
+.debug-entry {
+  margin: 2px 0;
+  padding: 2px 4px;
+  border-bottom: 1px solid #222;
+  word-wrap: break-word;
 }

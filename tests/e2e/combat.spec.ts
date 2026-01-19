@@ -8,21 +8,20 @@ test.describe('Combat System', () => {
   });
 
   test('should spawn units on map load for combat testing', async ({ page }) => {
-    // The game spawns player 0 (blue) and player 1 (red) warriors adjacently
-    const logs: string[] = [];
-    page.on('console', (msg) => {
-      if (msg.type() === 'log') {
-        logs.push(msg.text());
-      }
-    });
+    // Map should be generated and canvas visible
+    const canvas = page.locator('canvas');
+    await expect(canvas).toBeVisible();
 
-    await page.reload();
-    await page.waitForSelector('canvas', { state: 'visible' });
+    // Enable debug mode and regenerate to capture logs
+    await page.keyboard.press('`');
+    await page.waitForTimeout(500);
+    await page.keyboard.press('r');
     await page.waitForTimeout(1000);
 
-    // Should have map generated log
-    const hasMapLog = logs.some((l) => l.includes('Map generated'));
-    expect(hasMapLog).toBe(true);
+    const debugLog = page.locator('#debug-log');
+    const text = await debugLog.textContent();
+    expect(text).toContain('[MAP]');
+    await page.keyboard.press('`'); // Close debug overlay
   });
 
   test('should handle right-click attack on adjacent enemy', async ({ page }) => {

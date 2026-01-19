@@ -2,13 +2,28 @@
 - [ ] plan and implement 2026-01-18-solo-worktree-workflow-improvements
 - [ ] 2026-01-18-e2e-game-roadmap.md
  - [X] A
- - [ ] B (in progress)
+ - [X] B
  - [X] C 
- - [ ] D (in progress)
- - [ ] E (depends on B)
+ - [X] D
+ - [ ] E(just units) (phase 2 in progress)
+ - [ ] E produce buildings
  - [ ] F (depends on D, E)
- - [ ] victory condition
 - [ ] server-client architecture
-- [ ] CLI-integration
-- [ ] /research is running… the unit movement and turns don't play well together. eg i can move units on the first turn,
+- [X] /research is running… the unit movement and turns don't play well together. eg i can move units on the first turn,
 but that's it. look into what it would take to fix that
+
+- [ ] victory (.swarm/research/2026-01-18-victory-conditions.md)
+  - [ ] 1. Player/Faction Tracking - No formal Player entity, just implicit numeric IDs (in planning)
+    - .swarm/research/2026-01-18-player-faction-tracking.md
+    - phase 1,2,3 in progress
+  - [ ] 2. Victory Condition System - No code checks for win/lose conditions
+  - [ ] 3. Game-Over State - TurnPhase enum lacks a GameOver state
+  - [ ] 4. Victory UI - No victory/defeat screen overlay
+
+
+- 2026-01-18-cli-integration-architecture.md
+- [ ] phase 2,3 (in progress)
+- [ ] phase 4
+- [ ] phase 5
+
+- [ ] toast notifications (in progress)
