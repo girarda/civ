@@ -1,7 +1,7 @@
 # Plan: Production System Completion
 
 **Date**: 2026-01-18
-**Status**: Ready for Implementation
+**Status**: Phase 1 & 2 Complete, Phase 3 Remaining
 
 ## Overview
 
@@ -26,7 +26,7 @@ Key files:
 
 ## Phased Implementation
 
-### Phase 1: Production Selection UI (HIGH PRIORITY)
+### Phase 1: Production Selection UI (HIGH PRIORITY) ✅ COMPLETE
 
 **Goal**: Allow players to select what a city produces via clickable buttons.
 
@@ -40,18 +40,18 @@ Key files:
 
 **Estimated effort**: 2-3 hours
 
-### Phase 2: Production Queue (MEDIUM PRIORITY)
+### Phase 2: Production Queue (MEDIUM PRIORITY) ✅ COMPLETE
 
 **Goal**: Support queuing multiple production items with UI to manage the queue.
 
-- [ ] Create queue storage in `src/city/ProductionQueue.ts` (external Map, not ECS)
-- [ ] Add `queueItem()` and `dequeueItem()` methods to CityProcessor
-- [ ] Modify `completeProduction()` to auto-start next queued item
-- [ ] Implement production overflow (excess points carry forward)
-- [ ] Update `CityInfoPanel` to display queued items
-- [ ] Add shift-click to queue (vs regular click to replace current)
-- [ ] Add queue reorder/remove controls in ProductionUI
-- [ ] Add unit tests for queue operations
+- [x] Create queue storage in `src/city/ProductionQueue.ts` (external Map, not ECS)
+- [x] Add `queueItem()` and `dequeueItem()` methods to CityProcessor
+- [x] Modify `completeProduction()` to auto-start next queued item
+- [x] Implement production overflow (excess points carry forward, 50% cap)
+- [x] Update `CityInfoPanel` to display queued items (via QueueDisplay component)
+- [x] Add shift-click to queue (vs regular click to replace current)
+- [x] Add queue remove controls in ProductionUI (reorder deferred)
+- [x] Add unit tests for queue operations (59 tests)
 
 **Estimated effort**: 3-4 hours
 
@@ -233,7 +233,7 @@ private hasUnitAt(pos: TilePosition): boolean {
 
 ## Success Criteria
 
-### Phase 1
+### Phase 1 ✅
 - [x] Player can select a city by clicking on it
 - [x] City info panel shows production buttons (Warrior, Scout, Settler)
 - [x] Clicking a button sets that item as current production
@@ -241,13 +241,13 @@ private hasUnitAt(pos: TilePosition): boolean {
 - [x] Production accumulates correctly over turns
 - [x] Unit spawns when production completes
 
-### Phase 2
-- [ ] Shift-click adds item to queue instead of replacing current
-- [ ] Queue displays in city panel (up to 5 items visible)
-- [ ] Next queued item auto-starts when current completes
-- [ ] Excess production points carry to next item
-- [ ] Queue items can be removed by clicking X
-- [ ] Queue persists across turn boundaries
+### Phase 2 ✅
+- [x] Shift-click adds item to queue instead of replacing current
+- [x] Queue displays in city panel (up to 5 items visible)
+- [x] Next queued item auto-starts when current completes
+- [x] Excess production points carry to next item (50% cap)
+- [x] Queue items can be removed by clicking X
+- [x] Queue persists across turn boundaries
 
 ### Phase 3
 - [ ] Completed units spawn on city tile if empty

@@ -199,6 +199,39 @@ echo "Remaining branches:"
 git branch --list
 ```
 
+### Step 8: Registry Integration
+
+After successful merge, update the workstream registry:
+
+1. **Derive workstream ID** from branch name:
+   ```bash
+   # feature/2026-01-18-my-feature -> my-feature
+   workstream_id=$(echo "$branch_name" | sed 's|^feature/||' | sed 's/^[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}-//')
+   ```
+
+2. **Update workstream state**:
+   ```javascript
+   workstream.state = "merged";
+   workstream.updated = new Date().toISOString();
+   workstream.mergedAt = new Date().toISOString();
+   workstream.implementation.assignedInstance = null;
+   workstream.implementation.worktree = null;
+   ```
+
+3. **Write registry** (in main repository):
+   ```bash
+   # Update .swarm/workstreams.json atomically
+   # This should be done in the main repo after checkout
+   ```
+
+4. **Report registry update**:
+   ```
+   Registry Updated: .swarm/workstreams.json
+     Workstream: my-feature
+     State: implementing -> merged
+     Merged at: <timestamp>
+   ```
+
 ## Completion Summary
 
 On successful completion, report:
@@ -214,6 +247,11 @@ Push to remote: Success
 Cleanup:
 - Worktree removed: $worktree_dir
 - Branch deleted: $branch_name
+
+Registry:
+- Workstream: <workstream-id>
+- State: merged
+- Merged at: <timestamp>
 
 The feature has been successfully merged to main.
 ```

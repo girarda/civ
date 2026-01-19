@@ -163,6 +163,51 @@ Phase:        <next incomplete or specified>
 Reviewers:    3
 ```
 
+#### Registry Integration (Post-Setup)
+
+After successful worktree creation, update the workstream registry:
+
+1. **Derive workstream ID** from plan file name:
+   ```bash
+   # .swarm/plans/2026-01-18-my-feature.md -> my-feature
+   plan_name=$(basename "$plan_file_path" .md)
+   workstream_id=$(echo "$plan_name" | sed 's/^[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}-//')
+   ```
+
+2. **Check if workstream exists** in `.swarm/workstreams.json`:
+   - If exists: Update it
+   - If not exists: Create new entry
+
+3. **Update workstream state**:
+   ```javascript
+   workstream.state = "implementing";
+   workstream.updated = new Date().toISOString();
+   workstream.implementation = {
+     branch: branch_name,
+     worktree: worktree_dir,
+     assignedInstance: process.env.CLAUDE_SESSION_ID || "unknown",
+     currentPhase: target_phase,
+     totalPhases: total_phases
+   };
+   workstream.artifacts.plan = plan_file_path;
+   ```
+
+4. **Write registry** using atomic update pattern:
+   ```bash
+   # Read, modify, write atomically
+   cat .swarm/workstreams.json > /tmp/ws.json
+   # (modify /tmp/ws.json)
+   mv /tmp/ws.json .swarm/workstreams.json
+   ```
+
+5. **Report registry update**:
+   ```
+   Registry Updated: .swarm/workstreams.json
+     Workstream: my-feature
+     State: ready -> implementing
+     Assigned to: <session-id>
+   ```
+
 ### 2. Feature Implementation
 
 #### Plan File Parsing
@@ -294,6 +339,28 @@ Checkpoint saved to: .swarm/checkpoints/YYYY-MM-DD-<plan-name>-phase-N.md
 
 Next: Phase N+1 has K remaining tasks
 ```
+
+#### Registry Integration (Phase Complete)
+
+After each phase completes, update the workstream registry:
+
+1. **Update phase progress**:
+   ```javascript
+   workstream.implementation.currentPhase = completed_phase;
+   workstream.updated = new Date().toISOString();
+   ```
+
+2. **Link checkpoint artifact**:
+   ```javascript
+   workstream.artifacts.checkpoints.push(checkpoint_path);
+   ```
+
+3. **Report update**:
+   ```
+   Registry Updated: Phase N complete
+     Workstream: my-feature
+     Progress: Phase N/M
+   ```
 
 ### 3. E2E Test Generation
 

@@ -1,7 +1,7 @@
 # Plan: Player/Faction Tracking System
 
 **Date**: 2026-01-18
-**Status**: Ready for Implementation
+**Status**: Completed
 
 ## Overview
 
@@ -36,7 +36,7 @@ Key findings from `/Users/alex/workspace/civ/.swarm/research/2026-01-18-player-f
 
 #### Tasks
 
-- [ ] Create `/Users/alex/workspace/civ/src/player/Player.ts`:
+- [x] Create `/Users/alex/workspace/civ/src/player/Player.ts`:
   ```typescript
   /** Maximum number of players supported */
   export const MAX_PLAYERS = 8;
@@ -77,7 +77,7 @@ Key findings from `/Users/alex/workspace/civ/.swarm/research/2026-01-18-player-f
   }
   ```
 
-- [ ] Create `/Users/alex/workspace/civ/src/player/index.ts`:
+- [x] Create `/Users/alex/workspace/civ/src/player/index.ts`:
   ```typescript
   export {
     MAX_PLAYERS,
@@ -91,20 +91,20 @@ Key findings from `/Users/alex/workspace/civ/.swarm/research/2026-01-18-player-f
   export { PlayerManager } from './PlayerManager';
   ```
 
-- [ ] Write unit tests `/Users/alex/workspace/civ/src/player/Player.test.ts`:
+- [x] Write unit tests `/Users/alex/workspace/civ/src/player/Player.test.ts`:
   - Verify PLAYER_COLORS has exactly 8 entries
   - Verify MAX_PLAYERS equals 8
   - Verify PLAYER_COLORS are all valid hex color numbers
 
 #### Success Criteria
 
-- [ ] `Player` interface defined with all required fields (id, name, color, isHuman, isEliminated)
-- [ ] `PLAYER_COLORS` array has 8 entries (expanded from 6 in UnitRenderer.ts)
-- [ ] `MAX_PLAYERS` constant equals 8
-- [ ] `PlayerSnapshot` provides read-only access
-- [ ] `PlayerEvent` and `PlayerEventType` types defined
-- [ ] Module exports cleanly from `index.ts`
-- [ ] Unit tests pass
+- [x] `Player` interface defined with all required fields (id, name, color, isHuman, isEliminated)
+- [x] `PLAYER_COLORS` array has 8 entries (expanded from 6 in UnitRenderer.ts)
+- [x] `MAX_PLAYERS` constant equals 8
+- [x] `PlayerSnapshot` provides read-only access
+- [x] `PlayerEvent` and `PlayerEventType` types defined
+- [x] Module exports cleanly from `index.ts`
+- [x] Unit tests pass
 
 ---
 
@@ -114,7 +114,7 @@ Key findings from `/Users/alex/workspace/civ/.swarm/research/2026-01-18-player-f
 
 #### Tasks
 
-- [ ] Create `/Users/alex/workspace/civ/src/player/PlayerManager.ts`:
+- [x] Create `/Users/alex/workspace/civ/src/player/PlayerManager.ts`:
   ```typescript
   import { IWorld } from 'bitecs';
   import {
@@ -274,7 +274,7 @@ Key findings from `/Users/alex/workspace/civ/.swarm/research/2026-01-18-player-f
   }
   ```
 
-- [ ] Write unit tests `/Users/alex/workspace/civ/src/player/PlayerManager.test.ts`:
+- [x] Write unit tests `/Users/alex/workspace/civ/src/player/PlayerManager.test.ts`:
   - `initialize()` creates correct number of players
   - `initialize()` correctly marks human vs AI players
   - `initialize()` assigns correct colors from palette
@@ -293,13 +293,13 @@ Key findings from `/Users/alex/workspace/civ/.swarm/research/2026-01-18-player-f
 
 #### Success Criteria
 
-- [ ] `PlayerManager.initialize()` creates players with correct properties
-- [ ] Query methods (`getPlayer`, `getAllPlayers`, `getActivePlayers`, etc.) work correctly
-- [ ] `checkElimination()` correctly identifies eliminated players (0 units + 0 cities)
-- [ ] Event subscription system works (subscribe, notify, unsubscribe)
-- [ ] `clear()` resets all state
-- [ ] Unit tests achieve >90% coverage of PlayerManager
-- [ ] No circular dependencies with ecs/unitSystems and ecs/citySystems
+- [x] `PlayerManager.initialize()` creates players with correct properties
+- [x] Query methods (`getPlayer`, `getAllPlayers`, `getActivePlayers`, etc.) work correctly
+- [x] `checkElimination()` correctly identifies eliminated players (0 units + 0 cities)
+- [x] Event subscription system works (subscribe, notify, unsubscribe)
+- [x] `clear()` resets all state
+- [x] Unit tests achieve >90% coverage of PlayerManager
+- [x] No circular dependencies with ecs/unitSystems and ecs/citySystems
 
 ---
 
@@ -311,19 +311,19 @@ Key findings from `/Users/alex/workspace/civ/.swarm/research/2026-01-18-player-f
 
 ##### 3.1 Initialize PlayerManager in main.ts
 
-- [ ] Import PlayerManager in `/Users/alex/workspace/civ/src/main.ts`:
+- [x] Import PlayerManager in `/Users/alex/workspace/civ/src/main.ts`:
   ```typescript
   import { PlayerManager } from './player';
   ```
 
-- [ ] Create and initialize PlayerManager after world creation:
+- [x] Create and initialize PlayerManager after world creation:
   ```typescript
   // Initialize player manager
   const playerManager = new PlayerManager();
   playerManager.initialize([0], 2); // Player 0 is human, 2 total players
   ```
 
-- [ ] Add PlayerManager reset in `generateMap()` function:
+- [x] Add PlayerManager reset in `generateMap()` function:
   ```typescript
   function generateMap(seed: number): void {
     // ... existing clear operations ...
@@ -336,7 +336,7 @@ Key findings from `/Users/alex/workspace/civ/.swarm/research/2026-01-18-player-f
   }
   ```
 
-- [ ] Subscribe to elimination events for logging:
+- [x] Subscribe to elimination events for logging:
   ```typescript
   playerManager.subscribe((event) => {
     if (event.type === 'eliminated') {
@@ -348,7 +348,7 @@ Key findings from `/Users/alex/workspace/civ/.swarm/research/2026-01-18-player-f
 
 ##### 3.2 Integrate with Combat System
 
-- [ ] Update CombatExecutor constructor in `/Users/alex/workspace/civ/src/combat/CombatSystem.ts`:
+- [x] Update CombatExecutor constructor in `/Users/alex/workspace/civ/src/combat/CombatSystem.ts`:
   ```typescript
   import { PlayerManager } from '../player';
 
@@ -377,7 +377,7 @@ Key findings from `/Users/alex/workspace/civ/.swarm/research/2026-01-18-player-f
     }
   ```
 
-- [ ] Add elimination check after unit death in `removeUnit()`:
+- [x] Add elimination check after unit death in `removeUnit()`:
   ```typescript
   private removeUnit(eid: number): void {
     // Get owner before removing
@@ -392,7 +392,7 @@ Key findings from `/Users/alex/workspace/civ/.swarm/research/2026-01-18-player-f
   }
   ```
 
-- [ ] Update CombatExecutor instantiation in main.ts:
+- [x] Update CombatExecutor instantiation in main.ts:
   ```typescript
   const combatExecutor = new CombatExecutor(
     world,
@@ -404,7 +404,7 @@ Key findings from `/Users/alex/workspace/civ/.swarm/research/2026-01-18-player-f
   );
   ```
 
-- [ ] Update combatExecutor reset in generateMap():
+- [x] Update combatExecutor reset in generateMap():
   ```typescript
   combatExecutor.setWorld(world);
   combatExecutor.setTileMap(tileMap);
@@ -414,7 +414,7 @@ Key findings from `/Users/alex/workspace/civ/.swarm/research/2026-01-18-player-f
 
 ##### 3.3 Update Renderers to Use Canonical PLAYER_COLORS
 
-- [ ] Update `/Users/alex/workspace/civ/src/render/UnitRenderer.ts`:
+- [x] Update `/Users/alex/workspace/civ/src/render/UnitRenderer.ts`:
   ```typescript
   // Remove local PLAYER_COLORS definition
   // Import from player module instead:
@@ -424,13 +424,13 @@ Key findings from `/Users/alex/workspace/civ/.swarm/research/2026-01-18-player-f
   export { PLAYER_COLORS } from '../player';
   ```
 
-- [ ] Update `/Users/alex/workspace/civ/src/render/CityRenderer.ts`:
+- [x] Update `/Users/alex/workspace/civ/src/render/CityRenderer.ts`:
   ```typescript
   // If it imports PLAYER_COLORS from UnitRenderer, update import:
   import { PLAYER_COLORS } from '../player';
   ```
 
-- [ ] Update `/Users/alex/workspace/civ/src/render/TerritoryRenderer.ts`:
+- [x] Update `/Users/alex/workspace/civ/src/render/TerritoryRenderer.ts`:
   ```typescript
   // If it imports PLAYER_COLORS from UnitRenderer, update import:
   import { PLAYER_COLORS } from '../player';
@@ -438,23 +438,23 @@ Key findings from `/Users/alex/workspace/civ/.swarm/research/2026-01-18-player-f
 
 ##### 3.4 Update Tests
 
-- [ ] Create integration test `/Users/alex/workspace/civ/src/player/integration.test.ts`:
+- [x] Create integration test `/Users/alex/workspace/civ/src/player/integration.test.ts`:
   - Test PlayerManager with mock ECS world
   - Test elimination detection after removing all units/cities
   - Test event notification chain
 
-- [ ] Update combat system tests if they depend on player state
+- [x] Update combat system tests if they depend on player state
 
 #### Success Criteria
 
-- [ ] PlayerManager is initialized at application start with 1 human + 1 AI player
-- [ ] PlayerManager is reset during map regeneration
-- [ ] Elimination events are logged to console
-- [ ] CombatExecutor checks for elimination after unit death
-- [ ] All renderers use PLAYER_COLORS from player module (single source of truth)
-- [ ] Existing functionality (unit rendering, combat, etc.) continues to work
-- [ ] No TypeScript errors or ESLint warnings
-- [ ] All tests pass (existing + new)
+- [x] PlayerManager is initialized at application start with 1 human + 1 AI player
+- [x] PlayerManager is reset during map regeneration
+- [x] Elimination events are logged to console
+- [x] CombatExecutor checks for elimination after unit death
+- [x] All renderers use PLAYER_COLORS from player module (single source of truth)
+- [x] Existing functionality (unit rendering, combat, etc.) continues to work
+- [x] No TypeScript errors or ESLint warnings
+- [x] All tests pass (existing + new)
 
 ---
 
@@ -481,24 +481,24 @@ Key findings from `/Users/alex/workspace/civ/.swarm/research/2026-01-18-player-f
 ## Success Criteria
 
 ### Functional Requirements
-- [ ] Player data is formally tracked (id, name, color, isHuman, isEliminated)
-- [ ] Players can be queried by various criteria (all, active, human, AI)
-- [ ] Player elimination is detected when 0 units and 0 cities
-- [ ] Elimination events are broadcast to subscribers
-- [ ] PLAYER_COLORS is the single source of truth for player colors
+- [x] Player data is formally tracked (id, name, color, isHuman, isEliminated)
+- [x] Players can be queried by various criteria (all, active, human, AI)
+- [x] Player elimination is detected when 0 units and 0 cities
+- [x] Elimination events are broadcast to subscribers
+- [x] PLAYER_COLORS is the single source of truth for player colors
 
 ### Integration Requirements
-- [ ] PlayerManager integrates with ECS via existing query functions
-- [ ] CombatExecutor checks elimination after unit death
-- [ ] Map regeneration resets player state
-- [ ] Renderers use canonical PLAYER_COLORS from player module
+- [x] PlayerManager integrates with ECS via existing query functions
+- [x] CombatExecutor checks elimination after unit death
+- [x] Map regeneration resets player state
+- [x] Renderers use canonical PLAYER_COLORS from player module
 
 ### Code Quality Requirements
-- [ ] New modules have comprehensive unit tests
-- [ ] No circular dependencies
-- [ ] Public functions have JSDoc comments
-- [ ] No TypeScript errors or ESLint warnings
-- [ ] Follows existing codebase patterns (reactive state, subscriber pattern)
+- [x] New modules have comprehensive unit tests
+- [x] No circular dependencies
+- [x] Public functions have JSDoc comments
+- [x] No TypeScript errors or ESLint warnings
+- [x] Follows existing codebase patterns (reactive state, subscriber pattern)
 
 ---
 
@@ -595,12 +595,12 @@ No circular dependency risk as PlayerManager only calls query functions.
 
 ### Manual Testing Checklist
 
-- [ ] Start game - verify 2 players initialized (check console)
-- [ ] Attack enemy unit until killed - verify elimination message if last unit
-- [ ] Press R to regenerate map - verify players reset
-- [ ] Verify unit colors still work correctly
-- [ ] Verify city colors still work correctly
-- [ ] Verify territory colors still work correctly
+- [x] Start game - verify 2 players initialized (check console)
+- [x] Attack enemy unit until killed - verify elimination message if last unit
+- [x] Press R to regenerate map - verify players reset
+- [x] Verify unit colors still work correctly
+- [x] Verify city colors still work correctly
+- [x] Verify territory colors still work correctly
 
 ---
 

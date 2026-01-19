@@ -1,22 +1,48 @@
+# ============================================
+# DEPRECATED - This file is no longer maintained
+# ============================================
+#
+# Workstreams are now tracked in .swarm/workstreams.json
+#
+# Use the following commands instead:
+#
+#   /workstream-status   - See all workstreams grouped by state
+#   /workstream-ready    - Find available work to claim
+#   /workstream-add      - Add new workstream
+#   /workstream-update   - Update workstream metadata
+#   /workstream-claim    - Claim work for implementation
+#   /workstream-release  - Release a claimed workstream
+#   /workstream-blocked  - Analyze what's blocking a workstream
+#   /workstream-unblocks - See what completing a workstream unblocks
+#   /workstream-instances - See active Claude Code instances
+#
+# This file is preserved for reference only.
+# Last migrated: 2026-01-18
+#
+# To export workstreams in this format:
+#   /workstream-export --format todos
+#
+# ============================================
+
+# Historical TODOs (preserved for reference):
+
 - [ ] resources aren't visible on the map
 - [ ] plan and implement 2026-01-18-solo-worktree-workflow-improvements
 - [ ] 2026-01-18-e2e-game-roadmap.md
  - [X] A
  - [X] B
- - [X] C 
+ - [X] C
  - [X] D
- - [ ] E(just units) (phase 2 in progress)
+ - [X] E
  - [ ] E produce buildings
  - [ ] F (depends on D, E)
 - [ ] server-client architecture
-- [X] /research is running… the unit movement and turns don't play well together. eg i can move units on the first turn,
+- [X] /research is running... the unit movement and turns don't play well together. eg i can move units on the first turn,
 but that's it. look into what it would take to fix that
 
 - [ ] victory (.swarm/research/2026-01-18-victory-conditions.md)
-  - [ ] 1. Player/Faction Tracking - No formal Player entity, just implicit numeric IDs (in planning)
-    - .swarm/research/2026-01-18-player-faction-tracking.md
-    - phase 1,2,3 in progress
-  - [ ] 2. Victory Condition System - No code checks for win/lose conditions
+  - [X] 1. Player/Faction Tracking - No formal Player entity, just implicit numeric IDs (in planning)
+  - [ ] 2. Victory Condition System - No code checks for win/lose conditions (in progress)
   - [ ] 3. Game-Over State - TurnPhase enum lacks a GameOver state
   - [ ] 4. Victory UI - No victory/defeat screen overlay
 
@@ -26,4 +52,4 @@ but that's it. look into what it would take to fix that
 - [ ] phase 4
 - [ ] phase 5
 
-- [ ] toast notifications (in progress)
+- [X] toast notifications (in progress)

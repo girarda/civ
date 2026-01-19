@@ -1,0 +1,513 @@
+{
+  "version": 2,
+  "lastUpdated": "2026-01-18T22:46:00Z",
+  "workstreams": {
+    "cli-integration-architecture": {
+      "id": "cli-integration-architecture",
+      "title": "CLI Integration Architecture",
+      "type": "epic",
+      "state": "implementing",
+      "parent": null,
+      "priority": 1,
+      "created": "2026-01-18",
+      "updated": "2026-01-18T23:00:00Z",
+      "description": "Implement a decoupled game engine architecture that separates game logic from rendering, enabling both GUI and CLI frontends.",
+      "dependencies": [],
+      "artifacts": {
+        "research": ".swarm/research/2026-01-18-cli-integration-architecture.md",
+        "plan": ".swarm/plans/2026-01-18-cli-integration-architecture.md",
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": "feature/2026-01-18-cli-integration-architecture",
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": 1,
+        "totalPhases": 5
+      },
+      "children": [
+        "cli-integration-architecture/phase-2",
+        "cli-integration-architecture/phase-3",
+        "cli-integration-architecture/phase-4",
+        "cli-integration-architecture/phase-5"
+      ],
+      "tags": ["architecture", "cli", "engine"],
+      "notes": "Phase 1 merged. Phases 2-3 in progress."
+    },
+    "cli-integration-architecture/phase-2": {
+      "id": "cli-integration-architecture/phase-2",
+      "title": "CLI Integration - Phase 2: Command Layer",
+      "type": "phase",
+      "state": "implementing",
+      "parent": "cli-integration-architecture",
+      "priority": 1,
+      "created": "2026-01-18",
+      "updated": "2026-01-18T23:00:00Z",
+      "description": "Implement command abstraction layer for game actions",
+      "dependencies": [],
+      "artifacts": {
+        "research": ".swarm/research/2026-01-18-cli-integration-phases2-3.md",
+        "plan": ".swarm/plans/2026-01-18-cli-integration-architecture.md",
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["architecture", "cli"],
+      "notes": null
+    },
+    "cli-integration-architecture/phase-3": {
+      "id": "cli-integration-architecture/phase-3",
+      "title": "CLI Integration - Phase 3: Renderer Decoupling",
+      "type": "phase",
+      "state": "implementing",
+      "parent": "cli-integration-architecture",
+      "priority": 1,
+      "created": "2026-01-18",
+      "updated": "2026-01-18T23:00:00Z",
+      "description": "Decouple renderers from game logic",
+      "dependencies": [
+        {
+          "target": "cli-integration-architecture/phase-2",
+          "type": "blocks",
+          "reason": "Phase 3 depends on command layer from Phase 2"
+        }
+      ],
+      "artifacts": {
+        "research": ".swarm/research/2026-01-18-cli-integration-phases2-3.md",
+        "plan": ".swarm/plans/2026-01-18-cli-integration-architecture.md",
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["architecture", "cli"],
+      "notes": null
+    },
+    "cli-integration-architecture/phase-4": {
+      "id": "cli-integration-architecture/phase-4",
+      "title": "CLI Integration - Phase 4: CLI Frontend",
+      "type": "phase",
+      "state": "ready",
+      "parent": "cli-integration-architecture",
+      "priority": 1,
+      "created": "2026-01-18",
+      "updated": "2026-01-18T23:00:00Z",
+      "description": "Create CLI frontend interface",
+      "dependencies": [
+        {
+          "target": "cli-integration-architecture/phase-3",
+          "type": "blocks",
+          "reason": "Phase 4 depends on decoupled renderers from Phase 3"
+        }
+      ],
+      "artifacts": {
+        "research": ".swarm/research/2026-01-18-cli-integration-phase4.md",
+        "plan": ".swarm/plans/2026-01-18-cli-integration-architecture.md",
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["architecture", "cli"],
+      "notes": null
+    },
+    "cli-integration-architecture/phase-5": {
+      "id": "cli-integration-architecture/phase-5",
+      "title": "CLI Integration - Phase 5: Testing & Documentation",
+      "type": "phase",
+      "state": "ready",
+      "parent": "cli-integration-architecture",
+      "priority": 1,
+      "created": "2026-01-18",
+      "updated": "2026-01-18T23:00:00Z",
+      "description": "Add tests and documentation for CLI integration",
+      "dependencies": [
+        {
+          "target": "cli-integration-architecture/phase-4",
+          "type": "blocks",
+          "reason": "Phase 5 depends on CLI frontend from Phase 4"
+        }
+      ],
+      "artifacts": {
+        "research": null,
+        "plan": ".swarm/plans/2026-01-18-cli-integration-architecture.md",
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["architecture", "cli", "testing"],
+      "notes": null
+    },
+    "player-faction-tracking": {
+      "id": "player-faction-tracking",
+      "title": "Player/Faction Tracking System",
+      "type": "feature",
+      "state": "implementing",
+      "parent": null,
+      "priority": 1,
+      "created": "2026-01-18",
+      "updated": "2026-01-18T23:00:00Z",
+      "description": "Implement a formal Player/Faction tracking system that provides a single source of truth for player data.",
+      "dependencies": [],
+      "artifacts": {
+        "research": ".swarm/research/2026-01-18-player-faction-tracking.md",
+        "plan": ".swarm/plans/2026-01-18-player-faction-tracking.md",
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": "feature/2026-01-18-player-faction-tracking",
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": 3,
+        "totalPhases": 3
+      },
+      "children": [],
+      "tags": ["game-mechanics", "player"],
+      "notes": "Phases 1,2,3 in progress per TODOs.txt"
+    },
+    "notification-system": {
+      "id": "notification-system",
+      "title": "Notification System",
+      "type": "feature",
+      "state": "merged",
+      "parent": null,
+      "priority": 2,
+      "created": "2026-01-18",
+      "updated": "2026-01-18T23:00:00Z",
+      "description": "Unified notification system for player-facing toasts and debug output.",
+      "dependencies": [],
+      "artifacts": {
+        "research": ".swarm/research/2026-01-18-notification-system.md",
+        "plan": ".swarm/plans/2026-01-18-notification-system.md",
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["ui", "debugging"],
+      "notes": "Marked complete in TODOs.txt",
+      "mergedAt": "2026-01-18T22:00:00Z"
+    },
+    "production-queue": {
+      "id": "production-queue",
+      "title": "Production Queue System",
+      "type": "feature",
+      "state": "ready",
+      "parent": null,
+      "priority": 2,
+      "created": "2026-01-18",
+      "updated": "2026-01-18T23:00:00Z",
+      "description": "Queue multiple items for city production with overflow support.",
+      "dependencies": [],
+      "artifacts": {
+        "research": ".swarm/research/2026-01-18-production-queue.md",
+        "plan": ".swarm/plans/2026-01-18-production-queue.md",
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["game-mechanics", "city", "production"],
+      "notes": null
+    },
+    "victory-conditions": {
+      "id": "victory-conditions",
+      "title": "Victory Conditions System",
+      "type": "epic",
+      "state": "idea",
+      "parent": null,
+      "priority": 2,
+      "created": "2026-01-18",
+      "updated": "2026-01-18T23:00:00Z",
+      "description": "Implement victory condition checking and game-over states.",
+      "dependencies": [
+        {
+          "target": "player-faction-tracking",
+          "type": "blocks",
+          "reason": "Requires player tracking for victory condition checks"
+        }
+      ],
+      "artifacts": {
+        "research": ".swarm/research/2026-01-18-victory-conditions.md",
+        "plan": null,
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["game-mechanics", "victory"],
+      "notes": "Depends on player-faction-tracking per TODOs.txt"
+    },
+    "resources-visible-bug": {
+      "id": "resources-visible-bug",
+      "title": "Resources Not Visible on Map",
+      "type": "bug",
+      "state": "idea",
+      "parent": null,
+      "priority": 3,
+      "created": "2026-01-18",
+      "updated": "2026-01-18T23:00:00Z",
+      "description": "Resources aren't visible on the map - needs investigation.",
+      "dependencies": [],
+      "artifacts": {
+        "research": null,
+        "plan": null,
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["bug", "rendering"],
+      "notes": "From TODOs.txt"
+    },
+    "solo-worktree-improvements": {
+      "id": "solo-worktree-improvements",
+      "title": "Solo Worktree Workflow Improvements",
+      "type": "feature",
+      "state": "research",
+      "parent": null,
+      "priority": 3,
+      "created": "2026-01-18",
+      "updated": "2026-01-18T23:00:00Z",
+      "description": "Improve the solo developer worktree workflow.",
+      "dependencies": [],
+      "artifacts": {
+        "research": ".swarm/research/2026-01-18-solo-worktree-workflow-improvements.md",
+        "plan": null,
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["workflow", "tooling"],
+      "notes": "From TODOs.txt"
+    },
+    "server-client-architecture": {
+      "id": "server-client-architecture",
+      "title": "Server-Client Architecture",
+      "type": "epic",
+      "state": "idea",
+      "parent": null,
+      "priority": 4,
+      "created": "2026-01-18",
+      "updated": "2026-01-18T23:00:00Z",
+      "description": "Design and implement server-client architecture for multiplayer support.",
+      "dependencies": [
+        {
+          "target": "cli-integration-architecture",
+          "type": "informs",
+          "reason": "CLI architecture patterns inform server-client design"
+        }
+      ],
+      "artifacts": {
+        "research": null,
+        "plan": null,
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["architecture", "multiplayer"],
+      "notes": "From TODOs.txt"
+    },
+    "hover-highlight-bug-fix": {
+      "id": "hover-highlight-bug-fix",
+      "title": "Hover Highlight Bug Fix",
+      "type": "bug",
+      "state": "ready",
+      "parent": null,
+      "priority": 3,
+      "created": "2026-01-18",
+      "updated": "2026-01-18T23:00:00Z",
+      "description": "Fix hover highlight visual feedback issues.",
+      "dependencies": [],
+      "artifacts": {
+        "research": ".swarm/research/2026-01-18-hover-highlight-bug.md",
+        "plan": ".swarm/plans/2026-01-18-hover-highlight-bug-fix.md",
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["bug", "ui"],
+      "notes": null
+    },
+    "city-system": {
+      "id": "city-system",
+      "title": "City System",
+      "type": "feature",
+      "state": "ready",
+      "parent": null,
+      "priority": 2,
+      "created": "2026-01-18",
+      "updated": "2026-01-18T23:00:00Z",
+      "description": "Implement city founding, growth, and management systems.",
+      "dependencies": [],
+      "artifacts": {
+        "research": ".swarm/research/2026-01-18-city-system.md",
+        "plan": ".swarm/plans/2026-01-18-city-system.md",
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["game-mechanics", "city"],
+      "notes": null
+    },
+    "combat-system": {
+      "id": "combat-system",
+      "title": "Combat System",
+      "type": "feature",
+      "state": "ready",
+      "parent": null,
+      "priority": 2,
+      "created": "2026-01-18",
+      "updated": "2026-01-18T23:00:00Z",
+      "description": "Implement combat mechanics between units.",
+      "dependencies": [],
+      "artifacts": {
+        "research": ".swarm/research/2026-01-18-combat-system.md",
+        "plan": ".swarm/plans/2026-01-18-combat-system.md",
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["game-mechanics", "combat"],
+      "notes": null
+    },
+    "workstream-tracking-system": {
+      "id": "workstream-tracking-system",
+      "title": "Workstream Tracking System",
+      "type": "feature",
+      "state": "merged",
+      "parent": null,
+      "priority": 1,
+      "created": "2026-01-18",
+      "updated": "2026-01-18T22:46:00Z",
+      "description": "Implement modular workstream tracking to replace TODOs.txt with structured registry.",
+      "dependencies": [],
+      "artifacts": {
+        "research": ".swarm/research/2026-01-18-modular-workstream-design.md",
+        "plan": ".swarm/plans/2026-01-18-workstream-tracking-system.md",
+        "validation": null,
+        "review": null,
+        "checkpoints": [
+          ".swarm/checkpoints/2026-01-18-workstream-tracking-system-phase-1.md",
+          ".swarm/checkpoints/2026-01-18-workstream-tracking-system-phase-2.md",
+          ".swarm/checkpoints/2026-01-18-workstream-tracking-system-phase-3.md",
+          ".swarm/checkpoints/2026-01-18-workstream-tracking-system-phase-4.md",
+          ".swarm/checkpoints/2026-01-18-workstream-tracking-system-phase-5.md"
+        ]
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": 5,
+        "totalPhases": 5
+      },
+      "children": [],
+      "tags": ["workflow", "tooling"],
+      "notes": "Self-tracking implementation - all 5 phases complete",
+      "mergedAt": "2026-01-18T22:46:00Z"
+    }
+  }
+}
