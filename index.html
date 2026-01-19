@@ -43,6 +43,29 @@
         </div>
       </div>
     </div>
+    <div id="combat-preview" class="hidden">
+      <div class="panel-header">Combat Preview</div>
+      <div class="combat-units">
+        <div class="combat-unit attacker-section">
+          <div class="unit-name" id="attacker-name">Attacker</div>
+          <div class="health-bar">
+            <div class="health-bar-fill" id="attacker-health-fill"></div>
+            <div class="health-bar-expected" id="attacker-expected-fill"></div>
+          </div>
+          <div class="health-text"><span id="attacker-health">100</span> → <span id="attacker-expected">85</span></div>
+        </div>
+        <div class="combat-vs">vs</div>
+        <div class="combat-unit defender-section">
+          <div class="unit-name" id="defender-name">Defender</div>
+          <div class="health-bar">
+            <div class="health-bar-fill" id="defender-health-fill"></div>
+            <div class="health-bar-expected" id="defender-expected-fill"></div>
+          </div>
+          <div class="health-text"><span id="defender-health">100</span> → <span id="defender-expected">70</span></div>
+        </div>
+      </div>
+      <div class="combat-modifiers" id="defender-modifiers"></div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

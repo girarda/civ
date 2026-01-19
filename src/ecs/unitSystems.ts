@@ -4,7 +4,14 @@
  */
 
 import { IWorld } from 'bitecs';
-import { Position, UnitComponent, MovementComponent, OwnerComponent, unitQuery } from './world';
+import {
+  Position,
+  UnitComponent,
+  MovementComponent,
+  OwnerComponent,
+  HealthComponent,
+  unitQuery,
+} from './world';
 
 /**
  * Get all unit entity IDs in the world.
@@ -74,4 +81,29 @@ export function getUnitOwner(eid: number): number {
  */
 export function canUnitMove(eid: number): boolean {
   return MovementComponent.current[eid] > 0;
+}
+
+/**
+ * Get unit health data.
+ */
+export function getUnitHealth(eid: number): { current: number; max: number } {
+  return {
+    current: HealthComponent.current[eid],
+    max: HealthComponent.max[eid],
+  };
+}
+
+/**
+ * Set unit's current health.
+ */
+export function setUnitHealth(eid: number, health: number): void {
+  const clamped = Math.max(0, Math.min(health, HealthComponent.max[eid]));
+  HealthComponent.current[eid] = clamped;
+}
+
+/**
+ * Check if a unit is alive (health > 0).
+ */
+export function isUnitAlive(eid: number): boolean {
+  return HealthComponent.current[eid] > 0;
 }

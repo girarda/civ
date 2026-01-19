@@ -40,6 +40,11 @@ export const UnitComponent = defineComponent({
   type: Types.ui8, // UnitType enum value
 });
 
+export const HealthComponent = defineComponent({
+  current: Types.ui8, // Current health (0-100)
+  max: Types.ui8, // Maximum health (100)
+});
+
 export const MovementComponent = defineComponent({
   current: Types.ui8, // Remaining movement points this turn
   max: Types.ui8, // Maximum movement points
@@ -114,13 +119,15 @@ export function createUnitEntity(
   r: number,
   unitType: number,
   playerId: number,
-  maxMovement: number
+  maxMovement: number,
+  maxHealth: number = 100
 ): number {
   const eid = addEntity(world);
   addComponent(world, Position, eid);
   addComponent(world, UnitComponent, eid);
   addComponent(world, MovementComponent, eid);
   addComponent(world, OwnerComponent, eid);
+  addComponent(world, HealthComponent, eid);
 
   Position.q[eid] = q;
   Position.r[eid] = r;
@@ -128,12 +135,20 @@ export function createUnitEntity(
   MovementComponent.current[eid] = maxMovement;
   MovementComponent.max[eid] = maxMovement;
   OwnerComponent.playerId[eid] = playerId;
+  HealthComponent.current[eid] = maxHealth;
+  HealthComponent.max[eid] = maxHealth;
 
   return eid;
 }
 
-// Unit queries
-export const unitQuery = defineQuery([Position, UnitComponent, MovementComponent, OwnerComponent]);
+// Unit queries (includes HealthComponent for combat)
+export const unitQuery = defineQuery([
+  Position,
+  UnitComponent,
+  MovementComponent,
+  OwnerComponent,
+  HealthComponent,
+]);
 
 /**
  * Create a city entity at the given position.
