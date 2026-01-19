@@ -17,12 +17,9 @@ export const yieldsQuery = defineQuery([Position, YieldsComponent]);
  * Can be extended to initialize tile graphics or other setup.
  */
 export function tileAddedSystem(world: IWorld): IWorld {
-  const entered = tileEnterQuery(world);
-  for (const _eid of entered) {
-    // New tile added - can be used for initialization
-    // Currently a no-op, but useful for debugging or triggering render updates
-    // Access Position.q[eid], Position.r[eid], TerrainComponent.type[eid] as needed
-  }
+  // Process newly added tiles - currently a no-op placeholder
+  // Could be used for initialization, debugging, or triggering render updates
+  tileEnterQuery(world);
   return world;
 }
 
@@ -31,12 +28,9 @@ export function tileAddedSystem(world: IWorld): IWorld {
  * Can be extended to clean up tile graphics or other resources.
  */
 export function tileRemovedSystem(world: IWorld): IWorld {
-  const exited = tileExitQuery(world);
-  for (const _eid of exited) {
-    // Tile removed - can be used for cleanup
-    // Currently a no-op
-    // Access Position.q[eid], Position.r[eid] as needed
-  }
+  // Process removed tiles - currently a no-op placeholder
+  // Could be used for cleanup of graphics or other resources
+  tileExitQuery(world);
   return world;
 }
 
