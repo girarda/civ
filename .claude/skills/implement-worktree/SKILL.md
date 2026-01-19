@@ -611,6 +611,39 @@ Proceeding to code simplification...
 
 ### 5. Code Simplification
 
+#### Plugin-Assisted Simplification
+
+If the code-simplifier plugin is available, invoke it first for automated complexity analysis:
+
+1. **Identify changed source files**:
+   ```bash
+   changed_files=$(git diff --name-only <base-branch>...HEAD | grep -E '\.(ts|tsx)$')
+   ```
+
+2. **Invoke code-simplifier plugin**:
+   For each file in changed_files:
+   - Request complexity analysis
+   - Request redundancy detection
+   - Request consolidation suggestions
+
+3. **Process plugin findings**:
+   ```
+   for each finding:
+     if finding.type == "redundant_code":
+       Apply removal automatically
+     elif finding.type == "complexity_reduction":
+       if complexity_score > threshold:
+         Apply simplification
+       else:
+         Add to manual review
+     elif finding.type == "consolidation":
+       Add to manual review (may affect architecture)
+   ```
+
+4. **Continue with manual checklist** below for remaining items not covered by the plugin
+
+**Fallback**: If the code-simplifier plugin is unavailable, proceed directly to the manual identification and checklist below.
+
 #### Identify Changed Files
 
 ```bash
@@ -621,7 +654,7 @@ git diff --name-only <base-branch>...HEAD
 git diff --name-only <base-branch>...HEAD | grep -E '\.(ts|tsx|js|jsx)$'
 ```
 
-#### Simplification Checklist
+#### Simplification Checklist (Manual Fallback)
 
 For each changed file, review and apply these simplifications:
 
@@ -717,7 +750,13 @@ Code Simplification Complete
 Files Reviewed: N
 Files Modified: M
 
-Changes Made:
+Plugin Analysis (if available):
+  - Plugin used: code-simplifier
+  - Files analyzed: X
+  - Simplifications applied: Y
+  - Deferred to manual review: Z
+
+Manual Changes Made:
   - Complexity reduced: X functions
   - Duplicates consolidated: Y locations
   - Names improved: Z identifiers
@@ -730,9 +769,45 @@ Tests: PASSED
 
 ### 6. Parallel Code Review
 
+#### code-review Plugin (Primary Review)
+
+The code-review plugin should be invoked first as the primary review mechanism:
+
+1. **Invocation**:
+   Invoke code-review plugin with:
+   - List of changed files from `git diff --name-only <base-branch>...HEAD`
+   - Reference to CLAUDE.md for compliance checking
+   - Base branch for context
+
+2. **Plugin Agents**:
+   The plugin runs 4 parallel internal agents:
+   - Guideline compliance checker (CLAUDE.md adherence)
+   - Bug scanner (obvious bugs and anti-patterns)
+   - Git history analyzer (contextual review)
+   - Code quality reviewer (general quality checks)
+
+3. **Processing Results**:
+   Plugin findings are prioritized by confidence score:
+   - **80+**: Critical, apply automatically
+   - **50-79**: Major, flag for review
+   - **<50**: Minor, document only
+
+4. **Findings Integration**:
+   | Source | Focus Area | Priority |
+   |--------|-----------|----------|
+   | code-review plugin | CLAUDE.md compliance, obvious bugs, git history | High |
+   | Custom Logic Agent | Algorithm correctness, edge cases | Medium |
+   | Custom Style Agent | Naming, organization, DRY | Medium |
+   | Custom Performance Agent | Complexity, PixiJS, memory | Medium |
+
+5. **Integration with Custom Agents**:
+   After plugin review completes, run custom agents to cover areas not addressed by the plugin.
+
+**Fallback**: If the code-review plugin is unavailable, proceed directly to custom review agents below.
+
 #### Configurable Reviewer Count
 
-The number of review agents is configurable via the `--reviewers` argument:
+The number of custom review agents is configurable via the `--reviewers` argument:
 
 ```
 Default: 3 reviewers
@@ -740,7 +815,7 @@ Minimum: 1 reviewer
 Maximum: 5 reviewers (to avoid context overload)
 ```
 
-#### Review Agent Definitions
+#### Custom Review Agent Definitions
 
 **Agent 1 - Logic Review:**
 
@@ -852,23 +927,31 @@ For each issue found, report:
 
 #### Aggregating Findings
 
-Combine all agent findings into a unified report:
+Combine all findings (plugin and custom agents) into a unified report with source attribution:
 
 ```markdown
 # Code Review Findings
 
 ## Critical Issues (must fix)
-| File | Line | Agent | Issue | Suggested Fix |
-|------|------|-------|-------|---------------|
+| File | Line | Source | Issue | Confidence | Suggested Fix |
+|------|------|--------|-------|------------|---------------|
+| path/file.ts | 42 | code-review plugin | Description | 95 | Fix suggestion |
+| path/file.ts | 88 | Logic Agent | Description | N/A | Fix suggestion |
 
 ## Major Issues (should fix)
-| File | Line | Agent | Issue | Suggested Fix |
-|------|------|-------|-------|---------------|
+| File | Line | Source | Issue | Confidence | Suggested Fix |
+|------|------|--------|-------|------------|---------------|
 
 ## Minor Issues (nice to fix)
-| File | Line | Agent | Issue | Suggested Fix |
-|------|------|-------|-------|---------------|
+| File | Line | Source | Issue | Confidence | Suggested Fix |
+|------|------|--------|-------|------------|---------------|
 ```
+
+**Source Attribution Key**:
+- `code-review plugin` - Finding from the code-review plugin (includes confidence score)
+- `Logic Agent` - Finding from custom Logic Review agent
+- `Style Agent` - Finding from custom Style Review agent
+- `Performance Agent` - Finding from custom Performance Review agent
 
 #### Applying Improvements
 
@@ -890,7 +973,20 @@ Combine all agent findings into a unified report:
 
 ```
 for each finding in aggregated_findings:
-  if finding.severity == "critical":
+  # Confidence-based application (plugin findings)
+  if finding.source == "code-review plugin":
+    if finding.confidence >= 80:
+      Apply fix automatically
+      Mark as "auto-applied (high confidence)"
+    elif finding.confidence >= 50:
+      Add to human review list
+      Mark as "for human review (medium confidence)"
+    else:
+      Document only
+      Mark as "documented (low confidence)"
+
+  # Severity-based application (custom agent findings)
+  elif finding.severity == "critical":
     Apply fix immediately
     Mark as applied
   elif finding.is_non_controversial:
@@ -906,17 +1002,82 @@ for each finding in aggregated_findings:
 ```
 Code Review Complete
 --------------------
-Reviewers: N agents
-Findings Total: X
+Plugin Review (code-review):
+  - Findings: X total
+  - Auto-Applied (confidence >= 80): Y
+  - For Review (confidence 50-79): Z
+  - Documented (confidence < 50): W
 
-By Severity:
+Custom Agent Review:
+  - Reviewers: N agents
+  - Findings: X total
+
+Combined Results by Severity:
   - Critical: A (all applied)
   - Major: B (C applied, D for human review)
   - Minor: E (F applied, G for human review)
 
-Auto-Applied: X fixes
+Total Auto-Applied: X fixes
 For Human Review: Y items (see .swarm/reviews/)
 ```
+
+#### pr-review-toolkit Specialized Analysis
+
+After aggregating code review findings, invoke pr-review-toolkit agents for comprehensive pre-PR analysis:
+
+1. **pr-test-analyzer**:
+   Analyze test coverage for changed files.
+   - Input: List of changed files, test directories (`tests/`, `src/**/*.test.ts`)
+   - Output: Coverage percentage, uncovered lines, missing test scenarios
+   - **Quality Gate**: Warn if coverage < 80% for changed code
+
+2. **type-design-analyzer**:
+   Rate TypeScript type quality on a 1-10 scale.
+   - Input: Changed TypeScript files
+   - Output: Score 1-10, specific type issues, improvement suggestions
+   - Checks: `any` types, type assertions, proper generics usage
+   - **Quality Gate**: Warn if score < 7
+
+3. **silent-failure-hunter**:
+   Detect error handling gaps.
+   - Input: Changed files
+   - Output: Missing try/catch, swallowed errors, unhandled promise rejections
+   - Checks: Async/await error propagation, empty catch blocks
+   - **Quality Gate**: Block if critical findings (missing error handling in critical paths)
+
+4. **comment-analyzer**:
+   Verify documentation accuracy.
+   - Input: Changed files with JSDoc
+   - Output: Accuracy percentage, outdated comments, missing documentation
+   - Checks: JSDoc matches function signatures, exported functions documented
+   - **Quality Gate**: Warn if accuracy < 90%
+
+#### Quality Gate Enforcement
+
+Before proceeding to re-validation, evaluate quality gates:
+
+```
+Quality Gate Summary
+-------------------
+| Agent                   | Score/Status     | Threshold    | Status    |
+|-------------------------|------------------|--------------|-----------|
+| pr-test-analyzer        | X% coverage      | >= 80%       | PASS/WARN |
+| type-design-analyzer    | N/10             | >= 7         | PASS/WARN |
+| silent-failure-hunter   | N critical       | 0 critical   | PASS/BLOCK|
+| comment-analyzer        | X% accuracy      | >= 90%       | PASS/WARN |
+
+Overall Status: PASS / WARN / BLOCKED
+
+If BLOCKED:
+  - Fix critical silent-failure-hunter findings before proceeding
+  - These represent potential runtime failures
+
+If WARN:
+  - Document warnings in human review
+  - Proceed with caution, may require attention before merge
+```
+
+**Fallback**: If pr-review-toolkit is unavailable, proceed directly to re-validation with a note that specialized analysis was skipped.
 
 ### 7. Re-validation
 
@@ -1007,6 +1168,35 @@ Create validation document at `.swarm/validations/YYYY-MM-DD-<feature>.md`:
 **Failure Reason**: [What went wrong]
 **Remediation**: [What needs to be done]
 
+## Plugin Analysis Summary
+
+### Code Simplifier Results
+- Files Analyzed: N
+- Simplifications Applied: M
+- Deferred to Manual Review: K
+
+### Code Review Plugin Results
+- Total Findings: X
+- Auto-Applied (confidence >= 80): Y
+- Flagged for Review (confidence 50-79): Z
+- Documented (confidence < 50): W
+
+### PR Review Toolkit Results
+
+| Agent | Score/Result | Quality Gate | Status |
+|-------|-------------|--------------|--------|
+| pr-test-analyzer | X% coverage | >= 80% | PASS/WARN |
+| type-design-analyzer | N/10 | >= 7 | PASS/WARN |
+| silent-failure-hunter | N critical | 0 | PASS/BLOCK |
+| comment-analyzer | X% accurate | >= 90% | PASS/WARN |
+
+### Plugin Assessment
+**Overall Status**: PASS / NEEDS ATTENTION
+
+If NEEDS ATTENTION:
+- List quality gate failures/warnings
+- Required remediation steps
+
 ## Overall Verdict
 
 **Status**: PASSED | FAILED
@@ -1014,6 +1204,7 @@ Create validation document at `.swarm/validations/YYYY-MM-DD-<feature>.md`:
 If PASSED:
 - All tests pass
 - All success criteria verified
+- Plugin quality gates passed or warnings acceptable
 - Ready for human review
 
 If FAILED:
@@ -1170,10 +1361,36 @@ Create review document at `.swarm/reviews/YYYY-MM-DD-<feature>.md`:
 | Algorithm choice | Logic | Consider alternative | See line X |
 | Naming convention | Style | Consider rename | Subjective preference |
 
+### Plugin Analysis Summary
+
+#### Code Simplifier
+Simplification opportunities identified by the code-simplifier plugin:
+
+| File | Suggestion | Impact | Status |
+|------|-----------|--------|--------|
+| path/file.ts | Description | High/Med/Low | Applied/Deferred |
+
+#### Code Review Plugin
+Findings from the code-review plugin (confidence < 80, requiring human judgment):
+
+| File | Line | Finding | Confidence | Recommendation |
+|------|------|---------|------------|----------------|
+| path/file.ts | 42 | Description | 65 | Suggested action |
+
+#### PR Review Toolkit Quality Scores
+
+| Agent | Score | Threshold | Notes |
+|-------|-------|-----------|-------|
+| Test Coverage | X% | 80% | [Details if below threshold] |
+| Type Design | N/10 | 7 | [Specific type issues] |
+| Error Handling | N findings | 0 | [List critical findings] |
+| Documentation | X% | 90% | [Missing docs] |
+
 ### Additional Considerations
 - [ ] Any security implications?
 - [ ] Any performance concerns at scale?
 - [ ] Any accessibility issues?
+- [ ] Any plugin warnings that need addressing?
 
 ## Review Checklist for Humans
 
@@ -1329,10 +1546,13 @@ fi
 git push -u origin "$branch_name"
 
 # Create PR with review document as body
+# The review document includes the plugin quality gate summary
 gh pr create \
   --title "Feature: $feature_name" \
   --body-file ".swarm/reviews/YYYY-MM-DD-$plan_name.md"
 ```
+
+**Note**: The PR body (from the review document) includes the Plugin Analysis Summary with quality gate results. If any quality gates are in WARN or BLOCK status, this will be visible in the PR description for reviewers.
 
 PR creation summary:
 
@@ -1742,6 +1962,23 @@ For features spanning multiple phases:
 2. Implement Phase 1, commit
 3. For Phase 2+, optionally create branch from dev/feature branch
 4. Each phase can have its own branch for isolated review
+
+## Plugin Requirements
+
+The following Claude plugins enhance the workflow when available:
+
+| Plugin | Purpose | Integration Point | Required |
+|--------|---------|-------------------|----------|
+| `code-simplifier` | Automated complexity analysis | Section 5: Code Simplification | Optional |
+| `code-review` | 4-agent parallel code review | Section 6: Parallel Code Review | Optional |
+| `pr-review-toolkit` | Specialized PR analysis (4 agents) | Section 6: Quality Gates | Optional |
+
+**Availability Check**: At each integration point, the workflow checks if the plugin is available. If unavailable, it falls back to manual processes:
+- `code-simplifier` unavailable: Use manual simplification checklist
+- `code-review` unavailable: Use custom review agents only
+- `pr-review-toolkit` unavailable: Skip quality gate analysis, note in validation document
+
+**Installation**: Plugins are managed through the Claude plugin system. Refer to plugin documentation for installation instructions.
 
 ## Required Permissions
 
