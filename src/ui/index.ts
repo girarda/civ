@@ -5,3 +5,4 @@ export { TileInfoPanel } from './TileInfoPanel';
 export { MapControls } from './MapControls';
 export { SelectionState } from './SelectionState';
 export { SelectionSystem } from './SelectionSystem';
+export { TurnControls } from './TurnControls';
