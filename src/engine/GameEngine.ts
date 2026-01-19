@@ -11,6 +11,27 @@ import { TerritoryManager } from '../city/Territory';
 import { GameState } from '../game/GameState';
 import { EventBus } from './events/EventBus';
 import { GameEventType } from './events/types';
+import { Pathfinder } from '../pathfinding/Pathfinder';
+import { PlayerManager } from '../player';
+import {
+  GameCommand,
+  CommandResult,
+  CommandType,
+  commandSuccess,
+  commandError,
+  getValidator,
+  getExecutor,
+  MoveUnitValidatorDeps,
+  AttackValidatorDeps,
+  FoundCityValidatorDeps,
+  SetProductionValidatorDeps,
+  EndTurnValidatorDeps,
+  MoveUnitExecutorDeps,
+  AttackExecutorDeps,
+  FoundCityExecutorDeps,
+  SetProductionExecutorDeps,
+  EndTurnExecutorDeps,
+} from './commands';
 import {
   GameStateSnapshot,
   UnitSnapshot,
@@ -50,6 +71,8 @@ export class GameEngine {
   private eventBus: EventBus;
   private mapConfig: MapConfig;
   private playerCount: number;
+  private pathfinder: Pathfinder | null = null;
+  private playerManager: PlayerManager | null = null;
 
   constructor(config: GameConfig = {}) {
     // Initialize configuration
@@ -282,5 +305,167 @@ export class GameEngine {
    */
   emit(event: GameEventType): void {
     this.eventBus.emit(event);
+  }
+
+  // --- Command Execution ---
+
+  /**
+   * Set the pathfinder for command validation/execution.
+   */
+  setPathfinder(pathfinder: Pathfinder): void {
+    this.pathfinder = pathfinder;
+  }
+
+  /**
+   * Get the pathfinder.
+   */
+  getPathfinder(): Pathfinder | null {
+    return this.pathfinder;
+  }
+
+  /**
+   * Set the player manager for command execution.
+   */
+  setPlayerManager(playerManager: PlayerManager): void {
+    this.playerManager = playerManager;
+  }
+
+  /**
+   * Get the player manager.
+   */
+  getPlayerManager(): PlayerManager | null {
+    return this.playerManager;
+  }
+
+  /**
+   * Execute a game command.
+   * Validates the command, executes it, and emits resulting events.
+   * @returns CommandResult with success status and emitted events
+   */
+  executeCommand(command: GameCommand): CommandResult {
+    // Get validator for command type
+    const validator = getValidator(command.type as CommandType);
+    const validatorDeps = this.getValidatorDeps(command.type as CommandType);
+    const validation = validator(command, validatorDeps);
+
+    if (!validation.valid) {
+      return commandError(validation.error ?? 'Validation failed');
+    }
+
+    // Get executor for command type
+    const executor = getExecutor(command.type as CommandType);
+    const executorDeps = this.getExecutorDeps(command.type as CommandType);
+    const events = executor(command, executorDeps);
+
+    // Emit all events
+    for (const event of events) {
+      this.eventBus.emit(event);
+    }
+
+    return commandSuccess(events);
+  }
+
+  /**
+   * Get validator dependencies for a command type.
+   */
+  private getValidatorDeps(
+    commandType: CommandType
+  ):
+    | MoveUnitValidatorDeps
+    | AttackValidatorDeps
+    | FoundCityValidatorDeps
+    | SetProductionValidatorDeps
+    | EndTurnValidatorDeps {
+    switch (commandType) {
+      case 'MOVE_UNIT':
+        if (!this.pathfinder) {
+          throw new Error('Pathfinder not set on GameEngine');
+        }
+        return {
+          world: this.world,
+          pathfinder: this.pathfinder,
+        } as MoveUnitValidatorDeps;
+
+      case 'ATTACK':
+        return {
+          world: this.world,
+          gameState: this.gameState,
+        } as AttackValidatorDeps;
+
+      case 'FOUND_CITY':
+        return {
+          world: this.world,
+          tileMap: this.tileMap,
+        } as FoundCityValidatorDeps;
+
+      case 'SET_PRODUCTION':
+        return {
+          world: this.world,
+        } as SetProductionValidatorDeps;
+
+      case 'END_TURN':
+        return {
+          gameState: this.gameState,
+        } as EndTurnValidatorDeps;
+
+      default: {
+        const _exhaustiveCheck: never = commandType;
+        throw new Error(`Unknown command type: ${_exhaustiveCheck}`);
+      }
+    }
+  }
+
+  /**
+   * Get executor dependencies for a command type.
+   */
+  private getExecutorDeps(
+    commandType: CommandType
+  ):
+    | MoveUnitExecutorDeps
+    | AttackExecutorDeps
+    | FoundCityExecutorDeps
+    | SetProductionExecutorDeps
+    | EndTurnExecutorDeps {
+    switch (commandType) {
+      case 'MOVE_UNIT':
+        if (!this.pathfinder) {
+          throw new Error('Pathfinder not set on GameEngine');
+        }
+        return {
+          world: this.world,
+          pathfinder: this.pathfinder,
+        } as MoveUnitExecutorDeps;
+
+      case 'ATTACK':
+        return {
+          world: this.world,
+          tileMap: this.tileMap,
+          playerManager: this.playerManager ?? undefined,
+        } as AttackExecutorDeps;
+
+      case 'FOUND_CITY':
+        return {
+          world: this.world,
+          territoryManager: this.territoryManager,
+        } as FoundCityExecutorDeps;
+
+      case 'SET_PRODUCTION':
+        return {
+          world: this.world,
+        } as SetProductionExecutorDeps;
+
+      case 'END_TURN':
+        return {
+          world: this.world,
+          gameState: this.gameState,
+          territoryManager: this.territoryManager,
+          tileMap: this.tileMap,
+        } as EndTurnExecutorDeps;
+
+      default: {
+        const _exhaustiveCheck: never = commandType;
+        throw new Error(`Unknown command type: ${_exhaustiveCheck}`);
+      }
+    }
   }
 }
