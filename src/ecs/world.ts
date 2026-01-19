@@ -1,4 +1,6 @@
 import { createWorld, defineComponent, Types, addEntity, addComponent, IWorld, defineQuery } from 'bitecs';
+import { CityComponent, PopulationComponent, ProductionComponent } from './cityComponents';
+import { calculateGrowthThreshold } from '../city/CityData';
 
 // Component definitions
 export const Position = defineComponent({
@@ -132,3 +134,42 @@ export function createUnitEntity(
 
 // Unit queries
 export const unitQuery = defineQuery([Position, UnitComponent, MovementComponent, OwnerComponent]);
+
+/**
+ * Create a city entity at the given position.
+ * @param world - The ECS world
+ * @param q - Hex q coordinate
+ * @param r - Hex r coordinate
+ * @param playerId - Owning player ID
+ * @param nameIndex - Index into city names array
+ * @param initialPopulation - Starting population (default 1)
+ * @returns The city entity ID
+ */
+export function createCityEntity(
+  world: IWorld,
+  q: number,
+  r: number,
+  playerId: number,
+  nameIndex: number,
+  initialPopulation: number = 1
+): number {
+  const eid = addEntity(world);
+  addComponent(world, Position, eid);
+  addComponent(world, CityComponent, eid);
+  addComponent(world, OwnerComponent, eid);
+  addComponent(world, PopulationComponent, eid);
+  addComponent(world, ProductionComponent, eid);
+
+  Position.q[eid] = q;
+  Position.r[eid] = r;
+  CityComponent.nameIndex[eid] = nameIndex;
+  OwnerComponent.playerId[eid] = playerId;
+  PopulationComponent.current[eid] = initialPopulation;
+  PopulationComponent.foodStockpile[eid] = 0;
+  PopulationComponent.foodForGrowth[eid] = calculateGrowthThreshold(initialPopulation);
+  ProductionComponent.currentItem[eid] = 0; // No production
+  ProductionComponent.progress[eid] = 0;
+  ProductionComponent.cost[eid] = 0;
+
+  return eid;
+}

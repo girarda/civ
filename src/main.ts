@@ -7,9 +7,12 @@ import { TileHighlight } from './render/TileHighlight';
 import { CameraController } from './render/CameraController';
 import { MapConfig } from './map/MapConfig';
 import { MapGenerator, GeneratedTile } from './map/MapGenerator';
-import { HoverState, HoverSystem, TileInfoPanel, MapControls, SelectionState, SelectionSystem, TurnControls } from './ui';
+import { HoverState, HoverSystem, TileInfoPanel, MapControls, SelectionState, SelectionSystem, TurnControls, CityState, CityInfoPanel } from './ui';
+import { getCityAtPosition } from './ecs/citySystems';
+import { getUnitAtPosition } from './ecs/unitSystems';
 import { Terrain } from './tile/Terrain';
-import { createGameWorld, createUnitEntity, Position, MovementComponent } from './ecs/world';
+import { createGameWorld, createUnitEntity, Position, MovementComponent, OwnerComponent, UnitComponent } from './ecs/world';
+import { CityComponent } from './ecs/cityComponents';
 import { UnitType, UNIT_TYPE_DATA, MovementExecutor } from './unit';
 import { UnitRenderer } from './render/UnitRenderer';
 import { SelectionHighlight } from './render/SelectionHighlight';
@@ -17,6 +20,9 @@ import { Pathfinder } from './pathfinding/Pathfinder';
 import { MovementPreview } from './render/MovementPreview';
 import { IWorld } from 'bitecs';
 import { GameState, TurnSystem } from './game';
+import { CityRenderer } from './render/CityRenderer';
+import { TerritoryRenderer } from './render/TerritoryRenderer';
+import { TerritoryManager, canFoundCity, tryFoundCity, getCityNameByIndex, CityProcessor } from './city';
 
 console.log('OpenCiv initializing...');
 
@@ -42,12 +48,18 @@ async function main() {
 
   // Create layer hierarchy for proper z-ordering:
   // 1. tilesContainer - terrain tiles at bottom
-  // 2. unitContainer - units above tiles
-  // 3. overlayContainer - highlights/previews on top
+  // 2. territoryContainer - territory overlays
+  // 3. cityContainer - cities above territory
+  // 4. unitContainer - units above cities
+  // 5. overlayContainer - highlights/previews on top
   const tilesContainer = new Container();
+  const territoryContainer = new Container();
+  const cityContainer = new Container();
   const unitContainer = new Container();
   const overlayContainer = new Container();
   worldContainer.addChild(tilesContainer);
+  worldContainer.addChild(territoryContainer);
+  worldContainer.addChild(cityContainer);
   worldContainer.addChild(unitContainer);
   worldContainer.addChild(overlayContainer);
 
@@ -76,6 +88,27 @@ async function main() {
   const movementPreview = new MovementPreview(overlayContainer, layout, pathfinder);
   const movementExecutor = new MovementExecutor(world, pathfinder, unitRenderer);
 
+  // Initialize city systems
+  const cityRenderer = new CityRenderer(cityContainer, layout);
+  const territoryRenderer = new TerritoryRenderer(territoryContainer, layout);
+  let territoryManager = new TerritoryManager();
+
+  // Initialize city UI
+  const cityState = new CityState();
+  const cityInfoPanel = new CityInfoPanel();
+
+  // Initialize city processor for turn integration
+  const cityProcessor = new CityProcessor(world, territoryManager, tileMap, {
+    onProductionCompleted: (event) => {
+      // Render the newly spawned unit
+      unitRenderer.createUnitGraphic(event.unitEid, event.position, event.unitType, event.playerId);
+      console.log(`Production completed in city ${event.cityEid}: unit ${event.unitEid} spawned`);
+    },
+    onPopulationGrowth: (event) => {
+      console.log(`City ${event.cityEid} grew to population ${event.newPopulation}`);
+    },
+  });
+
   // Store current seed for display
   let currentSeed = 42;
 
@@ -98,15 +131,15 @@ async function main() {
   }
 
   /**
-   * Spawn a test unit at a valid position.
+   * Spawn a test Settler at a valid position.
    */
-  function spawnTestUnit(): number | null {
+  function spawnTestSettler(): number | null {
     const spawnPos = findSpawnPosition();
     if (!spawnPos) return null;
 
-    const data = UNIT_TYPE_DATA[UnitType.Warrior];
-    const eid = createUnitEntity(world, spawnPos.q, spawnPos.r, UnitType.Warrior, 0, data.movement);
-    unitRenderer.createUnitGraphic(eid, spawnPos, UnitType.Warrior, 0);
+    const data = UNIT_TYPE_DATA[UnitType.Settler];
+    const eid = createUnitEntity(world, spawnPos.q, spawnPos.r, UnitType.Settler, 0, data.movement);
+    unitRenderer.createUnitGraphic(eid, spawnPos, UnitType.Settler, 0);
     return eid;
   }
 
@@ -123,10 +156,21 @@ async function main() {
     selectionHighlight.hide();
     movementPreview.hide();
     unitRenderer.clear();
+    cityRenderer.clear();
+    territoryRenderer.clear();
+    territoryManager.clear();
+    cityState.deselect();
+    cityInfoPanel.hide();
 
     // Reset ECS world
     world = createGameWorld();
     movementExecutor.setWorld(world);
+
+    // Reset territory manager and city processor references
+    territoryManager = new TerritoryManager();
+    cityProcessor.setWorld(world);
+    cityProcessor.setTerritoryManager(territoryManager);
+    cityProcessor.setTileMap(tileMap);
 
     // Generate new map
     const config = MapConfig.duel(seed);
@@ -143,8 +187,8 @@ async function main() {
     pathfinder.setTileMap(tileMap);
     movementPreview.setPathfinder(pathfinder);
 
-    // Spawn test unit
-    spawnTestUnit();
+    // Spawn test Settler
+    spawnTestSettler();
 
     // Center camera on map
     const [width, height] = config.getDimensions();
@@ -174,6 +218,8 @@ async function main() {
       console.log(`Turn ${gameState.getTurnNumber()} started`);
     },
     onTurnEnd: () => {
+      // Process city production and growth
+      cityProcessor.processTurnEnd();
       console.log(`Turn ${gameState.getTurnNumber()} ending`);
     },
   });
@@ -216,7 +262,7 @@ async function main() {
     }
   });
 
-  // Subscribe to selection state changes
+  // Subscribe to unit selection state changes
   selectionState.subscribe((unitEid) => {
     if (unitEid !== null) {
       const q = Position.q[unitEid];
@@ -226,9 +272,49 @@ async function main() {
 
       selectionHighlight.show(pos);
       movementPreview.showReachableTiles(pos, mp);
+
+      // Deselect city when unit is selected
+      cityState.deselect();
+      cityInfoPanel.hide();
     } else {
       selectionHighlight.hide();
       movementPreview.hide();
+    }
+  });
+
+  // Subscribe to city selection state changes
+  cityState.subscribe((cityEid) => {
+    if (cityEid !== null) {
+      cityInfoPanel.show(cityEid, world, territoryManager, tileMap);
+    } else {
+      cityInfoPanel.hide();
+    }
+  });
+
+  // Handle city selection on click (when no unit at position)
+  (app.canvas as HTMLCanvasElement).addEventListener('click', (e) => {
+    const cameraPos = camera.getPosition();
+    const zoom = camera.getZoom();
+    const worldX = (e.clientX - cameraPos.x) / zoom;
+    const worldY = (e.clientY - cameraPos.y) / zoom;
+    const hexPos = layout.worldToHex({ x: worldX, y: worldY });
+
+    // Check if a unit was selected (handled by SelectionSystem)
+    const unitAtPos = getUnitAtPosition(world, hexPos.q, hexPos.r);
+    if (unitAtPos !== null) {
+      // Unit selected - SelectionSystem handles this
+      return;
+    }
+
+    // No unit - check for city
+    const cityAtPos = getCityAtPosition(world, hexPos.q, hexPos.r);
+    if (cityAtPos !== null) {
+      // Deselect unit and select city
+      selectionState.deselect();
+      cityState.select(cityAtPos);
+    } else {
+      // Nothing at position - deselect both
+      cityState.deselect();
     }
   });
 
@@ -254,6 +340,61 @@ async function main() {
         movementPreview.showReachableTiles(hexPos, mp);
       } else {
         movementPreview.hide();
+      }
+    }
+  });
+
+  // Handle B key for founding cities
+  window.addEventListener('keydown', (e) => {
+    if (e.key.toLowerCase() === 'b') {
+      const selectedUnit = selectionState.get();
+      if (selectedUnit === null) return;
+
+      // Check if selected unit is a Settler
+      const unitType = UnitComponent.type[selectedUnit];
+      if (unitType !== UnitType.Settler) {
+        console.log('Only Settlers can found cities');
+        return;
+      }
+
+      // Check if city can be founded
+      if (!canFoundCity(world, selectedUnit, tileMap)) {
+        console.log('Cannot found city here');
+        return;
+      }
+
+      // Attempt to found city
+      const result = tryFoundCity(
+        world,
+        selectedUnit,
+        tileMap,
+        territoryManager,
+        (cityEid, position) => {
+          // Get city name and player
+          const playerId = OwnerComponent.playerId[cityEid];
+          const nameIndex = CityComponent.nameIndex[cityEid];
+          const name = getCityNameByIndex(nameIndex);
+
+          // Render city and territory
+          cityRenderer.createCityGraphic(cityEid, position, name, playerId);
+          territoryRenderer.updateTerritoryBorders(
+            cityEid,
+            territoryManager.getTilesForCity(cityEid),
+            playerId
+          );
+
+          console.log(`Founded city: ${name}`);
+        }
+      );
+
+      if (result.success) {
+        // Remove settler from renderer
+        unitRenderer.removeUnit(selectedUnit);
+
+        // Deselect since settler is gone
+        selectionState.deselect();
+      } else if (result.error) {
+        console.log(`Failed to found city: ${result.error}`);
       }
     }
   });

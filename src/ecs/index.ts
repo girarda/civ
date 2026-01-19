@@ -11,6 +11,7 @@ export {
   addResourceToEntity,
   addYieldsToEntity,
   addRiverToEntity,
+  createCityEntity,
 } from './world';
 
 export {
@@ -25,3 +26,18 @@ export {
   getFeatureTiles,
   runSystems,
 } from './systems';
+
+export {
+  CityComponent,
+  PopulationComponent,
+  ProductionComponent,
+} from './cityComponents';
+
+export {
+  cityQuery,
+  getCityAtPosition,
+  getCitiesForPlayer,
+  getAllCities,
+  hasCityAtPosition,
+  getCityCountForPlayer,
+} from './citySystems';
