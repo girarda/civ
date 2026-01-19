@@ -10,3 +10,7 @@ export { CityState } from './CityState';
 export { CityInfoPanel } from './CityInfoPanel';
 export { CombatPreviewPanel } from './CombatPreviewPanel';
 export { ProductionUI } from './ProductionUI';
+export { NotificationState, NotificationType } from './NotificationState';
+export type { Notification, NotificationEvent } from './NotificationState';
+export { NotificationPanel } from './NotificationPanel';
+export { DebugOverlay } from './DebugOverlay';

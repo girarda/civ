@@ -8,6 +8,7 @@
   </head>
   <body>
     <div id="game-container"></div>
+    <div id="notification-container"></div>
     <div id="map-controls">
       <span id="seed-display">Seed: 42</span>
       <button id="regenerate-btn" title="Press R to regenerate">Regenerate (R)</button>
@@ -69,6 +70,10 @@
         </div>
       </div>
       <div class="combat-modifiers" id="defender-modifiers"></div>
+    </div>
+    <div id="debug-overlay" class="hidden">
+      <div class="debug-header">Debug Log (` to close)</div>
+      <div id="debug-log"></div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

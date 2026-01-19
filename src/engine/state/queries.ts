@@ -328,11 +328,7 @@ export function queryMap(
 /**
  * Query units at a specific position.
  */
-export function queryUnitsAtPosition(
-  world: IWorld,
-  q: number,
-  r: number
-): UnitSnapshot | null {
+export function queryUnitsAtPosition(world: IWorld, q: number, r: number): UnitSnapshot | null {
   const unitEid = getUnitAtPosition(world, q, r);
   if (unitEid === null) {
     return null;
