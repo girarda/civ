@@ -33,5 +33,10 @@ export {
   CityProcessor,
   type ProductionCompletedEvent,
   type PopulationGrowthEvent,
+  type QueueAdvancedEvent,
   type CityProcessorCallbacks,
 } from './CityProcessor';
+
+export { ProductionQueue, MAX_QUEUE_SIZE } from './ProductionQueue';
+
+export { calculateTurnsToComplete, calculateQueueTurns } from './ProductionTurns';

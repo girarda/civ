@@ -19,6 +19,7 @@ import {
   CityInfoPanel,
   CombatPreviewPanel,
   ProductionUI,
+  QueueDisplay,
   NotificationState,
   NotificationType,
   NotificationPanel,
@@ -51,6 +52,7 @@ import {
   tryFoundCity,
   getCityNameByIndex,
   CityProcessor,
+  ProductionQueue,
 } from './city';
 import {
   CombatExecutor,
@@ -142,16 +144,11 @@ async function main() {
   const cityRenderer = new CityRenderer(cityContainer, layout);
   const territoryRenderer = new TerritoryRenderer(territoryContainer, layout);
   let territoryManager = new TerritoryManager();
+  let productionQueue = new ProductionQueue();
 
   // Initialize city UI
   const cityState = new CityState();
   const cityInfoPanel = new CityInfoPanel();
-  const productionUI = new ProductionUI({
-    onProductionSelected: (cityEid, buildableType) => {
-      cityProcessor.setProduction(cityEid, buildableType);
-      cityInfoPanel.refresh();
-    },
-  });
 
   // Initialize game state and combat systems
   const gameState = new GameState();
@@ -184,7 +181,7 @@ async function main() {
   );
 
   // Initialize city processor for turn integration
-  const cityProcessor = new CityProcessor(world, territoryManager, tileMap, {
+  const cityProcessor = new CityProcessor(world, territoryManager, tileMap, productionQueue, {
     onProductionCompleted: (event) => {
       // Render the newly spawned unit
       unitRenderer.createUnitGraphic(event.unitEid, event.position, event.unitType, event.playerId);
@@ -207,7 +204,37 @@ async function main() {
         `City ${event.cityEid} now at pop ${event.newPopulation}`
       );
     },
+    onQueueAdvanced: (event) => {
+      console.log(
+        `Queue advanced in city ${event.cityEid}: now building item ${event.nextItem}, ${event.remainingQueue} items remaining, ${event.overflowApplied} overflow applied`
+      );
+      // Refresh UI to show new queue state
+      queueDisplay.refresh();
+      cityInfoPanel.refresh();
+      productionUI.refresh();
+    },
   });
+
+  // Initialize ProductionUI and QueueDisplay after cityProcessor
+  const productionUI = new ProductionUI({
+    onProductionSelected: (cityEid, buildableType) => {
+      cityProcessor.setProduction(cityEid, buildableType);
+      cityInfoPanel.refresh();
+      queueDisplay.refresh();
+      productionUI.setQueueFull(cityProcessor.isQueueFull(cityEid));
+    },
+    onProductionQueued: (cityEid, buildableType) => {
+      const success = cityProcessor.queueItem(cityEid, buildableType);
+      if (success) {
+        queueDisplay.refresh();
+        productionUI.setQueueFull(cityProcessor.isQueueFull(cityEid));
+      } else {
+        console.log('Queue is full');
+      }
+    },
+  });
+
+  const queueDisplay = new QueueDisplay(cityProcessor, territoryManager, tileMap);
 
   // Store current seed for display
   let currentSeed = 42;
@@ -310,11 +337,15 @@ async function main() {
     world = createGameWorld();
     movementExecutor.setWorld(world);
 
-    // Reset territory manager and city processor references
+    // Reset territory manager, production queue and city processor references
     territoryManager = new TerritoryManager();
+    productionQueue = new ProductionQueue();
     cityProcessor.setWorld(world);
     cityProcessor.setTerritoryManager(territoryManager);
     cityProcessor.setTileMap(tileMap);
+    cityProcessor.setProductionQueue(productionQueue);
+    queueDisplay.setTerritoryManager(territoryManager);
+    queueDisplay.setTileMap(tileMap);
 
     // Generate new map
     const config = MapConfig.duel(seed);
@@ -542,9 +573,12 @@ async function main() {
     if (cityEid !== null) {
       cityInfoPanel.show(cityEid, world, territoryManager, tileMap);
       productionUI.setCityEid(cityEid);
+      productionUI.setQueueFull(cityProcessor.isQueueFull(cityEid));
+      queueDisplay.setCityEid(cityEid);
     } else {
       cityInfoPanel.hide();
       productionUI.setCityEid(null);
+      queueDisplay.setCityEid(null);
     }
   });
 
