@@ -24,6 +24,7 @@ import {
   NotificationType,
   NotificationPanel,
   DebugOverlay,
+  VictoryOverlay,
 } from './ui';
 import { getCityAtPosition } from './ecs/citySystems';
 import { getUnitAtPosition, getUnitHealth, getUnitOwner } from './ecs/unitSystems';
@@ -62,6 +63,7 @@ import {
   getDefenseModifierNames,
 } from './combat';
 import { PlayerManager } from './player';
+import { VictorySystem } from './victory';
 
 // Initialize notification system (created before main to capture initialization logs)
 const notificationState = new NotificationState();
@@ -132,13 +134,16 @@ async function main() {
   const tileHighlight = new TileHighlight(overlayContainer, layout);
   const tileInfoPanel = new TileInfoPanel();
 
+  // Initialize game state first (needed by other systems)
+  const gameState = new GameState();
+
   // Initialize unit systems
   const unitRenderer = new UnitRenderer(unitContainer, layout);
   const selectionState = new SelectionState();
   const selectionHighlight = new SelectionHighlight(overlayContainer, layout);
   const pathfinder = new Pathfinder(tileMap);
   const movementPreview = new MovementPreview(overlayContainer, layout, pathfinder);
-  const movementExecutor = new MovementExecutor(world, pathfinder, unitRenderer);
+  const movementExecutor = new MovementExecutor(world, pathfinder, unitRenderer, gameState);
 
   // Initialize city systems
   const cityRenderer = new CityRenderer(cityContainer, layout);
@@ -150,8 +155,7 @@ async function main() {
   const cityState = new CityState();
   const cityInfoPanel = new CityInfoPanel();
 
-  // Initialize game state and combat systems
-  const gameState = new GameState();
+  // Initialize combat systems
   const combatPreviewState = new CombatPreviewState();
   const combatPreviewPanel = new CombatPreviewPanel();
 
@@ -159,7 +163,11 @@ async function main() {
   const playerManager = new PlayerManager();
   playerManager.initialize([0], 2); // Player 0 is human, 2 total players
 
-  // Subscribe to elimination events for notifications
+  // Initialize victory system
+  const victorySystem = new VictorySystem(playerManager, gameState);
+  const victoryOverlay = new VictoryOverlay();
+
+  // Subscribe to elimination events for notifications and victory checking
   playerManager.subscribe((event) => {
     if (event.type === 'eliminated') {
       const player = playerManager.getPlayer(event.playerId);
@@ -167,7 +175,31 @@ async function main() {
         NotificationType.Success,
         `${player?.name ?? 'Unknown player'} has been eliminated!`
       );
+
+      // Check for victory after elimination
+      victorySystem.onPlayerEliminated();
     }
+  });
+
+  // Subscribe to game state for victory screen
+  gameState.subscribe((state) => {
+    if (state.victoryResult) {
+      // Delay showing victory overlay by 500ms for better UX
+      setTimeout(() => {
+        const humanPlayer = playerManager.getHumanPlayers()[0];
+        if (humanPlayer && state.victoryResult!.winnerId === humanPlayer.id) {
+          victoryOverlay.showVictory(state.victoryResult!);
+        } else {
+          victoryOverlay.showDefeat(state.victoryResult!);
+        }
+      }, 500);
+    }
+  });
+
+  // Wire Play Again button to regenerate map
+  victoryOverlay.onPlayAgain(() => {
+    victoryOverlay.hide();
+    generateMap(Math.floor(Math.random() * 1000000));
   });
 
   // CombatExecutor will be updated when world resets
@@ -181,39 +213,51 @@ async function main() {
   );
 
   // Initialize city processor for turn integration
-  const cityProcessor = new CityProcessor(world, territoryManager, tileMap, productionQueue, {
-    onProductionCompleted: (event) => {
-      // Render the newly spawned unit
-      unitRenderer.createUnitGraphic(event.unitEid, event.position, event.unitType, event.playerId);
-      const unitName = getUnitName(event.unitType);
-      notificationState.push(NotificationType.Success, `${unitName} ready!`);
-      notificationState.push(
-        NotificationType.Debug,
-        '[PRODUCTION] Unit completed',
-        `City ${event.cityEid}: ${unitName} (eid ${event.unitEid}) spawned`
-      );
+  const cityProcessor = new CityProcessor(
+    world,
+    territoryManager,
+    tileMap,
+    productionQueue,
+    {
+      onProductionCompleted: (event) => {
+        // Render the newly spawned unit
+        unitRenderer.createUnitGraphic(
+          event.unitEid,
+          event.position,
+          event.unitType,
+          event.playerId
+        );
+        const unitName = getUnitName(event.unitType);
+        notificationState.push(NotificationType.Success, `${unitName} ready!`);
+        notificationState.push(
+          NotificationType.Debug,
+          '[PRODUCTION] Unit completed',
+          `City ${event.cityEid}: ${unitName} (eid ${event.unitEid}) spawned`
+        );
+      },
+      onPopulationGrowth: (event) => {
+        notificationState.push(
+          NotificationType.Info,
+          `City grew to population ${event.newPopulation}`
+        );
+        notificationState.push(
+          NotificationType.Debug,
+          '[CITY] Population growth',
+          `City ${event.cityEid} now at pop ${event.newPopulation}`
+        );
+      },
+      onQueueAdvanced: (event) => {
+        console.log(
+          `Queue advanced in city ${event.cityEid}: now building item ${event.nextItem}, ${event.remainingQueue} items remaining, ${event.overflowApplied} overflow applied`
+        );
+        // Refresh UI to show new queue state
+        queueDisplay.refresh();
+        cityInfoPanel.refresh();
+        productionUI.refresh();
+      },
     },
-    onPopulationGrowth: (event) => {
-      notificationState.push(
-        NotificationType.Info,
-        `City grew to population ${event.newPopulation}`
-      );
-      notificationState.push(
-        NotificationType.Debug,
-        '[CITY] Population growth',
-        `City ${event.cityEid} now at pop ${event.newPopulation}`
-      );
-    },
-    onQueueAdvanced: (event) => {
-      console.log(
-        `Queue advanced in city ${event.cityEid}: now building item ${event.nextItem}, ${event.remainingQueue} items remaining, ${event.overflowApplied} overflow applied`
-      );
-      // Refresh UI to show new queue state
-      queueDisplay.refresh();
-      cityInfoPanel.refresh();
-      productionUI.refresh();
-    },
-  });
+    gameState
+  );
 
   // Initialize ProductionUI and QueueDisplay after cityProcessor
   const productionUI = new ProductionUI({
@@ -332,6 +376,7 @@ async function main() {
     territoryManager.clear();
     cityState.deselect();
     cityInfoPanel.hide();
+    gameState.clear(); // Reset game state including victory result
 
     // Reset ECS world
     world = createGameWorld();
@@ -446,6 +491,8 @@ async function main() {
   // Subscribe to game state changes for UI updates
   gameState.subscribe((state) => {
     turnControls.updateTurnDisplay(state.turnNumber);
+    // Disable End Turn button when game is over
+    turnControls.setEnabled(!gameState.isGameOver());
   });
 
   // Attach hover detection to canvas

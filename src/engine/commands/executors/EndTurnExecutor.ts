@@ -14,14 +14,24 @@ import {
   UnitSpawnedEvent,
   PopulationGrowthEvent,
 } from '../../events/types';
-import { Position, OwnerComponent, MovementComponent, createUnitEntity, unitQuery } from '../../../ecs/world';
+import {
+  Position,
+  OwnerComponent,
+  MovementComponent,
+  createUnitEntity,
+  unitQuery,
+} from '../../../ecs/world';
 import { PopulationComponent, ProductionComponent, getAllCities } from '../../../ecs/citySystems';
 import { TilePosition } from '../../../hex/TilePosition';
 import { TerritoryManager } from '../../../city/Territory';
 import { GeneratedTile } from '../../../map/MapGenerator';
 import { calculateCityYields, calculateNetFood } from '../../../city/CityYields';
 import { buildableToUnitType } from '../../../city/Buildable';
-import { calculateGrowthThreshold, FOOD_PER_POPULATION, DEFAULT_CITY_NAMES } from '../../../city/CityData';
+import {
+  calculateGrowthThreshold,
+  FOOD_PER_POPULATION,
+  DEFAULT_CITY_NAMES,
+} from '../../../city/CityData';
 import { UNIT_TYPE_DATA } from '../../../unit/UnitType';
 import { GameState } from '../../../game/GameState';
 import { CityComponent } from '../../../ecs/cityComponents';
@@ -37,7 +47,10 @@ export interface EndTurnExecutorDeps {
  * Execute an EndTurnCommand.
  * Updates ECS state and returns events to emit.
  */
-export function executeEndTurn(_command: EndTurnCommand, deps: EndTurnExecutorDeps): GameEventType[] {
+export function executeEndTurn(
+  _command: EndTurnCommand,
+  deps: EndTurnExecutorDeps
+): GameEventType[] {
   const { world, gameState, territoryManager, tileMap } = deps;
 
   const events: GameEventType[] = [];

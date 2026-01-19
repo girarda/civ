@@ -79,6 +79,20 @@
       <div class="debug-header">Debug Log (` to close)</div>
       <div id="debug-log"></div>
     </div>
+    <div id="victory-overlay" class="hidden">
+      <div class="victory-panel">
+        <h1 id="victory-title">Victory!</h1>
+        <p id="victory-type"></p>
+        <p id="victory-message"></p>
+        <div id="victory-stats">
+          <div class="stat-row">
+            <span class="label">Turn:</span>
+            <span id="victory-turn">1</span>
+          </div>
+        </div>
+        <button id="play-again-btn">Play Again</button>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

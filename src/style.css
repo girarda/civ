@@ -520,3 +520,95 @@ canvas {
   border-bottom: 1px solid #222;
   word-wrap: break-word;
 }
+
+/* Victory Overlay */
+#victory-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+}
+
+#victory-overlay.hidden {
+  display: none;
+}
+
+.victory-panel {
+  background: rgba(26, 26, 46, 0.98);
+  border: 3px solid #6a9a6a;
+  border-radius: 12px;
+  padding: 40px 60px;
+  text-align: center;
+  color: #e0e0e0;
+  font-family: 'Segoe UI', sans-serif;
+  min-width: 400px;
+}
+
+.victory-panel.defeat {
+  border-color: #9a4a4a;
+}
+
+#victory-title {
+  font-size: 48px;
+  margin: 0 0 16px 0;
+  color: #90c090;
+}
+
+.victory-panel.defeat #victory-title {
+  color: #c09090;
+}
+
+#victory-type {
+  font-size: 24px;
+  color: #a0a0b0;
+  margin: 0 0 24px 0;
+}
+
+#victory-message {
+  font-size: 18px;
+  margin: 0 0 32px 0;
+}
+
+#victory-stats {
+  margin-bottom: 32px;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+}
+
+#victory-stats .stat-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+}
+
+#victory-stats .label {
+  color: #a0a0b0;
+}
+
+#play-again-btn {
+  background: #5a8a5a;
+  border: none;
+  border-radius: 8px;
+  color: #ffffff;
+  padding: 16px 32px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  transition: background 0.15s ease;
+}
+
+#play-again-btn:hover {
+  background: #6a9a6a;
+}
+
+#play-again-btn:focus {
+  outline: 2px solid #a0a0b0;
+  outline-offset: 2px;
+}

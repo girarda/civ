@@ -15,6 +15,7 @@ import { calculateGrowthThreshold, FOOD_PER_POPULATION } from './CityData';
 import { UNIT_TYPE_DATA } from '../unit/UnitType';
 import { TilePosition } from '../hex/TilePosition';
 import { GeneratedTile } from '../map/MapGenerator';
+import { GameState } from '../game/GameState';
 
 export interface ProductionCompletedEvent {
   cityEid: number;
@@ -54,19 +55,22 @@ export class CityProcessor {
   private tileMap: Map<string, GeneratedTile>;
   private callbacks: CityProcessorCallbacks;
   private productionQueue: ProductionQueue;
+  private gameState: GameState | null = null;
 
   constructor(
     world: IWorld,
     territoryManager: TerritoryManager,
     tileMap: Map<string, GeneratedTile>,
     productionQueue: ProductionQueue,
-    callbacks: CityProcessorCallbacks = {}
+    callbacks: CityProcessorCallbacks = {},
+    gameState?: GameState
   ) {
     this.world = world;
     this.territoryManager = territoryManager;
     this.tileMap = tileMap;
     this.productionQueue = productionQueue;
     this.callbacks = callbacks;
+    this.gameState = gameState ?? null;
   }
 
   /**
@@ -88,10 +92,19 @@ export class CityProcessor {
     this.productionQueue = productionQueue;
   }
 
+  setGameState(gameState: GameState): void {
+    this.gameState = gameState;
+  }
+
   /**
    * Process all cities for turn end.
    */
   processTurnEnd(): void {
+    // Skip processing if game is over
+    if (this.gameState?.isGameOver()) {
+      return;
+    }
+
     const cities = getAllCities(this.world);
     for (const cityEid of cities) {
       this.processProduction(cityEid);
@@ -251,6 +264,11 @@ export class CityProcessor {
    * Set production for a city.
    */
   setProduction(cityEid: number, buildableType: number): void {
+    // Block production changes if game is over
+    if (this.gameState?.isGameOver()) {
+      return;
+    }
+
     const cost = getBuildableCost(buildableType);
     ProductionComponent.currentItem[cityEid] = buildableType;
     ProductionComponent.progress[cityEid] = 0;

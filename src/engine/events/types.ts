@@ -4,6 +4,7 @@
  */
 
 import { UnitType } from '../../unit/UnitType';
+import { VictoryType } from '../../victory/VictoryTypes';
 
 /** Base interface for all game events */
 export interface GameEvent {
@@ -107,6 +108,16 @@ export interface PopulationGrowthEvent extends GameEvent {
   playerId: number;
 }
 
+/** Emitted when the game ends with a victory */
+export interface GameOverEvent extends GameEvent {
+  type: 'GAME_OVER';
+  victoryType: VictoryType;
+  winnerId: number;
+  winnerName: string;
+  losers: number[];
+  turnNumber: number;
+}
+
 /** Union type of all game events */
 export type GameEventType =
   | UnitMovedEvent
@@ -118,7 +129,8 @@ export type GameEventType =
   | TurnStartedEvent
   | ProductionCompletedEvent
   | ProductionChangedEvent
-  | PopulationGrowthEvent;
+  | PopulationGrowthEvent
+  | GameOverEvent;
 
 /** Input type for createEvent - event data without timestamp */
 export type EventInput<T extends GameEvent> = Omit<T, 'timestamp'>;
@@ -170,4 +182,8 @@ export function isProductionChangedEvent(event: GameEvent): event is ProductionC
 
 export function isPopulationGrowthEvent(event: GameEvent): event is PopulationGrowthEvent {
   return event.type === 'POPULATION_GROWTH';
+}
+
+export function isGameOverEvent(event: GameEvent): event is GameOverEvent {
+  return event.type === 'GAME_OVER';
 }
