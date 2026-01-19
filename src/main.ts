@@ -172,6 +172,17 @@ async function main() {
   const turnSystem = new TurnSystem(gameState, {
     onTurnStart: () => {
       console.log(`Turn ${gameState.getTurnNumber()} started`);
+      movementExecutor.resetAllMovementPoints();
+
+      // Refresh movement preview for selected unit
+      const selectedUnit = selectionState.get();
+      if (selectedUnit !== null) {
+        const q = Position.q[selectedUnit];
+        const r = Position.r[selectedUnit];
+        const mp = MovementComponent.current[selectedUnit];
+        const pos = new TilePosition(q, r);
+        movementPreview.showReachableTiles(pos, mp);
+      }
     },
     onTurnEnd: () => {
       console.log(`Turn ${gameState.getTurnNumber()} ending`);
