@@ -55,6 +55,7 @@ import {
   getTotalDefenseModifier,
   getDefenseModifierNames,
 } from './combat';
+import { PlayerManager } from './player';
 
 console.log('OpenCiv initializing...');
 
@@ -140,13 +141,26 @@ async function main() {
   const combatPreviewState = new CombatPreviewState();
   const combatPreviewPanel = new CombatPreviewPanel();
 
+  // Initialize player manager
+  const playerManager = new PlayerManager();
+  playerManager.initialize([0], 2); // Player 0 is human, 2 total players
+
+  // Subscribe to elimination events for logging
+  playerManager.subscribe((event) => {
+    if (event.type === 'eliminated') {
+      const player = playerManager.getPlayer(event.playerId);
+      console.log(`${player?.name ?? 'Unknown player'} has been eliminated!`);
+    }
+  });
+
   // CombatExecutor will be updated when world resets
   const combatExecutor = new CombatExecutor(
     world,
     tileMap,
     unitRenderer,
     selectionState,
-    gameState
+    gameState,
+    playerManager
   );
 
   // Initialize city processor for turn integration
@@ -291,6 +305,11 @@ async function main() {
     combatExecutor.setWorld(world);
     combatExecutor.setTileMap(tileMap);
     combatExecutor.setUnitRenderer(unitRenderer);
+    combatExecutor.setPlayerManager(playerManager);
+
+    // Reset player manager
+    playerManager.clear();
+    playerManager.initialize([0], 2);
 
     // Center camera on map
     const [width, height] = config.getDimensions();

@@ -6,7 +6,7 @@
 import { Graphics, Container, Text, TextStyle } from 'pixi.js';
 import { HexGridLayout } from '../hex/HexGridLayout';
 import { TilePosition } from '../hex/TilePosition';
-import { PLAYER_COLORS } from './UnitRenderer';
+import { PLAYER_COLORS } from '../player';
 
 const CITY_WIDTH = 24;
 const CITY_HEIGHT = 18;

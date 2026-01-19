@@ -15,6 +15,7 @@ import { TurnPhase } from '../game/TurnPhase';
 import { UNIT_TYPE_DATA, UnitType } from '../unit/UnitType';
 import { calculateCombat, CombatResult, CombatContext } from './CombatCalculator';
 import { getTotalDefenseModifier } from './CombatModifiers';
+import { PlayerManager } from '../player';
 
 export class CombatExecutor {
   private world: IWorld;
@@ -22,19 +23,22 @@ export class CombatExecutor {
   private unitRenderer: UnitRenderer;
   private selectionState: SelectionState;
   private gameState: GameState;
+  private playerManager: PlayerManager | null;
 
   constructor(
     world: IWorld,
     tileMap: Map<string, GeneratedTile>,
     unitRenderer: UnitRenderer,
     selectionState: SelectionState,
-    gameState: GameState
+    gameState: GameState,
+    playerManager?: PlayerManager
   ) {
     this.world = world;
     this.tileMap = tileMap;
     this.unitRenderer = unitRenderer;
     this.selectionState = selectionState;
     this.gameState = gameState;
+    this.playerManager = playerManager ?? null;
   }
 
   /**
@@ -144,6 +148,9 @@ export class CombatExecutor {
    * Remove a unit from the game (death).
    */
   private removeUnit(eid: number): void {
+    // Get owner before removing (for elimination check)
+    const playerId = getUnitOwner(eid);
+
     // Deselect if this unit was selected
     if (this.selectionState.isSelected(eid)) {
       this.selectionState.deselect();
@@ -154,6 +161,11 @@ export class CombatExecutor {
 
     // Remove from ECS
     removeEntity(this.world, eid);
+
+    // Check for player elimination
+    if (this.playerManager) {
+      this.playerManager.checkElimination(this.world, playerId);
+    }
   }
 
   /**
@@ -181,5 +193,9 @@ export class CombatExecutor {
 
   setUnitRenderer(unitRenderer: UnitRenderer): void {
     this.unitRenderer = unitRenderer;
+  }
+
+  setPlayerManager(playerManager: PlayerManager): void {
+    this.playerManager = playerManager;
   }
 }
