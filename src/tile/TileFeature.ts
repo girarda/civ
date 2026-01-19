@@ -37,12 +37,7 @@ export const FEATURE_DATA: Record<TileFeature, FeatureData> = {
     productionModifier: -1,
     goldModifier: 0,
     movementModifier: 1,
-    validTerrains: [
-      Terrain.Grassland,
-      Terrain.Plains,
-      Terrain.GrasslandHill,
-      Terrain.PlainsHill,
-    ],
+    validTerrains: [Terrain.Grassland, Terrain.Plains, Terrain.GrasslandHill, Terrain.PlainsHill],
   },
   [TileFeature.Marsh]: {
     foodModifier: -1,
@@ -74,10 +69,7 @@ export const FEATURE_DATA: Record<TileFeature, FeatureData> = {
   },
 };
 
-export function canPlaceFeature(
-  feature: TileFeature,
-  terrain: Terrain
-): boolean {
+export function canPlaceFeature(feature: TileFeature, terrain: Terrain): boolean {
   return FEATURE_DATA[feature].validTerrains.includes(terrain);
 }
 

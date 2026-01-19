@@ -169,13 +169,9 @@ export function getTerrainData(terrain: Terrain): TerrainData {
 }
 
 export function isFlatLand(terrain: Terrain): boolean {
-  return [
-    Terrain.Grassland,
-    Terrain.Plains,
-    Terrain.Desert,
-    Terrain.Tundra,
-    Terrain.Snow,
-  ].includes(terrain);
+  return [Terrain.Grassland, Terrain.Plains, Terrain.Desert, Terrain.Tundra, Terrain.Snow].includes(
+    terrain
+  );
 }
 
 export function isHill(terrain: Terrain): boolean {

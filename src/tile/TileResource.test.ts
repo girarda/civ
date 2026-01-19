@@ -9,7 +9,11 @@ import {
   isLuxury,
   getAllResources,
   getResourcesByCategory,
+  RESOURCE_PLACEMENT,
+  canPlaceResource,
 } from './TileResource';
+import { Terrain } from './Terrain';
+import { TileFeature } from './TileFeature';
 
 describe('TileResource', () => {
   describe('enum values', () => {
@@ -179,6 +183,114 @@ describe('TileResource', () => {
         expect(data.improvedFood).toBeGreaterThanOrEqual(data.food);
         expect(data.improvedProduction).toBeGreaterThanOrEqual(data.production);
         expect(data.improvedGold).toBeGreaterThanOrEqual(data.gold);
+      }
+    });
+  });
+
+  describe('RESOURCE_PLACEMENT', () => {
+    it('should have placement rules for all 26 resources', () => {
+      const resources = getAllResources();
+      for (const resource of resources) {
+        expect(RESOURCE_PLACEMENT[resource]).toBeDefined();
+        expect(RESOURCE_PLACEMENT[resource].validTerrains.length).toBeGreaterThan(0);
+        expect(RESOURCE_PLACEMENT[resource].validFeatures.length).toBeGreaterThan(0);
+        expect(RESOURCE_PLACEMENT[resource].spawnChance).toBeGreaterThan(0);
+        expect(RESOURCE_PLACEMENT[resource].spawnChance).toBeLessThanOrEqual(1);
+      }
+    });
+
+    it('should have reasonable spawn rates by category', () => {
+      // Bonus resources should have higher spawn rates (5-15%)
+      const bonusResources = getResourcesByCategory(ResourceCategory.Bonus);
+      for (const resource of bonusResources) {
+        expect(RESOURCE_PLACEMENT[resource].spawnChance).toBeGreaterThanOrEqual(0.05);
+        expect(RESOURCE_PLACEMENT[resource].spawnChance).toBeLessThanOrEqual(0.15);
+      }
+
+      // Strategic resources should have lower spawn rates (1-4%)
+      const strategicResources = getResourcesByCategory(ResourceCategory.Strategic);
+      for (const resource of strategicResources) {
+        expect(RESOURCE_PLACEMENT[resource].spawnChance).toBeGreaterThanOrEqual(0.01);
+        expect(RESOURCE_PLACEMENT[resource].spawnChance).toBeLessThanOrEqual(0.04);
+      }
+
+      // Luxury resources should have moderate spawn rates (2-6%)
+      const luxuryResources = getResourcesByCategory(ResourceCategory.Luxury);
+      for (const resource of luxuryResources) {
+        expect(RESOURCE_PLACEMENT[resource].spawnChance).toBeGreaterThanOrEqual(0.02);
+        expect(RESOURCE_PLACEMENT[resource].spawnChance).toBeLessThanOrEqual(0.06);
+      }
+    });
+  });
+
+  describe('canPlaceResource', () => {
+    it('should allow Cattle on Grassland without feature', () => {
+      expect(canPlaceResource(TileResource.Cattle, Terrain.Grassland, null)).toBe(true);
+    });
+
+    it('should not allow Cattle on Plains', () => {
+      expect(canPlaceResource(TileResource.Cattle, Terrain.Plains, null)).toBe(false);
+    });
+
+    it('should not allow Cattle on Grassland with Forest', () => {
+      // Cattle requires no feature (validFeatures: [null])
+      expect(canPlaceResource(TileResource.Cattle, Terrain.Grassland, TileFeature.Forest)).toBe(
+        false
+      );
+    });
+
+    it('should allow Fish on Coast and Ocean', () => {
+      expect(canPlaceResource(TileResource.Fish, Terrain.Coast, null)).toBe(true);
+      expect(canPlaceResource(TileResource.Fish, Terrain.Ocean, null)).toBe(true);
+    });
+
+    it('should not allow Fish on land terrain', () => {
+      expect(canPlaceResource(TileResource.Fish, Terrain.Grassland, null)).toBe(false);
+      expect(canPlaceResource(TileResource.Fish, Terrain.Plains, null)).toBe(false);
+    });
+
+    it('should allow Bananas only on Grassland with Jungle', () => {
+      expect(canPlaceResource(TileResource.Bananas, Terrain.Grassland, TileFeature.Jungle)).toBe(
+        true
+      );
+      expect(canPlaceResource(TileResource.Bananas, Terrain.Grassland, null)).toBe(false);
+      expect(canPlaceResource(TileResource.Bananas, Terrain.Plains, TileFeature.Jungle)).toBe(
+        false
+      );
+    });
+
+    it('should allow Deer on Tundra with or without Forest', () => {
+      expect(canPlaceResource(TileResource.Deer, Terrain.Tundra, null)).toBe(true);
+      expect(canPlaceResource(TileResource.Deer, Terrain.Tundra, TileFeature.Forest)).toBe(true);
+      expect(canPlaceResource(TileResource.Deer, Terrain.TundraHill, null)).toBe(true);
+    });
+
+    it('should allow Iron on hills with optional Forest', () => {
+      expect(canPlaceResource(TileResource.Iron, Terrain.GrasslandHill, null)).toBe(true);
+      expect(canPlaceResource(TileResource.Iron, Terrain.GrasslandHill, TileFeature.Forest)).toBe(
+        true
+      );
+      expect(canPlaceResource(TileResource.Iron, Terrain.Grassland, null)).toBe(false);
+    });
+
+    it('should allow Silk only on Grassland with Forest', () => {
+      expect(canPlaceResource(TileResource.Silk, Terrain.Grassland, TileFeature.Forest)).toBe(true);
+      expect(canPlaceResource(TileResource.Silk, Terrain.Grassland, null)).toBe(false);
+      expect(canPlaceResource(TileResource.Silk, Terrain.Plains, TileFeature.Forest)).toBe(false);
+    });
+
+    it('should allow Oil on water and cold/desert terrain', () => {
+      expect(canPlaceResource(TileResource.Oil, Terrain.Coast, null)).toBe(true);
+      expect(canPlaceResource(TileResource.Oil, Terrain.Ocean, null)).toBe(true);
+      expect(canPlaceResource(TileResource.Oil, Terrain.Desert, null)).toBe(true);
+      expect(canPlaceResource(TileResource.Oil, Terrain.Tundra, null)).toBe(true);
+      expect(canPlaceResource(TileResource.Oil, Terrain.Snow, null)).toBe(true);
+    });
+
+    it('should not allow resources on Mountain', () => {
+      const resources = getAllResources();
+      for (const resource of resources) {
+        expect(canPlaceResource(resource, Terrain.Mountain, null)).toBe(false);
       }
     });
   });

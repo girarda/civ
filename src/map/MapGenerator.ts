@@ -4,11 +4,18 @@ import { MapConfig } from './MapConfig';
 import { TilePosition } from '../hex/TilePosition';
 import { Terrain } from '../tile/Terrain';
 import { TileFeature, canPlaceFeature } from '../tile/TileFeature';
+import {
+  TileResource,
+  canPlaceResource,
+  RESOURCE_PLACEMENT,
+  getAllResources,
+} from '../tile/TileResource';
 
 export interface GeneratedTile {
   position: TilePosition;
   terrain: Terrain;
   feature: TileFeature | null;
+  resource: TileResource | null;
 }
 
 export class MapGenerator {
@@ -42,9 +49,7 @@ export class MapGenerator {
   generateHeightMap(): number[][] {
     const [width, height] = this.config.getDimensions();
     const noise2D = createNoise2D(() => this.rng());
-    const map: number[][] = Array.from({ length: width }, () =>
-      Array(height).fill(0)
-    );
+    const map: number[][] = Array.from({ length: width }, () => Array(height).fill(0));
 
     for (let x = 0; x < width; x++) {
       for (let y = 0; y < height; y++) {
@@ -74,9 +79,7 @@ export class MapGenerator {
   generateTemperatureMap(): number[][] {
     const [width, height] = this.config.getDimensions();
     const noise2D = createNoise2D(() => this.rng());
-    const map: number[][] = Array.from({ length: width }, () =>
-      Array(height).fill(0)
-    );
+    const map: number[][] = Array.from({ length: width }, () => Array(height).fill(0));
 
     for (let x = 0; x < width; x++) {
       for (let y = 0; y < height; y++) {
@@ -93,9 +96,7 @@ export class MapGenerator {
   generateMoistureMap(): number[][] {
     const [width, height] = this.config.getDimensions();
     const noise2D = createNoise2D(() => this.rng());
-    const map: number[][] = Array.from({ length: width }, () =>
-      Array(height).fill(0)
-    );
+    const map: number[][] = Array.from({ length: width }, () => Array(height).fill(0));
 
     for (let x = 0; x < width; x++) {
       for (let y = 0; y < height; y++) {
@@ -117,9 +118,7 @@ export class MapGenerator {
 
   determineTerrain(height: number, temp: number): Terrain {
     if (height < this.config.oceanThreshold) {
-      return height < this.config.oceanThreshold * 0.6
-        ? Terrain.Ocean
-        : Terrain.Coast;
+      return height < this.config.oceanThreshold * 0.6 ? Terrain.Ocean : Terrain.Coast;
     }
     if (height > this.config.mountainThreshold) {
       return Terrain.Mountain;
@@ -134,11 +133,7 @@ export class MapGenerator {
     return isHill ? Terrain.DesertHill : Terrain.Desert;
   }
 
-  determineFeature(
-    terrain: Terrain,
-    temp: number,
-    moisture: number
-  ): TileFeature | null {
+  determineFeature(terrain: Terrain, temp: number, moisture: number): TileFeature | null {
     // No features on water, mountains, or snow
     if (
       [
@@ -162,11 +157,7 @@ export class MapGenerator {
     ].includes(terrain);
 
     // Oasis
-    if (
-      terrain === Terrain.Desert &&
-      moisture > 0.4 &&
-      this.rng() < 0.05
-    ) {
+    if (terrain === Terrain.Desert && moisture > 0.4 && this.rng() < 0.05) {
       return TileFeature.Oasis;
     }
 
@@ -203,6 +194,32 @@ export class MapGenerator {
     return null;
   }
 
+  /**
+   * Determine which resource (if any) spawns on a tile based on terrain and feature.
+   */
+  determineResource(terrain: Terrain, feature: TileFeature | null): TileResource | null {
+    // Collect all valid resources for this tile
+    const candidates: TileResource[] = [];
+
+    for (const resource of getAllResources()) {
+      if (canPlaceResource(resource, terrain, feature)) {
+        candidates.push(resource);
+      }
+    }
+
+    if (candidates.length === 0) return null;
+
+    // Roll for each candidate resource
+    for (const resource of candidates) {
+      const placement = RESOURCE_PLACEMENT[resource];
+      if (this.rng() < placement.spawnChance) {
+        return resource;
+      }
+    }
+
+    return null;
+  }
+
   generate(): GeneratedTile[] {
     const [width, height] = this.config.getDimensions();
     const heightMap = this.generateHeightMap();
@@ -214,16 +231,14 @@ export class MapGenerator {
     for (let q = 0; q < width; q++) {
       for (let r = 0; r < height; r++) {
         const terrain = this.determineTerrain(heightMap[q][r], tempMap[q][r]);
-        const feature = this.determineFeature(
-          terrain,
-          tempMap[q][r],
-          moistureMap[q][r]
-        );
+        const feature = this.determineFeature(terrain, tempMap[q][r], moistureMap[q][r]);
+        const resource = this.determineResource(terrain, feature);
 
         tiles.push({
           position: new TilePosition(q, r),
           terrain,
           feature,
+          resource,
         });
       }
     }

@@ -114,11 +114,7 @@ describe('TileYields', () => {
     });
 
     it('should apply feature and resource together', () => {
-      const yields = calculateYields(
-        Terrain.Grassland,
-        TileFeature.Forest,
-        TileResource.Deer
-      );
+      const yields = calculateYields(Terrain.Grassland, TileFeature.Forest, TileResource.Deer);
       // Grassland: 2 food, 0 prod. Forest: +1 prod. Deer: +1 food
       expect(yields.food).toBe(3);
       expect(yields.production).toBe(1);
@@ -134,31 +130,19 @@ describe('TileYields', () => {
   describe('calculateImprovedYields', () => {
     it('should apply improved resource bonuses', () => {
       const base = calculateYields(Terrain.Grassland, null, TileResource.Wheat);
-      const improved = calculateImprovedYields(
-        Terrain.Grassland,
-        null,
-        TileResource.Wheat
-      );
+      const improved = calculateImprovedYields(Terrain.Grassland, null, TileResource.Wheat);
       // Wheat improved: +2 food instead of +1
       expect(improved.food).toBeGreaterThan(base.food);
     });
 
     it('should have same result as base when no resource', () => {
       const base = calculateYields(Terrain.Grassland, TileFeature.Forest, null);
-      const improved = calculateImprovedYields(
-        Terrain.Grassland,
-        TileFeature.Forest,
-        null
-      );
+      const improved = calculateImprovedYields(Terrain.Grassland, TileFeature.Forest, null);
       expect(yieldsEqual(base, improved)).toBe(true);
     });
 
     it('should apply improved Iron bonus', () => {
-      const improved = calculateImprovedYields(
-        Terrain.GrasslandHill,
-        null,
-        TileResource.Iron
-      );
+      const improved = calculateImprovedYields(Terrain.GrasslandHill, null, TileResource.Iron);
       // GrasslandHill: 2 prod. Iron improved: +2 prod
       expect(improved.production).toBe(4);
     });

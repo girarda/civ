@@ -109,12 +109,7 @@ export function calculateImprovedYields(
 
 export function totalYields(yields: TileYields): number {
   return (
-    yields.food +
-    yields.production +
-    yields.gold +
-    yields.science +
-    yields.culture +
-    yields.faith
+    yields.food + yields.production + yields.gold + yields.science + yields.culture + yields.faith
   );
 }
 

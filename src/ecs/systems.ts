@@ -1,10 +1,5 @@
 import { defineQuery, enterQuery, exitQuery, IWorld } from 'bitecs';
-import {
-  Position,
-  TerrainComponent,
-  FeatureComponent,
-  YieldsComponent,
-} from './world';
+import { Position, TerrainComponent, FeatureComponent, YieldsComponent } from './world';
 
 // Query for all tiles (entities with Position and Terrain)
 export const tileQuery = defineQuery([Position, TerrainComponent]);
@@ -12,11 +7,7 @@ export const tileEnterQuery = enterQuery(tileQuery);
 export const tileExitQuery = exitQuery(tileQuery);
 
 // Query for tiles with features
-export const featureQuery = defineQuery([
-  Position,
-  TerrainComponent,
-  FeatureComponent,
-]);
+export const featureQuery = defineQuery([Position, TerrainComponent, FeatureComponent]);
 
 // Query for tiles with yields
 export const yieldsQuery = defineQuery([Position, YieldsComponent]);
@@ -67,10 +58,7 @@ export function getFeatureTiles(world: IWorld): number[] {
  * System pipeline runner.
  * Runs all registered systems in order.
  */
-export function runSystems(
-  world: IWorld,
-  systems: ((world: IWorld) => IWorld)[]
-): IWorld {
+export function runSystems(world: IWorld, systems: ((world: IWorld) => IWorld)[]): IWorld {
   for (const system of systems) {
     world = system(world);
   }

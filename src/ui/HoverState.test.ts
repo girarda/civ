@@ -8,6 +8,7 @@ describe('HoverState', () => {
     position: new TilePosition(q, r),
     terrain: Terrain.Grassland,
     feature: null,
+    resource: null,
   });
 
   describe('get/set', () => {

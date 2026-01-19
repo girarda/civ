@@ -66,10 +66,7 @@ export class TileHighlight {
     const corners = this.layout.hexCorners(this.currentPosition);
 
     // Compute local corner coordinates once
-    const localCorners = corners.flatMap((c) => [
-      c.x - worldPos.x,
-      c.y - worldPos.y,
-    ]);
+    const localCorners = corners.flatMap((c) => [c.x - worldPos.x, c.y - worldPos.y]);
 
     this.graphic.clear();
 

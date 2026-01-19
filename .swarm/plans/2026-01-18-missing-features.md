@@ -1,191 +1,368 @@
-# Plan: Missing Features Implementation (Phases 1.5-1.9)
+# Plan: Missing Features Implementation
 
 **Date**: 2026-01-18
 **Status**: Ready for Implementation
 
 ## Overview
 
-This plan covers the remaining Phase 1 features for OpenCiv: tile hover detection (1.6), tile information panel (1.7), and polish items (1.9). Phase 1.5 (tilemap rendering) is deferred as the current Graphics-based rendering is sufficient for the current scope. The implementation uses TypeScript, PixiJS 8.x, and HTML/CSS overlays for UI.
+This plan covers the remaining Phase 1 features for OpenCiv: resource placement during map generation, tile information panel (1.7), and polish items (1.9). Phase 1.6 (tile hover detection) is already complete. Implementation uses TypeScript, PixiJS 8.x, and HTML/CSS overlays for UI.
 
 ## Research Summary
 
-Key findings from the research phase:
+Key findings from the gap analysis:
 
-- **Current Rendering**: Uses individual PixiJS `Graphics` objects per tile via `TileRenderer.addTile()`. Works well for Duel-size maps (1,536 tiles).
-- **Coordinate Conversion**: `HexGridLayout.worldToHex()` already exists and correctly converts screen positions to hex coordinates.
-- **Tile Data**: `MapGenerator.generate()` returns `GeneratedTile[]` with position, terrain, and feature. Resources are not yet generated.
-- **Camera State**: `CameraController` provides `getZoom()` and `getPosition()` for coordinate transforms.
-- **ECS**: Components are defined in `/Users/alex/workspace/civ/src/ecs/world.ts` but not yet integrated into main.ts.
-- **Test Coverage**: Comprehensive unit tests exist; E2E tests verify canvas rendering and camera controls.
+- **Phase 1.6 (Hover Detection)**: COMPLETE - HoverState, HoverSystem, and TileHighlight all implemented
+- **Resource Placement**: TileResource enum (26 resources) is fully defined with categories, yields, and improved yields, but MapGenerator does not place resources during generation
+- **Tile Info Panel**: HoverState correctly tracks hovered tile data, but no UI displays this information
+- **Polish Items**: No seed display, no map regeneration hotkey (R), limited JSDoc documentation
+- **Architecture**: Using Map-based tile storage rather than full ECS, which is adequate for Phase 1
 
-## Phased Implementation
+## Implementation Priority
 
-### Phase 1.5: Tilemap Rendering - DEFERRED
-
-**Decision**: Skip for now. Current approach using individual `Graphics` objects performs adequately. This can be revisited if performance issues arise with larger map sizes.
-
-**Rationale**:
-- Duel map (48x32 = 1,536 tiles) renders smoothly
-- PixiJS handles moderate tile counts well with GPU batching
-- Optimization adds complexity without immediate benefit
+Based on user preference:
+1. **Resource Placement** (completes map generation)
+2. **Tile Information Panel** (user-visible feedback)
+3. **Polish** (seed display, hotkeys, documentation)
 
 ---
 
-### Phase 1.6: Tile Hover Detection
+## Phased Implementation
 
-**Goal**: Detect which tile the cursor is hovering over and provide visual feedback.
+### Phase A: Resource Placement
+
+**Goal**: Extend MapGenerator to place resources on tiles based on terrain and feature compatibility.
+
+**Status**: COMPLETE
 
 #### Tasks
 
-- [x] Create `src/ui/HoverState.ts` - State class to track hovered tile
-- [x] Create `src/ui/HoverSystem.ts` - System to update hover state from mouse position
-- [x] Create `src/render/TileHighlight.ts` - Highlight graphic for hovered tile
-- [x] Modify `src/main.ts` - Integrate hover detection into game loop
-- [x] Create `src/ui/index.ts` - Barrel export for UI module
-- [x] Write unit tests for world-to-screen coordinate conversion with zoom/pan
-- [x] Write E2E test for hover detection
+- [x] Define resource-terrain compatibility rules in `TileResource.ts`
+- [x] Add `resource` field to `GeneratedTile` interface in `MapGenerator.ts`
+- [x] Implement `determineResource()` method in `MapGenerator` class
+- [x] Update `generate()` to call resource placement
+- [x] Update `HoveredTile` interface to include resource
+- [x] Update `HoverSystem` to populate resource field
+- [x] Write unit tests for resource placement
+- [x] Write tests for resource-terrain compatibility
 
 #### Implementation Details
 
-**HoverState.ts**
+**Resource-Terrain Compatibility Rules**
+
+Add to `/Users/alex/workspace/civ/src/tile/TileResource.ts`:
+
 ```typescript
+export interface ResourcePlacement {
+  validTerrains: Terrain[];
+  validFeatures: (TileFeature | null)[];  // null means "no feature required"
+  spawnChance: number;  // 0.0 to 1.0
+}
+
+export const RESOURCE_PLACEMENT: Record<TileResource, ResourcePlacement> = {
+  // Bonus Resources
+  [TileResource.Cattle]: {
+    validTerrains: [Terrain.Grassland],
+    validFeatures: [null],
+    spawnChance: 0.08,
+  },
+  [TileResource.Sheep]: {
+    validTerrains: [Terrain.Grassland, Terrain.GrasslandHill, Terrain.Plains, Terrain.PlainsHill, Terrain.DesertHill],
+    validFeatures: [null],
+    spawnChance: 0.08,
+  },
+  [TileResource.Fish]: {
+    validTerrains: [Terrain.Coast, Terrain.Ocean],
+    validFeatures: [null],
+    spawnChance: 0.10,
+  },
+  [TileResource.Stone]: {
+    validTerrains: [Terrain.Grassland, Terrain.GrasslandHill, Terrain.Plains, Terrain.PlainsHill, Terrain.Desert, Terrain.DesertHill, Terrain.Tundra],
+    validFeatures: [null],
+    spawnChance: 0.05,
+  },
+  [TileResource.Wheat]: {
+    validTerrains: [Terrain.Plains],
+    validFeatures: [null, TileFeature.Floodplains],
+    spawnChance: 0.10,
+  },
+  [TileResource.Bananas]: {
+    validTerrains: [Terrain.Grassland],
+    validFeatures: [TileFeature.Jungle],
+    spawnChance: 0.15,
+  },
+  [TileResource.Deer]: {
+    validTerrains: [Terrain.Tundra, Terrain.TundraHill],
+    validFeatures: [null, TileFeature.Forest],
+    spawnChance: 0.12,
+  },
+
+  // Strategic Resources
+  [TileResource.Horses]: {
+    validTerrains: [Terrain.Grassland, Terrain.Plains, Terrain.Tundra],
+    validFeatures: [null],
+    spawnChance: 0.04,
+  },
+  [TileResource.Iron]: {
+    validTerrains: [Terrain.GrasslandHill, Terrain.PlainsHill, Terrain.DesertHill, Terrain.TundraHill, Terrain.SnowHill],
+    validFeatures: [null, TileFeature.Forest],
+    spawnChance: 0.03,
+  },
+  [TileResource.Coal]: {
+    validTerrains: [Terrain.GrasslandHill, Terrain.PlainsHill],
+    validFeatures: [null, TileFeature.Forest, TileFeature.Jungle],
+    spawnChance: 0.03,
+  },
+  [TileResource.Oil]: {
+    validTerrains: [Terrain.Desert, Terrain.Tundra, Terrain.Snow, Terrain.Coast, Terrain.Ocean],
+    validFeatures: [null, TileFeature.Marsh],
+    spawnChance: 0.02,
+  },
+  [TileResource.Aluminum]: {
+    validTerrains: [Terrain.Plains, Terrain.PlainsHill, Terrain.Desert, Terrain.DesertHill, Terrain.Tundra],
+    validFeatures: [null],
+    spawnChance: 0.02,
+  },
+  [TileResource.Uranium]: {
+    validTerrains: [Terrain.GrasslandHill, Terrain.PlainsHill, Terrain.DesertHill, Terrain.TundraHill, Terrain.SnowHill, Terrain.Jungle],
+    validFeatures: [null, TileFeature.Forest, TileFeature.Jungle, TileFeature.Marsh],
+    spawnChance: 0.01,
+  },
+
+  // Luxury Resources
+  [TileResource.Citrus]: {
+    validTerrains: [Terrain.Grassland, Terrain.Plains],
+    validFeatures: [null, TileFeature.Jungle],
+    spawnChance: 0.03,
+  },
+  [TileResource.Cotton]: {
+    validTerrains: [Terrain.Grassland, Terrain.Plains, Terrain.Desert],
+    validFeatures: [null, TileFeature.Floodplains],
+    spawnChance: 0.03,
+  },
+  [TileResource.Copper]: {
+    validTerrains: [Terrain.GrasslandHill, Terrain.PlainsHill, Terrain.DesertHill, Terrain.TundraHill],
+    validFeatures: [null],
+    spawnChance: 0.03,
+  },
+  [TileResource.Gold]: {
+    validTerrains: [Terrain.GrasslandHill, Terrain.PlainsHill, Terrain.DesertHill, Terrain.Grassland, Terrain.Plains, Terrain.Desert],
+    validFeatures: [null],
+    spawnChance: 0.02,
+  },
+  [TileResource.Crab]: {
+    validTerrains: [Terrain.Coast],
+    validFeatures: [null],
+    spawnChance: 0.06,
+  },
+  [TileResource.Whales]: {
+    validTerrains: [Terrain.Coast, Terrain.Ocean],
+    validFeatures: [null],
+    spawnChance: 0.04,
+  },
+  [TileResource.Turtles]: {
+    validTerrains: [Terrain.Coast],
+    validFeatures: [null],
+    spawnChance: 0.04,
+  },
+  [TileResource.Olives]: {
+    validTerrains: [Terrain.Grassland, Terrain.GrasslandHill, Terrain.Plains, Terrain.PlainsHill],
+    validFeatures: [null],
+    spawnChance: 0.03,
+  },
+  [TileResource.Wine]: {
+    validTerrains: [Terrain.Grassland, Terrain.GrasslandHill, Terrain.Plains, Terrain.PlainsHill],
+    validFeatures: [null],
+    spawnChance: 0.03,
+  },
+  [TileResource.Silk]: {
+    validTerrains: [Terrain.Grassland],
+    validFeatures: [TileFeature.Forest],
+    spawnChance: 0.04,
+  },
+  [TileResource.Spices]: {
+    validTerrains: [Terrain.Grassland, Terrain.Plains],
+    validFeatures: [TileFeature.Jungle],
+    spawnChance: 0.05,
+  },
+  [TileResource.Gems]: {
+    validTerrains: [Terrain.GrasslandHill, Terrain.PlainsHill, Terrain.DesertHill, Terrain.TundraHill, Terrain.Grassland],
+    validFeatures: [null, TileFeature.Jungle],
+    spawnChance: 0.02,
+  },
+  [TileResource.Marble]: {
+    validTerrains: [Terrain.Grassland, Terrain.GrasslandHill, Terrain.Plains, Terrain.PlainsHill, Terrain.Desert, Terrain.DesertHill, Terrain.Tundra],
+    validFeatures: [null],
+    spawnChance: 0.03,
+  },
+  [TileResource.Ivory]: {
+    validTerrains: [Terrain.Plains],
+    validFeatures: [null],
+    spawnChance: 0.03,
+  },
+};
+
+export function canPlaceResource(
+  resource: TileResource,
+  terrain: Terrain,
+  feature: TileFeature | null
+): boolean {
+  const placement = RESOURCE_PLACEMENT[resource];
+  if (!placement.validTerrains.includes(terrain)) return false;
+  // If validFeatures includes null, resource can spawn without feature
+  // Otherwise, feature must match one in the list
+  if (placement.validFeatures.includes(null) && feature === null) return true;
+  if (feature !== null && placement.validFeatures.includes(feature)) return true;
+  if (placement.validFeatures.includes(null)) return true;  // null means "any" including no feature
+  return false;
+}
+```
+
+**Update GeneratedTile Interface**
+
+Modify `/Users/alex/workspace/civ/src/map/MapGenerator.ts`:
+
+```typescript
+import { TileResource, canPlaceResource, RESOURCE_PLACEMENT, getAllResources } from '../tile/TileResource';
+
+export interface GeneratedTile {
+  position: TilePosition;
+  terrain: Terrain;
+  feature: TileFeature | null;
+  resource: TileResource | null;  // NEW FIELD
+}
+```
+
+**Add determineResource() Method**
+
+```typescript
+determineResource(
+  terrain: Terrain,
+  feature: TileFeature | null
+): TileResource | null {
+  // Collect all valid resources for this tile
+  const candidates: TileResource[] = [];
+
+  for (const resource of getAllResources()) {
+    if (canPlaceResource(resource, terrain, feature)) {
+      candidates.push(resource);
+    }
+  }
+
+  if (candidates.length === 0) return null;
+
+  // Roll for each candidate resource
+  for (const resource of candidates) {
+    const placement = RESOURCE_PLACEMENT[resource];
+    if (this.rng() < placement.spawnChance) {
+      return resource;
+    }
+  }
+
+  return null;
+}
+```
+
+**Update generate() Method**
+
+```typescript
+generate(): GeneratedTile[] {
+  const [width, height] = this.config.getDimensions();
+  const heightMap = this.generateHeightMap();
+  const tempMap = this.generateTemperatureMap();
+  const moistureMap = this.generateMoistureMap();
+
+  const tiles: GeneratedTile[] = [];
+
+  for (let q = 0; q < width; q++) {
+    for (let r = 0; r < height; r++) {
+      const terrain = this.determineTerrain(heightMap[q][r], tempMap[q][r]);
+      const feature = this.determineFeature(
+        terrain,
+        tempMap[q][r],
+        moistureMap[q][r]
+      );
+      const resource = this.determineResource(terrain, feature);  // NEW
+
+      tiles.push({
+        position: new TilePosition(q, r),
+        terrain,
+        feature,
+        resource,  // NEW
+      });
+    }
+  }
+
+  return tiles;
+}
+```
+
+**Update HoveredTile Interface**
+
+Modify `/Users/alex/workspace/civ/src/ui/HoverState.ts`:
+
+```typescript
+import { TileResource } from '../tile/TileResource';
+
 export interface HoveredTile {
   position: TilePosition;
   terrain: Terrain;
   feature: TileFeature | null;
+  resource: TileResource | null;  // NEW FIELD
 }
-
-export class HoverState {
-  private current: HoveredTile | null = null;
-  private listeners: ((tile: HoveredTile | null) => void)[] = [];
-
-  get(): HoveredTile | null;
-  set(tile: HoveredTile | null): void;
-  subscribe(listener: (tile: HoveredTile | null) => void): () => void;
-}
-```
-
-**HoverSystem.ts**
-```typescript
-export class HoverSystem {
-  constructor(
-    layout: HexGridLayout,
-    camera: CameraController,
-    tileMap: Map<string, GeneratedTile>  // key: "q,r"
-  );
-
-  // Convert screen coords to world coords accounting for camera transform
-  screenToWorld(screenX: number, screenY: number): Vec2;
-
-  // Handle mouse move event
-  handleMouseMove(event: MouseEvent): HoveredTile | null;
-
-  // Attach to canvas element
-  attach(canvas: HTMLCanvasElement): void;
-  detach(): void;
-}
-```
-
-**Coordinate Transform Logic**:
-```typescript
-screenToWorld(screenX: number, screenY: number): Vec2 {
-  const cameraPos = this.camera.getPosition();
-  const zoom = this.camera.getZoom();
-  return {
-    x: (screenX - cameraPos.x) / zoom,
-    y: (screenY - cameraPos.y) / zoom
-  };
-}
-```
-
-**TileHighlight.ts**
-```typescript
-export class TileHighlight {
-  private graphic: Graphics;
-  private layout: HexGridLayout;
-
-  constructor(container: Container, layout: HexGridLayout);
-
-  show(position: TilePosition): void;  // Draw highlight at position
-  hide(): void;                         // Remove highlight
-  setColor(color: number): void;        // Customize highlight color
-}
-```
-
-**Integration in main.ts**:
-```typescript
-// After map generation, build tile lookup
-const tileMap = new Map<string, GeneratedTile>();
-for (const tile of tiles) {
-  tileMap.set(tile.position.key(), tile);
-}
-
-// Create hover system
-const hoverState = new HoverState();
-const hoverSystem = new HoverSystem(layout, camera, tileMap);
-const tileHighlight = new TileHighlight(worldContainer, layout);
-
-hoverSystem.attach(app.canvas);
-
-hoverState.subscribe((tile) => {
-  if (tile) {
-    tileHighlight.show(tile.position);
-  } else {
-    tileHighlight.hide();
-  }
-});
-
-app.ticker.add(() => {
-  // ... existing camera update
-});
 ```
 
 #### Success Criteria
-- [x] Mouse position correctly converts to hex coordinate at all zoom levels
-- [x] Hovered tile is visually highlighted with distinct outline/glow
-- [x] Highlight follows cursor smoothly during pan/zoom
-- [x] HoverState updates in real-time as cursor moves
-- [x] No performance degradation from hover detection
+
+- [x] All 26 resources have defined placement rules
+- [x] Resources only spawn on compatible terrain/feature combinations
+- [x] Resource distribution is deterministic (same seed = same resources)
+- [x] Resource spawn rates are reasonable (not too sparse or dense)
+- [x] Unit tests verify placement rules
+- [x] Unit tests verify determinism
 
 ---
 
-### Phase 1.7: Tile Information Panel
+### Phase B: Tile Information Panel
 
 **Goal**: Display detailed tile information in an HTML/CSS overlay panel when hovering.
+
+**Status**: NOT STARTED (HoverState ready, needs UI)
 
 #### Tasks
 
 - [ ] Create `src/ui/TileInfoPanel.ts` - Panel component with show/hide logic
 - [ ] Add panel styles to `src/style.css`
 - [ ] Modify `index.html` - Add panel container element
-- [ ] Integrate with HoverState subscription
-- [ ] Add yield calculation display
+- [ ] Integrate with HoverState subscription in `main.ts`
+- [ ] Display resource name (from Phase A)
+- [ ] Display calculated yields using `calculateYields()`
 - [ ] Write E2E test for panel visibility and content
 
 #### Implementation Details
 
-**index.html modifications**:
+**index.html additions**
+
+Add inside `<body>`, after game-container:
+
 ```html
-<body>
-  <div id="game-container"></div>
-  <div id="tile-info-panel" class="hidden">
-    <div class="panel-header">Tile Info</div>
-    <div class="panel-content">
-      <div class="info-row"><span class="label">Position:</span> <span id="tile-coords"></span></div>
-      <div class="info-row"><span class="label">Terrain:</span> <span id="tile-terrain"></span></div>
-      <div class="info-row"><span class="label">Feature:</span> <span id="tile-feature"></span></div>
-      <div class="yields-section">
-        <div class="yield-item"><span class="yield-icon food"></span><span id="yield-food">0</span></div>
-        <div class="yield-item"><span class="yield-icon production"></span><span id="yield-production">0</span></div>
-        <div class="yield-item"><span class="yield-icon gold"></span><span id="yield-gold">0</span></div>
-      </div>
+<div id="tile-info-panel" class="hidden">
+  <div class="panel-header">Tile Info</div>
+  <div class="panel-content">
+    <div class="info-row"><span class="label">Position:</span> <span id="tile-coords"></span></div>
+    <div class="info-row"><span class="label">Terrain:</span> <span id="tile-terrain"></span></div>
+    <div class="info-row"><span class="label">Feature:</span> <span id="tile-feature"></span></div>
+    <div class="info-row"><span class="label">Resource:</span> <span id="tile-resource"></span></div>
+    <div class="yields-section">
+      <div class="yield-item"><span class="yield-icon food"></span><span id="yield-food">0</span></div>
+      <div class="yield-item"><span class="yield-icon production"></span><span id="yield-production">0</span></div>
+      <div class="yield-item"><span class="yield-icon gold"></span><span id="yield-gold">0</span></div>
     </div>
   </div>
-  <script type="module" src="/src/main.ts"></script>
-</body>
+</div>
 ```
 
-**style.css additions**:
+**style.css additions**
+
 ```css
 #tile-info-panel {
   position: fixed;
@@ -250,25 +427,50 @@ app.ticker.add(() => {
 .yield-icon.gold { background: #FFD700; }
 ```
 
-**TileInfoPanel.ts**:
+**TileInfoPanel.ts**
+
+Create `/Users/alex/workspace/civ/src/ui/TileInfoPanel.ts`:
+
 ```typescript
+import { HoveredTile } from './HoverState';
+import { calculateYields } from '../tile/TileYields';
+import { Terrain } from '../tile/Terrain';
+
+/**
+ * Manages the tile information panel DOM element.
+ * Shows/hides and updates content based on hovered tile.
+ */
 export class TileInfoPanel {
   private panel: HTMLElement;
   private coordsEl: HTMLElement;
   private terrainEl: HTMLElement;
   private featureEl: HTMLElement;
+  private resourceEl: HTMLElement;
   private foodEl: HTMLElement;
   private productionEl: HTMLElement;
   private goldEl: HTMLElement;
 
-  constructor();
+  constructor() {
+    this.panel = document.getElementById('tile-info-panel')!;
+    this.coordsEl = document.getElementById('tile-coords')!;
+    this.terrainEl = document.getElementById('tile-terrain')!;
+    this.featureEl = document.getElementById('tile-feature')!;
+    this.resourceEl = document.getElementById('tile-resource')!;
+    this.foodEl = document.getElementById('yield-food')!;
+    this.productionEl = document.getElementById('yield-production')!;
+    this.goldEl = document.getElementById('yield-gold')!;
+  }
 
+  /**
+   * Show the panel with tile information.
+   */
   show(tile: HoveredTile): void {
-    const yields = calculateYields(tile.terrain, tile.feature, null);
+    const yields = calculateYields(tile.terrain, tile.feature, tile.resource);
 
     this.coordsEl.textContent = `(${tile.position.q}, ${tile.position.r})`;
     this.terrainEl.textContent = this.formatTerrain(tile.terrain);
     this.featureEl.textContent = tile.feature ?? 'None';
+    this.resourceEl.textContent = tile.resource ?? 'None';
     this.foodEl.textContent = yields.food.toString();
     this.productionEl.textContent = yields.production.toString();
     this.goldEl.textContent = yields.gold.toString();
@@ -276,19 +478,32 @@ export class TileInfoPanel {
     this.panel.classList.remove('hidden');
   }
 
+  /**
+   * Hide the panel.
+   */
   hide(): void {
     this.panel.classList.add('hidden');
   }
 
+  /**
+   * Format terrain enum value for display.
+   * "GrasslandHill" -> "Grassland Hill"
+   */
   private formatTerrain(terrain: Terrain): string {
-    // "GrasslandHill" -> "Grassland Hill"
     return terrain.replace(/([A-Z])/g, ' $1').trim();
   }
 }
 ```
 
-**Integration in main.ts**:
+**Integration in main.ts**
+
+Add after hover system setup:
+
 ```typescript
+import { TileInfoPanel } from './ui/TileInfoPanel';
+
+// ... existing code ...
+
 const tileInfoPanel = new TileInfoPanel();
 
 hoverState.subscribe((tile) => {
@@ -303,43 +518,52 @@ hoverState.subscribe((tile) => {
 ```
 
 #### Success Criteria
+
 - [ ] Panel appears when cursor is over a valid tile
 - [ ] Panel disappears when cursor leaves all tiles
 - [ ] Correct coordinates displayed in (q, r) format
 - [ ] Terrain name is human-readable (spaces between words)
 - [ ] Feature shows correctly or "None" if absent
-- [ ] Yields calculate and display correctly
+- [ ] Resource shows correctly or "None" if absent
+- [ ] Yields calculate and display correctly (including resource bonuses)
 - [ ] Panel does not block map interaction (positioned in corner)
 - [ ] Smooth show/hide transitions
 
 ---
 
-### Phase 1.9: Polish (Hotkeys, Seed Display, Documentation)
+### Phase C: Polish (Hotkeys, Seed Display, Documentation)
 
 **Goal**: Add quality-of-life features and cleanup.
 
+**Status**: NOT STARTED
+
 #### Tasks
 
-- [ ] Add map regeneration hotkey (R key)
 - [ ] Add seed display in UI corner
-- [ ] Add seed input field for reproducible maps
-- [ ] Update CLAUDE.md to remove TileFactory reference
+- [ ] Add map regeneration hotkey (R key)
+- [ ] Create `src/ui/MapControls.ts` for controls logic
+- [ ] Add clear() method to TileRenderer for map regeneration
+- [ ] Update index.html with controls container
+- [ ] Update style.css with controls styles
 - [ ] Add JSDoc comments to public APIs
+- [ ] Update CLAUDE.md to reflect current architecture
 - [ ] Verify all E2E tests pass
 
 #### Implementation Details
 
-**Seed Display and Regeneration**
+**index.html additions**
 
-Add to `index.html`:
+Add inside `<body>`:
+
 ```html
 <div id="map-controls">
-  <span id="seed-display">Seed: 12345</span>
-  <button id="regenerate-btn" title="Press R to regenerate">Regenerate</button>
+  <span id="seed-display">Seed: 42</span>
+  <button id="regenerate-btn" title="Press R to regenerate">Regenerate (R)</button>
 </div>
 ```
 
-Add to `style.css`:
+**style.css additions**
+
 ```css
 #map-controls {
   position: fixed;
@@ -373,33 +597,107 @@ Add to `style.css`:
 }
 ```
 
-**MapControls.ts**:
+**MapControls.ts**
+
+Create `/Users/alex/workspace/civ/src/ui/MapControls.ts`:
+
 ```typescript
+/**
+ * Manages map controls UI and keyboard shortcuts.
+ */
 export class MapControls {
   private seedDisplay: HTMLElement;
   private regenerateBtn: HTMLElement;
   private currentSeed: number;
   private onRegenerate: (seed: number) => void;
+  private keyHandler: (e: KeyboardEvent) => void;
 
-  constructor(onRegenerate: (seed: number) => void);
+  /**
+   * @param onRegenerate - Callback invoked with new seed when regeneration is triggered
+   */
+  constructor(onRegenerate: (seed: number) => void) {
+    this.seedDisplay = document.getElementById('seed-display')!;
+    this.regenerateBtn = document.getElementById('regenerate-btn')!;
+    this.currentSeed = 42;
+    this.onRegenerate = onRegenerate;
 
-  setSeed(seed: number): void;
-  generateNewSeed(): number;
+    this.regenerateBtn.addEventListener('click', () => this.regenerate());
 
-  // Attach keyboard handler for 'R' key
-  attachKeyboardHandler(): void;
-  detachKeyboardHandler(): void;
+    this.keyHandler = (e: KeyboardEvent) => {
+      // Only handle R if not typing in an input
+      if (e.code === 'KeyR' && !(e.target instanceof HTMLInputElement)) {
+        this.regenerate();
+      }
+    };
+  }
+
+  /**
+   * Update the displayed seed value.
+   */
+  setSeed(seed: number): void {
+    this.currentSeed = seed;
+    this.seedDisplay.textContent = `Seed: ${seed}`;
+  }
+
+  /**
+   * Generate a new random seed.
+   */
+  generateNewSeed(): number {
+    return Math.floor(Math.random() * 1000000);
+  }
+
+  /**
+   * Trigger map regeneration with a new random seed.
+   */
+  private regenerate(): void {
+    const newSeed = this.generateNewSeed();
+    this.setSeed(newSeed);
+    this.onRegenerate(newSeed);
+  }
+
+  /**
+   * Attach keyboard handler for R key.
+   */
+  attachKeyboardHandler(): void {
+    window.addEventListener('keydown', this.keyHandler);
+  }
+
+  /**
+   * Remove keyboard handler.
+   */
+  detachKeyboardHandler(): void {
+    window.removeEventListener('keydown', this.keyHandler);
+  }
 }
 ```
 
-**Integration in main.ts**:
+**Add clear() to TileRenderer**
+
+Modify `/Users/alex/workspace/civ/src/render/TileRenderer.ts`:
+
 ```typescript
-let currentSeed = config.seed;
+/**
+ * Remove all tile graphics from the container.
+ */
+clear(): void {
+  this.container.removeChildren();
+  // If tracking tiles in a map, clear it too
+}
+```
+
+**Update main.ts for regeneration**
+
+```typescript
+import { MapControls } from './ui/MapControls';
+
+// ... existing setup ...
 
 function regenerateMap(seed: number) {
   // Clear existing tiles
   tileRenderer.clear();
   tileMap.clear();
+  hoverState.set(null);  // Clear hover state
+  tileHighlight.hide();
 
   // Generate new map
   const newConfig = MapConfig.duel(seed);
@@ -408,31 +706,33 @@ function regenerateMap(seed: number) {
 
   // Render new tiles
   for (const tile of newTiles) {
-    tileRenderer.addTile(tile.position, tile.terrain);
     tileMap.set(tile.position.key(), tile);
+    tileRenderer.addTile(tile.position, tile.terrain);
   }
 
-  currentSeed = seed;
-  mapControls.setSeed(seed);
   console.log(`Map regenerated with seed: ${seed}`);
 }
 
 const mapControls = new MapControls(regenerateMap);
-mapControls.setSeed(currentSeed);
+mapControls.setSeed(config.seed);
 mapControls.attachKeyboardHandler();
 ```
 
-**CLAUDE.md Updates**:
-- Remove reference to non-existent `TileFactory.ts`
-- Add documentation for new UI modules
-- Update module structure section
+**CLAUDE.md Updates**
+
+- Add `src/ui/TileInfoPanel.ts` - DOM panel for tile information
+- Add `src/ui/MapControls.ts` - Seed display and regeneration
+- Update module structure to reflect current state
+- Note that TileFactory.ts was not created (not needed)
 
 #### Success Criteria
+
 - [ ] Pressing 'R' regenerates map with new random seed
 - [ ] Current seed displays in top-right corner
 - [ ] Regenerate button works same as R key
 - [ ] New seed produces different map; same seed produces identical map
-- [ ] CLAUDE.md is accurate (no phantom file references)
+- [ ] CLAUDE.md is accurate and up to date
+- [ ] Key public functions have JSDoc comments
 - [ ] All existing tests pass after changes
 
 ---
@@ -441,128 +741,113 @@ mapControls.attachKeyboardHandler();
 
 | File | Action | Description |
 |------|--------|-------------|
-| `/Users/alex/workspace/civ/src/ui/HoverState.ts` | Create | Reactive hover state management |
-| `/Users/alex/workspace/civ/src/ui/HoverSystem.ts` | Create | Mouse-to-hex detection system |
+| `/Users/alex/workspace/civ/src/tile/TileResource.ts` | Modify | Add RESOURCE_PLACEMENT and canPlaceResource() |
+| `/Users/alex/workspace/civ/src/map/MapGenerator.ts` | Modify | Add resource field and determineResource() |
+| `/Users/alex/workspace/civ/src/ui/HoverState.ts` | Modify | Add resource field to HoveredTile |
+| `/Users/alex/workspace/civ/src/ui/HoverSystem.ts` | Modify | Populate resource field |
 | `/Users/alex/workspace/civ/src/ui/TileInfoPanel.ts` | Create | HTML panel controller |
 | `/Users/alex/workspace/civ/src/ui/MapControls.ts` | Create | Seed display and regeneration |
-| `/Users/alex/workspace/civ/src/ui/index.ts` | Create | UI module barrel export |
-| `/Users/alex/workspace/civ/src/render/TileHighlight.ts` | Create | Hover highlight graphic |
-| `/Users/alex/workspace/civ/src/main.ts` | Modify | Integrate all new systems |
+| `/Users/alex/workspace/civ/src/ui/index.ts` | Modify | Export new modules |
+| `/Users/alex/workspace/civ/src/render/TileRenderer.ts` | Modify | Add clear() method |
+| `/Users/alex/workspace/civ/src/main.ts` | Modify | Integrate TileInfoPanel and MapControls |
 | `/Users/alex/workspace/civ/index.html` | Modify | Add UI panel containers |
 | `/Users/alex/workspace/civ/src/style.css` | Modify | Add panel and control styles |
 | `/Users/alex/workspace/civ/CLAUDE.md` | Modify | Update module documentation |
-| `/Users/alex/workspace/civ/tests/e2e/hover.spec.ts` | Create | E2E tests for hover and panel |
+| `/Users/alex/workspace/civ/src/tile/TileResource.test.ts` | Modify | Add placement rule tests |
+| `/Users/alex/workspace/civ/src/map/MapGenerator.test.ts` | Modify | Add resource generation tests |
 
-**Total: 9 files to create, 3 files to modify**
+**Total: 4 files to create, 10 files to modify**
+
+---
 
 ## Success Criteria
 
 ### Functional Requirements
+- [ ] All 26 resources can spawn on compatible tiles
 - [ ] Hovering over tiles shows highlight and info panel
-- [ ] Moving cursor away hides panel
-- [ ] Panel shows correct terrain, feature, and yields
+- [ ] Panel shows correct terrain, feature, resource, and yields
 - [ ] 'R' key regenerates map with new seed
 - [ ] Seed is displayed and map is reproducible from seed
 
 ### Performance Requirements
+- [ ] Resource generation adds negligible time to map generation
 - [ ] Hover detection adds no noticeable frame drops
 - [ ] Panel show/hide is smooth (CSS transitions)
 - [ ] Map regeneration completes in under 1 second
 
 ### Code Quality Requirements
-- [ ] All new public functions have JSDoc comments
-- [ ] Unit tests for HoverSystem coordinate conversion
-- [ ] E2E tests for hover detection and panel display
+- [ ] New public functions have JSDoc comments
+- [ ] Unit tests for resource placement rules
+- [ ] Unit tests for resource generation determinism
+- [ ] E2E tests for tile info panel
 - [ ] No TypeScript errors or ESLint warnings
+
+---
 
 ## Dependencies & Integration
 
 ### Depends On
+- `TileResource` enum and `RESOURCE_DATA` - Already implemented
 - `HexGridLayout.worldToHex()` - Already implemented
 - `CameraController.getPosition()`, `getZoom()` - Already implemented
-- `calculateYields()` - Already implemented in `/Users/alex/workspace/civ/src/tile/TileYields.ts`
-- `TilePosition.key()` - Already implemented for map lookups
+- `calculateYields()` - Already implemented, accepts resource parameter
+- `TilePosition.key()` - Already implemented
 
 ### Consumed By (Future Phases)
 - **Unit Selection**: Will extend HoverSystem for click detection
 - **City View**: Will use TileInfoPanel pattern for city info display
-- **Multiplayer**: MapControls seed sharing for synchronized maps
+- **Tech Tree**: May gate resource visibility based on tech
+- **Improvements**: Resources affect which improvements are valid
 
 ### Integration Points
 - **DOM Layer**: HTML panel overlays above canvas
 - **PixiJS Canvas**: Mouse events from canvas element
 - **Game Loop**: Ticker integration for state updates
 
+---
+
 ## Risks & Mitigations
 
 | Risk | Impact | Likelihood | Mitigation |
 |------|--------|------------|------------|
-| Coordinate conversion at extreme zoom | High | Medium | Test at min (0.5x) and max (3.0x) zoom levels |
-| Panel updates causing frame drops | Low | Low | Debounce updates if needed; CSS-only transitions |
-| Hover detection near tile edges | Medium | Medium | Use honeycomb-grid's proven rounding algorithm |
-| Keyboard event conflicts | Low | Low | Check for input focus before processing hotkeys |
-| Memory leaks from event listeners | Medium | Medium | Implement proper cleanup with destroy() methods |
+| Resource spawn rates feel wrong | Medium | Medium | Make spawn rates configurable; tune with playtesting |
+| Too many resources on small maps | Medium | Medium | Consider density limits per category |
+| Panel DOM elements not found | High | Low | Defensive null checks with clear error messages |
+| Keyboard conflict with camera | Low | Low | CameraController already handles WASD; R should be safe |
+| Memory leak on map regeneration | Medium | Low | Ensure clear() properly removes all references |
 
-## Implementation Order
-
-Recommended implementation sequence:
-
-1. **HoverState + HoverSystem** (Phase 1.6 core)
-   - Get coordinate conversion working first
-   - Test with console.log before visual feedback
-
-2. **TileHighlight** (Phase 1.6 visual)
-   - Add highlight graphic
-   - Verify follows cursor at all zoom levels
-
-3. **TileInfoPanel** (Phase 1.7)
-   - Add HTML structure and CSS
-   - Connect to HoverState
-
-4. **MapControls** (Phase 1.9)
-   - Add seed display
-   - Implement regeneration
-
-5. **Documentation + Tests** (Phase 1.9)
-   - Update CLAUDE.md
-   - Add E2E tests
-   - Add JSDoc comments
+---
 
 ## Estimated Effort
 
 | Phase | Tasks | Estimated Time |
 |-------|-------|----------------|
-| 1.6 Hover Detection | HoverState, HoverSystem, TileHighlight, integration | 2-3 hours |
-| 1.7 Tile Info Panel | HTML/CSS, TileInfoPanel, integration | 1-2 hours |
-| 1.9 Polish | MapControls, CLAUDE.md, tests | 1-2 hours |
+| Phase A: Resource Placement | Placement rules, determineResource(), tests | 2-3 hours |
+| Phase B: Tile Info Panel | HTML/CSS, TileInfoPanel, integration | 1-2 hours |
+| Phase C: Polish | MapControls, CLAUDE.md, JSDoc | 1-2 hours |
 | **Total** | | **4-7 hours** |
 
-## Appendix: Terrain Display Names
+---
 
-| Enum Value | Display Name |
-|------------|--------------|
-| Grassland | Grassland |
-| GrasslandHill | Grassland Hill |
-| Plains | Plains |
-| PlainsHill | Plains Hill |
-| Desert | Desert |
-| DesertHill | Desert Hill |
-| Tundra | Tundra |
-| TundraHill | Tundra Hill |
-| Snow | Snow |
-| SnowHill | Snow Hill |
-| Mountain | Mountain |
-| Coast | Coast |
-| Ocean | Ocean |
-| Lake | Lake |
+## Appendix: Resource Spawn Rates Summary
 
-## Appendix: Yield Icon Colors
+| Category | Resources | Typical Spawn Rate |
+|----------|-----------|-------------------|
+| Bonus | Cattle, Sheep, Fish, Stone, Wheat, Bananas, Deer | 5-15% |
+| Strategic | Horses, Iron, Coal, Oil, Aluminum, Uranium | 1-4% |
+| Luxury | All others | 2-6% |
 
-| Yield Type | Color (Hex) | CSS Class |
-|------------|-------------|-----------|
-| Food | #4CAF50 (Green) | `.yield-icon.food` |
-| Production | #FF9800 (Orange) | `.yield-icon.production` |
-| Gold | #FFD700 (Gold) | `.yield-icon.gold` |
-| Science | #2196F3 (Blue) | `.yield-icon.science` |
-| Culture | #9C27B0 (Purple) | `.yield-icon.culture` |
-| Faith | #FFFFFF (White) | `.yield-icon.faith` |
+Note: Spawn rates are per-tile checks when terrain/feature match. Actual density depends on how many tiles match the placement rules.
+
+## Appendix: Resource-Terrain Quick Reference
+
+| Terrain | Possible Resources |
+|---------|-------------------|
+| Grassland | Cattle, Sheep, Stone, Bananas, Horses, Citrus, Cotton, Gold, Olives, Wine, Silk, Gems, Marble |
+| Plains | Sheep, Stone, Wheat, Horses, Citrus, Cotton, Aluminum, Gold, Olives, Wine, Ivory, Spices, Marble |
+| Desert | Stone, Cotton, Aluminum, Oil, Gold |
+| Tundra | Stone, Deer, Horses, Aluminum, Oil, Marble |
+| Snow | Oil |
+| Hills (various) | Sheep, Stone, Iron, Coal, Copper, Gold, Gems, Marble |
+| Coast | Fish, Crab, Whales, Turtles, Oil |
+| Ocean | Fish, Whales, Oil |
