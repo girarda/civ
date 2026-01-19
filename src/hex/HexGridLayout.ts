@@ -87,4 +87,20 @@ export class HexGridLayout {
     }
     return midpoints;
   }
+
+  /**
+   * Get hex corner points relative to center (0,0).
+   * Useful for drawing hex shapes at arbitrary positions.
+   */
+  getHexPoints(): Vec2[] {
+    const points: Vec2[] = [];
+    for (let i = 0; i < 6; i++) {
+      const angle = (Math.PI / 180) * (60 * i - 30); // Pointy-top
+      points.push({
+        x: this.hexSize.x * Math.cos(angle),
+        y: this.hexSize.y * Math.sin(angle),
+      });
+    }
+    return points;
+  }
 }

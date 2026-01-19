@@ -6,3 +6,5 @@ export { MapControls } from './MapControls';
 export { SelectionState } from './SelectionState';
 export { SelectionSystem } from './SelectionSystem';
 export { TurnControls } from './TurnControls';
+export { CityState } from './CityState';
+export { CityInfoPanel } from './CityInfoPanel';

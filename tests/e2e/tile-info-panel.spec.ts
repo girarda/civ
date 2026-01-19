@@ -215,10 +215,10 @@ test.describe('Tile Info Panel', () => {
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     await page.waitForTimeout(300);
 
-    // Check yield icons exist and have correct classes
-    const foodIcon = page.locator('.yield-icon.food');
-    const productionIcon = page.locator('.yield-icon.production');
-    const goldIcon = page.locator('.yield-icon.gold');
+    // Check yield icons exist and have correct classes (use tile panel specific selectors)
+    const foodIcon = page.locator('#tile-info-panel .yield-icon.food');
+    const productionIcon = page.locator('#tile-info-panel .yield-icon.production');
+    const goldIcon = page.locator('#tile-info-panel .yield-icon.gold');
 
     await expect(foodIcon).toBeVisible();
     await expect(productionIcon).toBeVisible();
