@@ -149,9 +149,14 @@ export class PlayerManager {
     }
   }
 
-  /** Clear all state */
+  /** Clear all state including listeners */
   clear(): void {
     this.players.clear();
     this.listeners = [];
+  }
+
+  /** Reset player data but keep listeners */
+  reset(): void {
+    this.players.clear();
   }
 }

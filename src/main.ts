@@ -417,8 +417,8 @@ async function main() {
     combatExecutor.setUnitRenderer(unitRenderer);
     combatExecutor.setPlayerManager(playerManager);
 
-    // Reset player manager
-    playerManager.clear();
+    // Reset player manager (preserve listeners for victory system)
+    playerManager.reset();
     playerManager.initialize([0], 2);
 
     // Center camera on map
