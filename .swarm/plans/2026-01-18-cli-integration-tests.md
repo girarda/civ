@@ -1,7 +1,7 @@
 # Plan: CLI Integration Tests
 
 **Date**: 2026-01-18
-**Status**: Ready for Implementation
+**Status**: Implemented
 
 ## Overview
 
@@ -24,14 +24,14 @@ Key findings from reviewing the existing codebase:
 
 **Goal**: Test all command validators with valid and invalid inputs.
 
-- [ ] Create `/Users/alex/workspace/civ/src/engine/commands/validators/MoveUnitValidator.test.ts`
+- [x] Create `/Users/alex/workspace/civ/src/engine/commands/validators/MoveUnitValidator.test.ts`
   - Test valid move passes validation
   - Test nonexistent unit fails with "Unit does not exist"
   - Test unit with no movement points fails with "no movement points remaining"
   - Test move to same position fails with "already at target position"
   - Test unreachable target fails with "not reachable"
 
-- [ ] Create `/Users/alex/workspace/civ/src/engine/commands/validators/AttackValidator.test.ts`
+- [x] Create `/Users/alex/workspace/civ/src/engine/commands/validators/AttackValidator.test.ts`
   - Test valid attack on adjacent enemy passes
   - Test attack on nonexistent attacker fails
   - Test attack on nonexistent defender fails
@@ -41,7 +41,7 @@ Key findings from reviewing the existing codebase:
   - Test attack on friendly unit fails
   - Test attack during wrong game phase fails
 
-- [ ] Create `/Users/alex/workspace/civ/src/engine/commands/validators/FoundCityValidator.test.ts`
+- [x] Create `/Users/alex/workspace/civ/src/engine/commands/validators/FoundCityValidator.test.ts`
   - Test valid settler on valid land passes
   - Test nonexistent settler fails
   - Test non-settler unit fails (Warrior)
@@ -49,12 +49,12 @@ Key findings from reviewing the existing codebase:
   - Test settler on mountain fails
   - Test settler where city exists fails
 
-- [ ] Create `/Users/alex/workspace/civ/src/engine/commands/validators/SetProductionValidator.test.ts`
+- [x] Create `/Users/alex/workspace/civ/src/engine/commands/validators/SetProductionValidator.test.ts`
   - Test valid city and buildable passes
   - Test nonexistent city fails
   - Test invalid buildable type fails
 
-- [ ] Create `/Users/alex/workspace/civ/src/engine/commands/validators/EndTurnValidator.test.ts`
+- [x] Create `/Users/alex/workspace/civ/src/engine/commands/validators/EndTurnValidator.test.ts`
   - Test correct player can end turn
   - Test wrong player cannot end turn
 
@@ -64,13 +64,13 @@ Key findings from reviewing the existing codebase:
 
 **Goal**: Test all command executors produce correct events and state changes.
 
-- [ ] Create `/Users/alex/workspace/civ/src/engine/commands/executors/MoveUnitExecutor.test.ts`
+- [x] Create `/Users/alex/workspace/civ/src/engine/commands/executors/MoveUnitExecutor.test.ts`
   - Test emits `UnitMovedEvent` with correct fields
   - Test updates unit position in ECS
   - Test deducts movement points correctly
   - Test movement along path deducts correct cost
 
-- [ ] Create `/Users/alex/workspace/civ/src/engine/commands/executors/AttackExecutor.test.ts`
+- [x] Create `/Users/alex/workspace/civ/src/engine/commands/executors/AttackExecutor.test.ts`
   - Test emits `CombatResolvedEvent` with correct damage values
   - Test applies damage to both units
   - Test consumes all attacker movement points
@@ -81,7 +81,7 @@ Key findings from reviewing the existing codebase:
   - Test applies terrain defense bonus correctly
   - Test instant kills zero-strength defender (Settler)
 
-- [ ] Create `/Users/alex/workspace/civ/src/engine/commands/executors/FoundCityExecutor.test.ts`
+- [x] Create `/Users/alex/workspace/civ/src/engine/commands/executors/FoundCityExecutor.test.ts`
   - Test emits `CityFoundedEvent` with correct fields
   - Test emits `UnitDestroyedEvent` for settler
   - Test creates city entity at correct position
@@ -90,12 +90,12 @@ Key findings from reviewing the existing codebase:
   - Test uses provided city name
   - Test generates city name when not provided
 
-- [ ] Create `/Users/alex/workspace/civ/src/engine/commands/executors/SetProductionExecutor.test.ts`
+- [x] Create `/Users/alex/workspace/civ/src/engine/commands/executors/SetProductionExecutor.test.ts`
   - Test emits `ProductionChangedEvent`
   - Test updates ProductionComponent correctly
   - Test sets correct production cost
 
-- [ ] Create `/Users/alex/workspace/civ/src/engine/commands/executors/EndTurnExecutor.test.ts`
+- [x] Create `/Users/alex/workspace/civ/src/engine/commands/executors/EndTurnExecutor.test.ts`
   - Test emits `TurnEndedEvent` with correct turn number
   - Test emits `TurnStartedEvent` with incremented turn
   - Test resets all unit movement points
@@ -110,7 +110,7 @@ Key findings from reviewing the existing codebase:
 
 **Goal**: Test full command flow through `GameEngine.executeCommand()`.
 
-- [ ] Create `/Users/alex/workspace/civ/src/engine/GameEngine.test.ts`
+- [x] Create `/Users/alex/workspace/civ/src/engine/GameEngine.test.ts`
   - **Setup tests**:
     - Test GameEngine can be instantiated with default config
     - Test GameEngine generates map on construction
@@ -166,15 +166,15 @@ Key findings from reviewing the existing codebase:
 
 ## Success Criteria
 
-- [ ] All validator tests pass with 100% branch coverage of validation logic
-- [ ] All executor tests pass and verify correct events are emitted
-- [ ] All executor tests verify correct state mutations
-- [ ] GameEngine integration tests pass for full command flow
-- [ ] Invalid commands return descriptive errors without state changes
-- [ ] Tests use existing patterns (Vitest, describe/it, vi.fn for mocks)
-- [ ] Tests are deterministic (use seeded maps/worlds where needed)
-- [ ] All existing tests continue to pass (`npm run test`)
-- [ ] No TypeScript errors or ESLint warnings in test files
+- [x] All validator tests pass with 100% branch coverage of validation logic
+- [x] All executor tests pass and verify correct events are emitted
+- [x] All executor tests verify correct state mutations
+- [x] GameEngine integration tests pass for full command flow
+- [x] Invalid commands return descriptive errors without state changes
+- [x] Tests use existing patterns (Vitest, describe/it, vi.fn for mocks)
+- [x] Tests are deterministic (use seeded maps/worlds where needed)
+- [x] All existing tests continue to pass (`npm run test`)
+- [x] No TypeScript errors or ESLint warnings in test files
 
 ---
 

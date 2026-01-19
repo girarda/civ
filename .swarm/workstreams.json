@@ -266,11 +266,11 @@
       "id": "victory-conditions",
       "title": "Victory Conditions System",
       "type": "epic",
-      "state": "research",
+      "state": "merged",
       "parent": null,
       "priority": 2,
       "created": "2026-01-18",
-      "updated": "2026-01-18T23:30:00Z",
+      "updated": "2026-01-18T23:50:00Z",
       "description": "Implement victory condition checking and game-over states.",
       "dependencies": [
         {
@@ -287,7 +287,7 @@
         "checkpoints": []
       },
       "implementation": {
-        "branch": null,
+        "branch": "feature/2026-01-18-victory-system",
         "worktree": null,
         "assignedInstance": null,
         "currentPhase": null,
@@ -295,7 +295,8 @@
       },
       "children": [],
       "tags": ["game-mechanics", "victory"],
-      "notes": "Blocker resolved. Research file exists at .swarm/research/2026-01-18-victory-system.md"
+      "notes": "Victory system with domination victory condition implemented and merged.",
+      "mergedAt": "2026-01-18T23:50:00Z"
     },
     "resources-visible-bug": {
       "id": "resources-visible-bug",
@@ -683,6 +684,180 @@
       "children": [],
       "tags": ["ai", "strategy", "personality"],
       "notes": "Composable strategies, personality presets, difficulty scaling."
+    },
+    "building-production": {
+      "id": "building-production",
+      "title": "Building Production",
+      "type": "feature",
+      "state": "idea",
+      "parent": null,
+      "priority": 3,
+      "created": "2026-01-18",
+      "updated": "2026-01-19T07:20:00Z",
+      "description": null,
+      "dependencies": [],
+      "artifacts": {
+        "research": null,
+        "plan": null,
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": [],
+      "notes": null
+    },
+    "technology-tree": {
+      "id": "technology-tree",
+      "title": "Technology Tree",
+      "type": "epic",
+      "state": "idea",
+      "parent": null,
+      "priority": 2,
+      "created": "2026-01-18",
+      "updated": "2026-01-19T07:22:00Z",
+      "description": "Research unlocks new options. Includes tech tree data (YAML/JSON configuration), research queue, science accumulation from cities, tech completion to unlock units/buildings, and tech tree UI with visual dependencies.",
+      "dependencies": [],
+      "artifacts": {
+        "research": null,
+        "plan": null,
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["game-mechanics", "research", "ui"],
+      "notes": "Playable milestone: Research technologies, unlock new units"
+    },
+    "fog-of-war": {
+      "id": "fog-of-war",
+      "title": "Fog of War + Vision",
+      "type": "epic",
+      "state": "idea",
+      "parent": null,
+      "priority": 2,
+      "created": "2026-01-18",
+      "updated": "2026-01-19T07:23:00Z",
+      "description": "Unknown map that reveals through exploration. Includes vision system (units reveal tiles in radius), fog states (unexplored, revealed, visible), fog rendering (darken/hide unknown tiles), memory (remember last-seen state), and enemy visibility (only see visible enemy units).",
+      "dependencies": [],
+      "artifacts": {
+        "research": null,
+        "plan": null,
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["game-mechanics", "vision", "rendering"],
+      "notes": "Playable milestone: Explore the map, discover opponents. Unlocks: strategic gameplay, surprise attacks, scouting value, hidden information."
+    },
+    "resource-progress-ui": {
+      "id": "resource-progress-ui",
+      "title": "Resource & Progress UI",
+      "type": "feature",
+      "state": "idea",
+      "parent": null,
+      "priority": 3,
+      "created": "2026-01-18",
+      "updated": "2026-01-19T07:24:00Z",
+      "description": "UI showing resources, progress, and other game status information.",
+      "dependencies": [],
+      "artifacts": {
+        "research": null,
+        "plan": null,
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["ui"],
+      "notes": null
+    },
+    "city-view": {
+      "id": "city-view",
+      "title": "City View & Stats Panel",
+      "type": "feature",
+      "state": "idea",
+      "parent": null,
+      "priority": 3,
+      "created": "2026-01-18",
+      "updated": "2026-01-19T07:25:00Z",
+      "description": "City view panel showing city statistics - population, growth, production, food, gold, science output, and other relevant metrics.",
+      "dependencies": [],
+      "artifacts": {
+        "research": null,
+        "plan": null,
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["ui", "city"],
+      "notes": "See 2026-01-17-openciv-game-mechanics.md for reference"
+    },
+    "city-yields-breakdown": {
+      "id": "city-yields-breakdown",
+      "title": "City Yields Breakdown",
+      "type": "feature",
+      "state": "idea",
+      "parent": null,
+      "priority": 3,
+      "created": "2026-01-18",
+      "updated": "2026-01-19T07:25:00Z",
+      "description": "UI showing city yields and their sources - breakdown of where food, production, gold, science come from (base terrain, features, resources, improvements, buildings, specialists).",
+      "dependencies": [],
+      "artifacts": {
+        "research": null,
+        "plan": null,
+        "validation": null,
+        "review": null,
+        "checkpoints": []
+      },
+      "implementation": {
+        "branch": null,
+        "worktree": null,
+        "assignedInstance": null,
+        "currentPhase": null,
+        "totalPhases": null
+      },
+      "children": [],
+      "tags": ["ui", "city", "yields"],
+      "notes": "See 2026-01-17-openciv-game-mechanics.md for reference"
     }
   }
 }
