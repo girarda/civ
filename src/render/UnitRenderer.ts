@@ -6,16 +6,10 @@ import { Graphics, Container, Text, TextStyle } from 'pixi.js';
 import { HexGridLayout } from '../hex/HexGridLayout';
 import { TilePosition } from '../hex/TilePosition';
 import { UnitType, getUnitLetter } from '../unit/UnitType';
+import { PLAYER_COLORS } from '../player';
 
-/** Player colors for unit rendering */
-export const PLAYER_COLORS: readonly number[] = [
-  0x3498db, // Blue (Player 0)
-  0xe74c3c, // Red (Player 1)
-  0x2ecc71, // Green (Player 2)
-  0xf39c12, // Orange (Player 3)
-  0x9b59b6, // Purple (Player 4)
-  0x1abc9c, // Teal (Player 5)
-];
+// Re-export for backward compatibility
+export { PLAYER_COLORS } from '../player';
 
 const UNIT_RADIUS = 12;
 

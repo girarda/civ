@@ -9,7 +9,9 @@ import { UnitType } from '../unit/UnitType';
 import { GeneratedTile } from '../map/MapGenerator';
 import { Terrain } from '../tile/Terrain';
 
-function createTileMap(tiles: Array<{ q: number; r: number; terrain: Terrain }>): Map<string, GeneratedTile> {
+function createTileMap(
+  tiles: Array<{ q: number; r: number; terrain: Terrain }>
+): Map<string, GeneratedTile> {
   const map = new Map<string, GeneratedTile>();
   for (const t of tiles) {
     const position = new TilePosition(t.q, t.r);
@@ -97,17 +99,23 @@ describe('CityFounder', () => {
 
     it('should return reason for non-Settler', () => {
       const warriorEid = createUnitEntity(world, 0, 0, UnitType.Warrior, 0, 2);
-      expect(getFoundCityBlockReason(world, warriorEid, tileMap)).toBe('Only Settlers can found cities');
+      expect(getFoundCityBlockReason(world, warriorEid, tileMap)).toBe(
+        'Only Settlers can found cities'
+      );
     });
 
     it('should return reason for water tile', () => {
       const settlerEid = createUnitEntity(world, -1, 0, UnitType.Settler, 0, 2);
-      expect(getFoundCityBlockReason(world, settlerEid, tileMap)).toBe('Cannot found city on water');
+      expect(getFoundCityBlockReason(world, settlerEid, tileMap)).toBe(
+        'Cannot found city on water'
+      );
     });
 
     it('should return reason for mountain', () => {
       const settlerEid = createUnitEntity(world, 0, 1, UnitType.Settler, 0, 2);
-      expect(getFoundCityBlockReason(world, settlerEid, tileMap)).toBe('Cannot found city on impassable terrain');
+      expect(getFoundCityBlockReason(world, settlerEid, tileMap)).toBe(
+        'Cannot found city on impassable terrain'
+      );
     });
 
     it('should return reason for existing city', () => {
@@ -115,7 +123,9 @@ describe('CityFounder', () => {
       foundCity(world, settlerEid, 0, territoryManager);
 
       const settler2Eid = createUnitEntity(world, 0, 0, UnitType.Settler, 0, 2);
-      expect(getFoundCityBlockReason(world, settler2Eid, tileMap)).toBe('A city already exists here');
+      expect(getFoundCityBlockReason(world, settler2Eid, tileMap)).toBe(
+        'A city already exists here'
+      );
     });
   });
 

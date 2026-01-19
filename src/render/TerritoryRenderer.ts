@@ -6,7 +6,7 @@
 import { Graphics, Container } from 'pixi.js';
 import { HexGridLayout } from '../hex/HexGridLayout';
 import { TilePosition } from '../hex/TilePosition';
-import { PLAYER_COLORS } from './UnitRenderer';
+import { PLAYER_COLORS } from '../player';
 
 const TERRITORY_ALPHA = 0.15;
 const BORDER_ALPHA = 0.5;

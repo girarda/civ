@@ -11,7 +11,11 @@ import {
 describe('UnitType', () => {
   describe('enum values', () => {
     it('should have 3 unit types', () => {
-      expect(Object.keys(UnitType).filter((k) => typeof UnitType[k as keyof typeof UnitType] === 'number')).toHaveLength(3);
+      expect(
+        Object.keys(UnitType).filter(
+          (k) => typeof UnitType[k as keyof typeof UnitType] === 'number'
+        )
+      ).toHaveLength(3);
     });
 
     it('should have numeric values for units', () => {

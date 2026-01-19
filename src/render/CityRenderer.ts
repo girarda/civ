@@ -6,7 +6,7 @@
 import { Graphics, Container, Text, TextStyle } from 'pixi.js';
 import { HexGridLayout } from '../hex/HexGridLayout';
 import { TilePosition } from '../hex/TilePosition';
-import { PLAYER_COLORS } from './UnitRenderer';
+import { PLAYER_COLORS } from '../player';
 
 const CITY_WIDTH = 24;
 const CITY_HEIGHT = 18;
@@ -25,12 +25,7 @@ export class CityRenderer {
   /**
    * Create and add a city graphic.
    */
-  createCityGraphic(
-    eid: number,
-    position: TilePosition,
-    name: string,
-    playerId: number
-  ): Graphics {
+  createCityGraphic(eid: number, position: TilePosition, name: string, playerId: number): Graphics {
     const worldPos = this.layout.hexToWorld(position);
     const color = PLAYER_COLORS[playerId % PLAYER_COLORS.length];
 

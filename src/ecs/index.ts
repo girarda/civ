@@ -27,11 +27,7 @@ export {
   runSystems,
 } from './systems';
 
-export {
-  CityComponent,
-  PopulationComponent,
-  ProductionComponent,
-} from './cityComponents';
+export { CityComponent, PopulationComponent, ProductionComponent } from './cityComponents';
 
 export {
   cityQuery,
