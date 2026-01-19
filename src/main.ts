@@ -77,9 +77,7 @@ async function main() {
     camera.update(ticker.deltaMS / 1000);
   });
 
-  console.log(
-    `OpenCiv initialized successfully! Generated ${tiles.length} tiles.`
-  );
+  console.log(`OpenCiv initialized successfully! Generated ${tiles.length} tiles.`);
 }
 
 main().catch(console.error);

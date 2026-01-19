@@ -56,6 +56,7 @@ export class HoverSystem {
         position: tile.position,
         terrain: tile.terrain,
         feature: tile.feature,
+        resource: tile.resource,
       };
       this.hoverState.set(hoveredTile);
       return hoveredTile;

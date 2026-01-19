@@ -117,12 +117,7 @@ describe('Terrain', () => {
     });
 
     it('should have impassable terrain with high movement cost', () => {
-      const impassable = [
-        Terrain.Mountain,
-        Terrain.Coast,
-        Terrain.Ocean,
-        Terrain.Lake,
-      ];
+      const impassable = [Terrain.Mountain, Terrain.Coast, Terrain.Ocean, Terrain.Lake];
       for (const terrain of impassable) {
         expect(TERRAIN_DATA[terrain].movementCost).toBe(9999);
       }

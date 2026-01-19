@@ -43,10 +43,7 @@ export class CameraController {
 
   private handleZoom(event: WheelEvent): void {
     const delta = -Math.sign(event.deltaY) * this.config.zoomSpeed;
-    this.zoom = Math.max(
-      this.config.minZoom,
-      Math.min(this.config.maxZoom, this.zoom + delta)
-    );
+    this.zoom = Math.max(this.config.minZoom, Math.min(this.config.maxZoom, this.zoom + delta));
     this.container.scale.set(this.zoom);
   }
 
@@ -76,10 +73,7 @@ export class CameraController {
   }
 
   setZoom(zoom: number): void {
-    this.zoom = Math.max(
-      this.config.minZoom,
-      Math.min(this.config.maxZoom, zoom)
-    );
+    this.zoom = Math.max(this.config.minZoom, Math.min(this.config.maxZoom, zoom));
     this.container.scale.set(this.zoom);
   }
 

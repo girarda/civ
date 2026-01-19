@@ -21,9 +21,7 @@ export class HexGridLayout {
 
   /** Convert hex coordinate to world position */
   hexToWorld(hex: TilePosition): Vec2 {
-    const x =
-      this.hexSize.x *
-      (HexGridLayout.SQRT3 * hex.q + (HexGridLayout.SQRT3 / 2) * hex.r);
+    const x = this.hexSize.x * (HexGridLayout.SQRT3 * hex.q + (HexGridLayout.SQRT3 / 2) * hex.r);
     const y = this.hexSize.y * ((3 / 2) * hex.r);
     return {
       x: x + this.origin.x,
@@ -36,8 +34,7 @@ export class HexGridLayout {
     const px = world.x - this.origin.x;
     const py = world.y - this.origin.y;
 
-    const q =
-      ((HexGridLayout.SQRT3 / 3) * px - (1 / 3) * py) / this.hexSize.x;
+    const q = ((HexGridLayout.SQRT3 / 3) * px - (1 / 3) * py) / this.hexSize.x;
     const r = ((2 / 3) * py) / this.hexSize.y;
 
     return this.hexRound(q, r);

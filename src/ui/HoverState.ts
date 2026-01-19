@@ -1,11 +1,13 @@
 import { TilePosition } from '../hex/TilePosition';
 import { Terrain } from '../tile/Terrain';
 import { TileFeature } from '../tile/TileFeature';
+import { TileResource } from '../tile/TileResource';
 
 export interface HoveredTile {
   position: TilePosition;
   terrain: Terrain;
   feature: TileFeature | null;
+  resource: TileResource | null;
 }
 
 type HoverListener = (tile: HoveredTile | null) => void;
@@ -29,11 +31,7 @@ export class HoverState {
     if (this.current === null && tile === null) return;
 
     // Skip update if hovering over the same tile position
-    if (
-      this.current &&
-      tile &&
-      this.current.position.equals(tile.position)
-    ) {
+    if (this.current && tile && this.current.position.equals(tile.position)) {
       return;
     }
 

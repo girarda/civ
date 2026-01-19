@@ -1,11 +1,4 @@
-import {
-  createWorld,
-  defineComponent,
-  Types,
-  addEntity,
-  addComponent,
-  IWorld,
-} from 'bitecs';
+import { createWorld, defineComponent, Types, addEntity, addComponent, IWorld } from 'bitecs';
 
 // Component definitions
 export const Position = defineComponent({
@@ -46,12 +39,7 @@ export function createGameWorld(): IWorld {
 }
 
 // Entity creation helper
-export function createTileEntity(
-  world: IWorld,
-  q: number,
-  r: number,
-  terrainType: number
-): number {
+export function createTileEntity(world: IWorld, q: number, r: number, terrainType: number): number {
   const eid = addEntity(world);
   addComponent(world, Position, eid);
   addComponent(world, TerrainComponent, eid);
@@ -64,22 +52,14 @@ export function createTileEntity(
 }
 
 // Add feature to an existing tile entity
-export function addFeatureToEntity(
-  world: IWorld,
-  eid: number,
-  featureType: number
-): void {
+export function addFeatureToEntity(world: IWorld, eid: number, featureType: number): void {
   addComponent(world, FeatureComponent, eid);
   FeatureComponent.type[eid] = featureType;
   FeatureComponent.hasFeature[eid] = 1;
 }
 
 // Add resource to an existing tile entity
-export function addResourceToEntity(
-  world: IWorld,
-  eid: number,
-  resourceType: number
-): void {
+export function addResourceToEntity(world: IWorld, eid: number, resourceType: number): void {
   addComponent(world, ResourceComponent, eid);
   ResourceComponent.type[eid] = resourceType;
   ResourceComponent.hasResource[eid] = 1;
@@ -106,11 +86,7 @@ export function addYieldsToEntity(
 }
 
 // Add river edges to an existing tile entity
-export function addRiverToEntity(
-  world: IWorld,
-  eid: number,
-  edges: number
-): void {
+export function addRiverToEntity(world: IWorld, eid: number, edges: number): void {
   addComponent(world, RiverComponent, eid);
   RiverComponent.edges[eid] = edges;
 }

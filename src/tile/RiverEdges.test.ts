@@ -149,9 +149,7 @@ describe('RiverEdges', () => {
     });
 
     it('should return correct count for multiple edges', () => {
-      const edges = new RiverEdges(
-        RiverEdges.EDGE_E | RiverEdges.EDGE_W | RiverEdges.EDGE_NE
-      );
+      const edges = new RiverEdges(RiverEdges.EDGE_E | RiverEdges.EDGE_W | RiverEdges.EDGE_NE);
       expect(edges.edgeCount()).toBe(3);
     });
 
@@ -182,18 +180,10 @@ describe('RiverEdges', () => {
     it('should return correct opposites', () => {
       expect(RiverEdges.oppositeEdge(RiverEdges.EDGE_E)).toBe(RiverEdges.EDGE_W);
       expect(RiverEdges.oppositeEdge(RiverEdges.EDGE_W)).toBe(RiverEdges.EDGE_E);
-      expect(RiverEdges.oppositeEdge(RiverEdges.EDGE_NE)).toBe(
-        RiverEdges.EDGE_SW
-      );
-      expect(RiverEdges.oppositeEdge(RiverEdges.EDGE_SW)).toBe(
-        RiverEdges.EDGE_NE
-      );
-      expect(RiverEdges.oppositeEdge(RiverEdges.EDGE_NW)).toBe(
-        RiverEdges.EDGE_SE
-      );
-      expect(RiverEdges.oppositeEdge(RiverEdges.EDGE_SE)).toBe(
-        RiverEdges.EDGE_NW
-      );
+      expect(RiverEdges.oppositeEdge(RiverEdges.EDGE_NE)).toBe(RiverEdges.EDGE_SW);
+      expect(RiverEdges.oppositeEdge(RiverEdges.EDGE_SW)).toBe(RiverEdges.EDGE_NE);
+      expect(RiverEdges.oppositeEdge(RiverEdges.EDGE_NW)).toBe(RiverEdges.EDGE_SE);
+      expect(RiverEdges.oppositeEdge(RiverEdges.EDGE_SE)).toBe(RiverEdges.EDGE_NW);
     });
 
     it('should return 0 for invalid edge', () => {

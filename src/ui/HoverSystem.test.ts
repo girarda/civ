@@ -25,7 +25,7 @@ describe('HoverSystem', () => {
 
   const addTile = (q: number, r: number, terrain: Terrain = Terrain.Grassland) => {
     const position = new TilePosition(q, r);
-    const tile: GeneratedTile = { position, terrain, feature: null };
+    const tile: GeneratedTile = { position, terrain, feature: null, resource: null };
     tileMap.set(position.key(), tile);
     return tile;
   };
@@ -175,14 +175,8 @@ describe('HoverSystem', () => {
 
       system.attach(canvas);
 
-      expect(canvas.addEventListener).toHaveBeenCalledWith(
-        'mousemove',
-        expect.any(Function)
-      );
-      expect(canvas.addEventListener).toHaveBeenCalledWith(
-        'mouseleave',
-        expect.any(Function)
-      );
+      expect(canvas.addEventListener).toHaveBeenCalledWith('mousemove', expect.any(Function));
+      expect(canvas.addEventListener).toHaveBeenCalledWith('mouseleave', expect.any(Function));
     });
 
     it('should detach event listeners from canvas', () => {
@@ -197,14 +191,8 @@ describe('HoverSystem', () => {
       system.attach(canvas);
       system.detach();
 
-      expect(canvas.removeEventListener).toHaveBeenCalledWith(
-        'mousemove',
-        expect.any(Function)
-      );
-      expect(canvas.removeEventListener).toHaveBeenCalledWith(
-        'mouseleave',
-        expect.any(Function)
-      );
+      expect(canvas.removeEventListener).toHaveBeenCalledWith('mousemove', expect.any(Function));
+      expect(canvas.removeEventListener).toHaveBeenCalledWith('mouseleave', expect.any(Function));
     });
   });
 

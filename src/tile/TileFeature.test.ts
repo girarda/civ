@@ -124,9 +124,7 @@ describe('TileFeature', () => {
       expect(canPlaceFeature(TileFeature.Forest, Terrain.Plains)).toBe(true);
       expect(canPlaceFeature(TileFeature.Jungle, Terrain.Grassland)).toBe(true);
       expect(canPlaceFeature(TileFeature.Marsh, Terrain.Grassland)).toBe(true);
-      expect(canPlaceFeature(TileFeature.Floodplains, Terrain.Desert)).toBe(
-        true
-      );
+      expect(canPlaceFeature(TileFeature.Floodplains, Terrain.Desert)).toBe(true);
       expect(canPlaceFeature(TileFeature.Oasis, Terrain.Desert)).toBe(true);
       expect(canPlaceFeature(TileFeature.Ice, Terrain.Ocean)).toBe(true);
     });
@@ -135,9 +133,7 @@ describe('TileFeature', () => {
       expect(canPlaceFeature(TileFeature.Forest, Terrain.Desert)).toBe(false);
       expect(canPlaceFeature(TileFeature.Jungle, Terrain.Tundra)).toBe(false);
       expect(canPlaceFeature(TileFeature.Marsh, Terrain.Plains)).toBe(false);
-      expect(canPlaceFeature(TileFeature.Floodplains, Terrain.Grassland)).toBe(
-        false
-      );
+      expect(canPlaceFeature(TileFeature.Floodplains, Terrain.Grassland)).toBe(false);
       expect(canPlaceFeature(TileFeature.Oasis, Terrain.Grassland)).toBe(false);
       expect(canPlaceFeature(TileFeature.Ice, Terrain.Mountain)).toBe(false);
     });

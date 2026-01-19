@@ -3,6 +3,7 @@ import { MapGenerator } from './MapGenerator';
 import { MapConfig, MapSize } from './MapConfig';
 import { Terrain } from '../tile/Terrain';
 import { TileFeature } from '../tile/TileFeature';
+import { TileResource, canPlaceResource } from '../tile/TileResource';
 
 describe('MapConfig', () => {
   describe('constructor', () => {
@@ -316,10 +317,7 @@ describe('MapGenerator', () => {
       const terrainCounts = new Map<Terrain, number>();
 
       for (const tile of tiles) {
-        terrainCounts.set(
-          tile.terrain,
-          (terrainCounts.get(tile.terrain) || 0) + 1
-        );
+        terrainCounts.set(tile.terrain, (terrainCounts.get(tile.terrain) || 0) + 1);
       }
 
       // Should have at least 5 different terrain types
@@ -340,9 +338,7 @@ describe('MapGenerator', () => {
           t.position.r >= height - 3
       );
 
-      const waterCount = edgeTiles.filter((t) =>
-        waterTerrains.includes(t.terrain)
-      ).length;
+      const waterCount = edgeTiles.filter((t) => waterTerrains.includes(t.terrain)).length;
       const waterRatio = waterCount / edgeTiles.length;
 
       // At least 30% water at edges due to falloff
@@ -378,6 +374,120 @@ describe('MapGenerator', () => {
       const featuredTiles = tiles.filter((t) => t.feature !== null);
       // Should have at least some features
       expect(featuredTiles.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('resource placement', () => {
+    it('should generate tiles with valid or null resources', () => {
+      const tiles = generator.generate();
+      const validResources = Object.values(TileResource);
+      for (const tile of tiles) {
+        if (tile.resource !== null) {
+          expect(validResources).toContain(tile.resource);
+        }
+      }
+    });
+
+    it('should only place resources on compatible terrain/feature', () => {
+      const tiles = generator.generate();
+      for (const tile of tiles) {
+        if (tile.resource !== null) {
+          expect(canPlaceResource(tile.resource, tile.terrain, tile.feature)).toBe(true);
+        }
+      }
+    });
+
+    it('should place some resources', () => {
+      // Use a seed that produces a varied map
+      const resourceConfig = MapConfig.standard(12345);
+      const resourceGen = new MapGenerator(resourceConfig);
+      const tiles = resourceGen.generate();
+
+      const resourceTiles = tiles.filter((t) => t.resource !== null);
+      // Should have at least some resources
+      expect(resourceTiles.length).toBeGreaterThan(0);
+    });
+
+    it('should be deterministic with same seed', () => {
+      const config1 = MapConfig.standard(42);
+      const config2 = MapConfig.standard(42);
+      const gen1 = new MapGenerator(config1);
+      const gen2 = new MapGenerator(config2);
+
+      const tiles1 = gen1.generate();
+      const tiles2 = gen2.generate();
+
+      for (let i = 0; i < tiles1.length; i++) {
+        expect(tiles1[i].resource).toBe(tiles2[i].resource);
+      }
+    });
+
+    it('should produce different resources with different seeds', () => {
+      const config1 = MapConfig.standard(42);
+      const config2 = MapConfig.standard(999);
+      const gen1 = new MapGenerator(config1);
+      const gen2 = new MapGenerator(config2);
+
+      const tiles1 = gen1.generate();
+      const tiles2 = gen2.generate();
+
+      // Count resource differences
+      let differences = 0;
+      for (let i = 0; i < tiles1.length; i++) {
+        if (tiles1[i].resource !== tiles2[i].resource) {
+          differences++;
+        }
+      }
+      // Should have at least some different resources
+      expect(differences).toBeGreaterThan(0);
+    });
+  });
+
+  describe('determineResource', () => {
+    it('should return null for Mountain terrain', () => {
+      const result = generator.determineResource(Terrain.Mountain, null);
+      expect(result).toBeNull();
+    });
+
+    it('should allow Fish on Lake terrain', () => {
+      // Fish can spawn on Lake terrain
+      // Since spawn is probabilistic, test multiple times
+      const results: (TileResource | null)[] = [];
+      for (let i = 0; i < 50; i++) {
+        const gen = new MapGenerator(MapConfig.duel(i));
+        results.push(gen.determineResource(Terrain.Lake, null));
+      }
+      // At least some should be Fish (10% spawn rate)
+      const fishCount = results.filter((r) => r === TileResource.Fish).length;
+      expect(fishCount).toBeGreaterThan(0);
+      // All non-null should be Fish (only resource valid for Lake)
+      for (const r of results) {
+        if (r !== null) {
+          expect(r).toBe(TileResource.Fish);
+        }
+      }
+    });
+
+    it('should return valid resource or null for Grassland', () => {
+      // Run multiple times to test probabilistic behavior
+      const results: (TileResource | null)[] = [];
+      for (let i = 0; i < 100; i++) {
+        const gen = new MapGenerator(MapConfig.duel(i));
+        results.push(gen.determineResource(Terrain.Grassland, null));
+      }
+
+      // Should have at least some resources and some nulls
+      const hasResources = results.some((r) => r !== null);
+      const hasNulls = results.some((r) => r === null);
+      expect(hasResources).toBe(true);
+      expect(hasNulls).toBe(true);
+
+      // All non-null should be valid for Grassland
+      for (const r of results) {
+        if (r !== null) {
+          expect(canPlaceResource(r, Terrain.Grassland, null)).toBe(true);
+        }
+      }
     });
   });
 });

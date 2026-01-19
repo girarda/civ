@@ -36,11 +36,7 @@ export class TilePosition {
   range(radius: number): TilePosition[] {
     const results: TilePosition[] = [];
     for (let dq = -radius; dq <= radius; dq++) {
-      for (
-        let dr = Math.max(-radius, -dq - radius);
-        dr <= Math.min(radius, -dq + radius);
-        dr++
-      ) {
+      for (let dr = Math.max(-radius, -dq - radius); dr <= Math.min(radius, -dq + radius); dr++) {
         results.push(new TilePosition(this.q + dq, this.r + dr));
       }
     }

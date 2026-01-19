@@ -32,18 +32,18 @@ Based on user preference:
 
 **Goal**: Extend MapGenerator to place resources on tiles based on terrain and feature compatibility.
 
-**Status**: NOT STARTED
+**Status**: COMPLETE
 
 #### Tasks
 
-- [ ] Define resource-terrain compatibility rules in `TileResource.ts`
-- [ ] Add `resource` field to `GeneratedTile` interface in `MapGenerator.ts`
-- [ ] Implement `determineResource()` method in `MapGenerator` class
-- [ ] Update `generate()` to call resource placement
-- [ ] Update `HoveredTile` interface to include resource
-- [ ] Update `HoverSystem` to populate resource field
-- [ ] Write unit tests for resource placement
-- [ ] Write tests for resource-terrain compatibility
+- [x] Define resource-terrain compatibility rules in `TileResource.ts`
+- [x] Add `resource` field to `GeneratedTile` interface in `MapGenerator.ts`
+- [x] Implement `determineResource()` method in `MapGenerator` class
+- [x] Update `generate()` to call resource placement
+- [x] Update `HoveredTile` interface to include resource
+- [x] Update `HoverSystem` to populate resource field
+- [x] Write unit tests for resource placement
+- [x] Write tests for resource-terrain compatibility
 
 #### Implementation Details
 
@@ -313,12 +313,12 @@ export interface HoveredTile {
 
 #### Success Criteria
 
-- [ ] All 26 resources have defined placement rules
-- [ ] Resources only spawn on compatible terrain/feature combinations
-- [ ] Resource distribution is deterministic (same seed = same resources)
-- [ ] Resource spawn rates are reasonable (not too sparse or dense)
-- [ ] Unit tests verify placement rules
-- [ ] Unit tests verify determinism
+- [x] All 26 resources have defined placement rules
+- [x] Resources only spawn on compatible terrain/feature combinations
+- [x] Resource distribution is deterministic (same seed = same resources)
+- [x] Resource spawn rates are reasonable (not too sparse or dense)
+- [x] Unit tests verify placement rules
+- [x] Unit tests verify determinism
 
 ---
 
