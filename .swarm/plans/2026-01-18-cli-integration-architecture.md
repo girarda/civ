@@ -28,7 +28,7 @@ Architecture pattern: Command-based action system with serializable state snapsh
 
 #### Tasks
 
-- [ ] Create `/Users/alex/workspace/civ/src/engine/GameEngine.ts`:
+- [x] Create `/Users/alex/workspace/civ/src/engine/GameEngine.ts`:
   ```typescript
   export class GameEngine {
     private world: IWorld;
@@ -47,19 +47,19 @@ Architecture pattern: Command-based action system with serializable state snapsh
     getMap(): MapSnapshot;
   }
   ```
-- [ ] Create `/Users/alex/workspace/civ/src/engine/state/snapshots.ts` with serializable snapshot types:
+- [x] Create `/Users/alex/workspace/civ/src/engine/state/snapshots.ts` with serializable snapshot types:
   - `GameStateSnapshot` (turnNumber, phase, currentPlayer, playerCount)
   - `UnitSnapshot` (eid, type, owner, position, health, movement, capabilities)
   - `CitySnapshot` (eid, name, owner, position, population, production, yields, territory)
   - `TileSnapshot` (position, terrain, feature, resource, yields, passability, ownership)
   - `MapSnapshot` (width, height, seed, tiles)
-- [ ] Create `/Users/alex/workspace/civ/src/engine/state/queries.ts` implementing state query functions:
+- [x] Create `/Users/alex/workspace/civ/src/engine/state/queries.ts` implementing state query functions:
   - `queryGameState(gameState: GameState): GameStateSnapshot`
   - `queryUnits(world: IWorld, playerId?: number): UnitSnapshot[]`
   - `queryCities(world: IWorld, playerId?: number): CitySnapshot[]`
   - `queryTile(tileMap, q, r): TileSnapshot | null`
   - `queryMap(tileMap, config): MapSnapshot`
-- [ ] Create `/Users/alex/workspace/civ/src/engine/events/EventBus.ts`:
+- [x] Create `/Users/alex/workspace/civ/src/engine/events/EventBus.ts`:
   ```typescript
   export class EventBus {
     emit(event: GameEvent): void;
@@ -67,7 +67,7 @@ Architecture pattern: Command-based action system with serializable state snapsh
     subscribeAll(handler: (event: GameEvent) => void): () => void;
   }
   ```
-- [ ] Create `/Users/alex/workspace/civ/src/engine/events/types.ts` with event type definitions:
+- [x] Create `/Users/alex/workspace/civ/src/engine/events/types.ts` with event type definitions:
   - `UnitMovedEvent`
   - `CombatResolvedEvent`
   - `CityFoundedEvent`
@@ -75,27 +75,27 @@ Architecture pattern: Command-based action system with serializable state snapsh
   - `TurnEndedEvent`
   - `TurnStartedEvent`
   - `ProductionCompletedEvent`
-- [ ] Move ECS world creation from `main.ts` into `GameEngine` constructor
-- [ ] Move `tileMap` and `territoryManager` ownership into `GameEngine`
-- [ ] Create `/Users/alex/workspace/civ/src/engine/index.ts` for module exports
-- [ ] Write unit tests in `/Users/alex/workspace/civ/src/engine/state/queries.test.ts`:
+- [x] Move ECS world creation from `main.ts` into `GameEngine` constructor
+- [x] Move `tileMap` and `territoryManager` ownership into `GameEngine`
+- [x] Create `/Users/alex/workspace/civ/src/engine/index.ts` for module exports
+- [x] Write unit tests in `/Users/alex/workspace/civ/src/engine/state/queries.test.ts`:
   - Test `queryGameState` returns correct snapshot
   - Test `queryUnits` filters by playerId
   - Test `queryCities` returns correct yields and production
   - Test `queryTile` handles valid and invalid coordinates
-- [ ] Write unit tests in `/Users/alex/workspace/civ/src/engine/events/EventBus.test.ts`:
+- [x] Write unit tests in `/Users/alex/workspace/civ/src/engine/events/EventBus.test.ts`:
   - Test subscribe and emit
   - Test unsubscribe
   - Test subscribeAll catches all events
 
 #### Success Criteria
 
-- [ ] `GameEngine` can be instantiated with configuration
-- [ ] All state queries return properly typed snapshot objects
-- [ ] Snapshots are serializable to JSON without errors
-- [ ] EventBus correctly dispatches events to subscribers
-- [ ] Unit tests pass for state queries and event bus
-- [ ] Existing game functionality remains unchanged (main.ts still works)
+- [x] `GameEngine` can be instantiated with configuration
+- [x] All state queries return properly typed snapshot objects
+- [x] Snapshots are serializable to JSON without errors
+- [x] EventBus correctly dispatches events to subscribers
+- [x] Unit tests pass for state queries and event bus
+- [ ] Existing game functionality remains unchanged (main.ts still works) *(Note: main.ts not yet integrated - this is Phase 3)*
 
 ---
 
