@@ -39,22 +39,21 @@ async function main() {
   const worldContainer = new Container();
   app.stage.addChild(worldContainer);
 
-  // Create layer hierarchy for proper z-ordering
+  // Create layer hierarchy for proper z-ordering:
+  // 1. tilesContainer - terrain tiles at bottom
+  // 2. unitContainer - units above tiles
+  // 3. overlayContainer - highlights/previews on top
   const tilesContainer = new Container();
+  const unitContainer = new Container();
   const overlayContainer = new Container();
   worldContainer.addChild(tilesContainer);
+  worldContainer.addChild(unitContainer);
   worldContainer.addChild(overlayContainer);
 
   // Initialize systems
   const layout = new HexGridLayout(32);
   const tileRenderer = new TileRenderer(tilesContainer, layout);
   const camera = new CameraController(worldContainer);
-
-  // Create containers for layered rendering (units above tiles, overlays above units)
-  const unitContainer = new Container();
-  const overlayContainer = new Container();
-  worldContainer.addChild(unitContainer);
-  worldContainer.addChild(overlayContainer);
 
   // Tile storage - will be updated on regeneration
   const tileMap = new Map<string, GeneratedTile>();
