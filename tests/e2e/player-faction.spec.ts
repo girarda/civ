@@ -14,32 +14,21 @@ test.describe('Feature: Player/Faction Tracking', () => {
     });
 
     test('players are initialized on startup', async ({ page }) => {
-      const logs: string[] = [];
-      page.on('console', (msg) => {
-        if (msg.type() === 'log') {
-          logs.push(msg.text());
-        }
-      });
-
-      await page.reload();
-      await page.waitForSelector('canvas', { state: 'visible' });
+      // Enable debug mode and regenerate to capture logs
+      await page.keyboard.press('`');
+      await page.waitForTimeout(500);
+      await page.keyboard.press('r');
       await page.waitForTimeout(1000);
 
-      // Verify map generation log (indicates normal startup)
-      const hasMapLog = logs.some((l) => l.includes('Map generated'));
-      expect(hasMapLog).toBe(true);
+      const debugLog = page.locator('#debug-log');
+      const text = await debugLog.textContent();
+      expect(text).toContain('[MAP]');
+      await page.keyboard.press('`');
     });
   });
 
   test.describe('Elimination Tracking', () => {
     test('should log elimination when player loses all units', async ({ page }) => {
-      const logs: string[] = [];
-      page.on('console', (msg) => {
-        if (msg.type() === 'log') {
-          logs.push(msg.text());
-        }
-      });
-
       await page.reload();
       await page.waitForSelector('canvas', { state: 'visible' });
       await page.waitForTimeout(1000);
@@ -105,25 +94,32 @@ test.describe('Feature: Player/Faction Tracking', () => {
 
   test.describe('Map Regeneration', () => {
     test('should reset player state on map regeneration', async ({ page }) => {
-      const logs: string[] = [];
-      page.on('console', (msg) => {
-        if (msg.type() === 'log') {
-          logs.push(msg.text());
-        }
-      });
-
       // Generate initial map
       await page.reload();
       await page.waitForSelector('canvas', { state: 'visible' });
       await page.waitForTimeout(1000);
 
+      // Enable debug mode to see logs
+      await page.keyboard.press('`');
+      await page.waitForTimeout(500);
+
+      // Get initial debug log entry count
+      const initialCount = await page.locator('.debug-entry').count();
+
       // Press R to regenerate
       await page.keyboard.press('r');
       await page.waitForTimeout(1000);
 
-      // Verify map was regenerated (new seed log)
-      const mapLogs = logs.filter((l) => l.includes('Map generated'));
-      expect(mapLogs.length).toBeGreaterThanOrEqual(2);
+      // Verify new map generation entry was added
+      const debugLog = page.locator('#debug-log');
+      const text = await debugLog.textContent();
+      expect(text).toContain('[MAP]');
+
+      // New entries should have been added
+      const newCount = await page.locator('.debug-entry').count();
+      expect(newCount).toBeGreaterThan(initialCount);
+
+      await page.keyboard.press('`'); // Close debug overlay
 
       // Canvas should still be functional
       const canvas = page.locator('canvas');

@@ -179,10 +179,7 @@ export class GameEngine {
   /**
    * Subscribe to a specific event type.
    */
-  on<T extends GameEventType>(
-    eventType: T['type'],
-    handler: (event: T) => void
-  ): () => void {
+  on<T extends GameEventType>(eventType: T['type'], handler: (event: T) => void): () => void {
     return this.eventBus.subscribe(eventType, handler);
   }
 

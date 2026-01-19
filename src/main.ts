@@ -19,6 +19,10 @@ import {
   CityInfoPanel,
   CombatPreviewPanel,
   ProductionUI,
+  NotificationState,
+  NotificationType,
+  NotificationPanel,
+  DebugOverlay,
 } from './ui';
 import { getCityAtPosition } from './ecs/citySystems';
 import { getUnitAtPosition, getUnitHealth, getUnitOwner } from './ecs/unitSystems';
@@ -57,7 +61,20 @@ import {
 } from './combat';
 import { PlayerManager } from './player';
 
-console.log('OpenCiv initializing...');
+// Initialize notification system (created before main to capture initialization logs)
+const notificationState = new NotificationState();
+// Panel is instantiated for its side effects (subscribes to state)
+new NotificationPanel(notificationState);
+const debugOverlay = new DebugOverlay(notificationState);
+
+// Debug toggle handler (backtick key)
+window.addEventListener('keydown', (e) => {
+  if (e.key === '`') {
+    debugOverlay.toggle();
+  }
+});
+
+notificationState.push(NotificationType.Debug, '[INIT] OpenCiv initializing...');
 
 async function main() {
   // Create PixiJS application
@@ -145,11 +162,14 @@ async function main() {
   const playerManager = new PlayerManager();
   playerManager.initialize([0], 2); // Player 0 is human, 2 total players
 
-  // Subscribe to elimination events for logging
+  // Subscribe to elimination events for notifications
   playerManager.subscribe((event) => {
     if (event.type === 'eliminated') {
       const player = playerManager.getPlayer(event.playerId);
-      console.log(`${player?.name ?? 'Unknown player'} has been eliminated!`);
+      notificationState.push(
+        NotificationType.Success,
+        `${player?.name ?? 'Unknown player'} has been eliminated!`
+      );
     }
   });
 
@@ -168,10 +188,24 @@ async function main() {
     onProductionCompleted: (event) => {
       // Render the newly spawned unit
       unitRenderer.createUnitGraphic(event.unitEid, event.position, event.unitType, event.playerId);
-      console.log(`Production completed in city ${event.cityEid}: unit ${event.unitEid} spawned`);
+      const unitName = getUnitName(event.unitType);
+      notificationState.push(NotificationType.Success, `${unitName} ready!`);
+      notificationState.push(
+        NotificationType.Debug,
+        '[PRODUCTION] Unit completed',
+        `City ${event.cityEid}: ${unitName} (eid ${event.unitEid}) spawned`
+      );
     },
     onPopulationGrowth: (event) => {
-      console.log(`City ${event.cityEid} grew to population ${event.newPopulation}`);
+      notificationState.push(
+        NotificationType.Info,
+        `City grew to population ${event.newPopulation}`
+      );
+      notificationState.push(
+        NotificationType.Debug,
+        '[CITY] Population growth',
+        `City ${event.cityEid} now at pop ${event.newPopulation}`
+      );
     },
   });
 
@@ -319,7 +353,11 @@ async function main() {
     camera.centerOn(centerPos.x, centerPos.y);
 
     currentSeed = seed;
-    console.log(`Map generated with seed: ${seed}, ${tiles.length} tiles`);
+    notificationState.push(
+      NotificationType.Debug,
+      '[MAP] Generated',
+      `Seed: ${seed}, ${tiles.length} tiles`
+    );
   }
 
   // Generate initial map
@@ -335,7 +373,11 @@ async function main() {
   // Initialize turn system (gameState already created above)
   const turnSystem = new TurnSystem(gameState, {
     onTurnStart: () => {
-      console.log(`Turn ${gameState.getTurnNumber()} started`);
+      notificationState.push(
+        NotificationType.Debug,
+        '[TURN] Started',
+        `Turn ${gameState.getTurnNumber()}`
+      );
       movementExecutor.resetAllMovementPoints();
 
       // Refresh movement preview for selected unit
@@ -353,7 +395,11 @@ async function main() {
       cityProcessor.processTurnEnd();
       // Refresh city panel to show updated production progress
       cityInfoPanel.refresh();
-      console.log(`Turn ${gameState.getTurnNumber()} ending`);
+      notificationState.push(
+        NotificationType.Debug,
+        '[TURN] Ending',
+        `Turn ${gameState.getTurnNumber()}`
+      );
     },
   });
   turnSystem.attach();
@@ -545,8 +591,10 @@ async function main() {
     if (combatExecutor.hasEnemyAt(selectedUnit, hexPos)) {
       const result = combatExecutor.executeAttack(selectedUnit, hexPos);
       if (result) {
-        console.log(
-          `Combat: Attacker took ${result.attackerDamage} damage, Defender took ${result.defenderDamage} damage`
+        notificationState.push(
+          NotificationType.Debug,
+          '[COMBAT] Result',
+          `Attacker: -${result.attackerDamage} HP, Defender: -${result.defenderDamage} HP`
         );
 
         // Hide combat preview after attack
@@ -593,13 +641,13 @@ async function main() {
       // Check if selected unit is a Settler
       const unitType = UnitComponent.type[selectedUnit];
       if (unitType !== UnitType.Settler) {
-        console.log('Only Settlers can found cities');
+        notificationState.push(NotificationType.Warning, 'Only Settlers can found cities');
         return;
       }
 
       // Check if city can be founded
       if (!canFoundCity(world, selectedUnit, tileMap)) {
-        console.log('Cannot found city here');
+        notificationState.push(NotificationType.Warning, 'Cannot found city here');
         return;
       }
 
@@ -623,7 +671,7 @@ async function main() {
             playerId
           );
 
-          console.log(`Founded city: ${name}`);
+          notificationState.push(NotificationType.Success, `Founded ${name}!`);
         }
       );
 
@@ -634,7 +682,7 @@ async function main() {
         // Deselect since settler is gone
         selectionState.deselect();
       } else if (result.error) {
-        console.log(`Failed to found city: ${result.error}`);
+        notificationState.push(NotificationType.Warning, `Cannot found city: ${result.error}`);
       }
     }
   });
@@ -644,7 +692,7 @@ async function main() {
     camera.update(ticker.deltaMS / 1000);
   });
 
-  console.log(`OpenCiv initialized successfully!`);
+  notificationState.push(NotificationType.Debug, '[INIT] OpenCiv initialized successfully!');
 }
 
 main().catch(console.error);

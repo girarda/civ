@@ -52,10 +52,7 @@ export class EventBus {
    * @param handler The handler function to call when event is emitted
    * @returns Unsubscribe function
    */
-  subscribe<T extends GameEventType>(
-    eventType: T['type'],
-    handler: EventHandler<T>
-  ): () => void {
+  subscribe<T extends GameEventType>(eventType: T['type'], handler: EventHandler<T>): () => void {
     if (!this.handlers.has(eventType)) {
       this.handlers.set(eventType, new Set());
     }
