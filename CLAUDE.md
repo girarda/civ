@@ -12,6 +12,7 @@ OpenCiv is a Civilization-style 4X strategy game built with TypeScript, PixiJS, 
 npm install              # Install dependencies
 npm run dev              # Start development server (Vite)
 npm run build            # Build for production
+npm run build:cli        # Build CLI (civctl)
 npm run preview          # Preview production build
 npm run test             # Run unit tests (Vitest)
 npm run test:e2e         # Run Playwright e2e tests
@@ -70,3 +71,73 @@ HexGridLayout handles hex-to-world-position conversions. Default: 32-pixel point
 - Base terrains: Grassland, Plains, Desert, Tundra, Snow
 - Hill variants: GrasslandHill, PlainsHill, DesertHill, TundraHill, SnowHill
 - Special: Mountain (impassable), Coast, Ocean, Lake
+
+## CLI (civctl)
+
+The `civctl` command-line interface enables programmatic game control through the GameEngine API. Build with `npm run build:cli`, then run with `node dist/civctl.cjs`.
+
+### Global Options
+
+```
+civctl [command] [options]
+
+Options:
+  -o, --output <format>  Output format: text (default), json
+  -s, --state <file>     State file for persistence (default: .civctl-state.json)
+  -h, --help             Show help
+  -V, --version          Show version
+```
+
+### Game Commands
+
+```bash
+civctl game status              # Show current game state
+civctl game end-turn            # End current player's turn
+civctl game new [--seed N]      # Start new game with optional seed
+civctl game new --size tiny     # Create game with specific map size
+```
+
+### Unit Commands
+
+```bash
+civctl unit list [-p <player>]         # List units (optionally filter by player)
+civctl unit show <eid>                  # Show unit details
+civctl unit move <eid> --to <q,r>       # Move unit to coordinates
+civctl unit attack <eid> --target <id>  # Attack enemy unit
+civctl unit found-city <eid>            # Found city with settler
+```
+
+### City Commands
+
+```bash
+civctl city list [-p <player>]           # List cities
+civctl city show <eid>                   # Show city details
+civctl city production <eid> <type>      # Set production (warrior/scout/settler/none)
+```
+
+### Map Commands
+
+```bash
+civctl map tile <q,r>   # Get tile at coordinates (e.g., "0,5")
+civctl map info         # Get map dimensions and seed
+```
+
+### Player Commands
+
+```bash
+civctl player list      # List all players with unit/city counts
+```
+
+### JSON Output
+
+Use `-o json` for machine-readable output:
+
+```bash
+civctl game status -o json
+# Returns: { "success": true, "data": { "turnNumber": 1, ... } }
+
+civctl unit move 5 --to 3,4 -o json
+# Returns: { "success": true, "data": {...}, "events": [...] }
+```
+
+Errors return: `{ "success": false, "error": "..." }`
