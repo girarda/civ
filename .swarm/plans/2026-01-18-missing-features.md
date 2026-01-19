@@ -326,17 +326,17 @@ export interface HoveredTile {
 
 **Goal**: Display detailed tile information in an HTML/CSS overlay panel when hovering.
 
-**Status**: NOT STARTED (HoverState ready, needs UI)
+**Status**: COMPLETE
 
 #### Tasks
 
-- [ ] Create `src/ui/TileInfoPanel.ts` - Panel component with show/hide logic
-- [ ] Add panel styles to `src/style.css`
-- [ ] Modify `index.html` - Add panel container element
-- [ ] Integrate with HoverState subscription in `main.ts`
-- [ ] Display resource name (from Phase A)
-- [ ] Display calculated yields using `calculateYields()`
-- [ ] Write E2E test for panel visibility and content
+- [x] Create `src/ui/TileInfoPanel.ts` - Panel component with show/hide logic
+- [x] Add panel styles to `src/style.css`
+- [x] Modify `index.html` - Add panel container element
+- [x] Integrate with HoverState subscription in `main.ts`
+- [x] Display resource name (from Phase A)
+- [x] Display calculated yields using `calculateYields()`
+- [x] Write E2E test for panel visibility and content
 
 #### Implementation Details
 

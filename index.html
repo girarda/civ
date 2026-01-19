@@ -8,6 +8,20 @@
   </head>
   <body>
     <div id="game-container"></div>
+    <div id="tile-info-panel" class="hidden">
+      <div class="panel-header">Tile Info</div>
+      <div class="panel-content">
+        <div class="info-row"><span class="label">Position:</span> <span id="tile-coords"></span></div>
+        <div class="info-row"><span class="label">Terrain:</span> <span id="tile-terrain"></span></div>
+        <div class="info-row"><span class="label">Feature:</span> <span id="tile-feature"></span></div>
+        <div class="info-row"><span class="label">Resource:</span> <span id="tile-resource"></span></div>
+        <div class="yields-section">
+          <div class="yield-item"><span class="yield-icon food"></span><span id="yield-food">0</span></div>
+          <div class="yield-item"><span class="yield-icon production"></span><span id="yield-production">0</span></div>
+          <div class="yield-item"><span class="yield-icon gold"></span><span id="yield-gold">0</span></div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

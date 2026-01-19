@@ -17,3 +17,72 @@ body {
 canvas {
   display: block;
 }
+
+/* Tile Info Panel */
+#tile-info-panel {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(26, 26, 46, 0.95);
+  border: 2px solid #4a4a6a;
+  border-radius: 8px;
+  padding: 12px 16px;
+  min-width: 200px;
+  color: #e0e0e0;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 14px;
+  z-index: 100;
+  transition: opacity 0.15s ease;
+}
+
+#tile-info-panel.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.panel-header {
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: #ffffff;
+  border-bottom: 1px solid #4a4a6a;
+  padding-bottom: 6px;
+}
+
+.info-row {
+  margin: 4px 0;
+}
+
+.info-row .label {
+  color: #a0a0b0;
+}
+
+.yields-section {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #4a4a6a;
+}
+
+.yield-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.yield-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+.yield-icon.food {
+  background: #4caf50;
+}
+.yield-icon.production {
+  background: #ff9800;
+}
+.yield-icon.gold {
+  background: #ffd700;
+}

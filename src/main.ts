@@ -7,7 +7,7 @@ import { TileHighlight } from './render/TileHighlight';
 import { CameraController } from './render/CameraController';
 import { MapConfig } from './map/MapConfig';
 import { MapGenerator, GeneratedTile } from './map/MapGenerator';
-import { HoverState, HoverSystem } from './ui';
+import { HoverState, HoverSystem, TileInfoPanel } from './ui';
 
 console.log('OpenCiv initializing...');
 
@@ -52,6 +52,7 @@ async function main() {
   const hoverState = new HoverState();
   const hoverSystem = new HoverSystem(layout, camera, tileMap, hoverState);
   const tileHighlight = new TileHighlight(worldContainer, layout);
+  const tileInfoPanel = new TileInfoPanel();
 
   // Attach hover detection to canvas
   hoverSystem.attach(app.canvas as HTMLCanvasElement);
@@ -60,8 +61,10 @@ async function main() {
   hoverState.subscribe((tile) => {
     if (tile) {
       tileHighlight.show(tile.position);
+      tileInfoPanel.show(tile);
     } else {
       tileHighlight.hide();
+      tileInfoPanel.hide();
     }
   });
 
