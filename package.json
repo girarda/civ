@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:cli": "esbuild src/cli/civctl.ts --bundle --platform=node --outfile=dist/civctl.cjs --format=cjs --external:honeycomb-grid",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -15,6 +16,7 @@
   },
   "dependencies": {
     "bitecs": "^0.3.40",
+    "commander": "^12.1.0",
     "honeycomb-grid": "^4.1.0",
     "pixi.js": "^8.0.0",
     "seedrandom": "^3.0.5",
@@ -27,6 +29,7 @@
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
     "ajv-cli": "^5.0.0",
+    "esbuild": "^0.24.0",
     "eslint": "^8.56.0",
     "prettier": "^3.1.1",
     "typescript": "^5.3.0",
