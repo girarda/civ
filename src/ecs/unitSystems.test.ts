@@ -7,6 +7,7 @@ import {
   UnitComponent,
   MovementComponent,
   OwnerComponent,
+  HealthComponent,
 } from './world';
 import {
   getAllUnits,
@@ -17,6 +18,9 @@ import {
   getUnitMovement,
   getUnitOwner,
   canUnitMove,
+  getUnitHealth,
+  setUnitHealth,
+  isUnitAlive,
 } from './unitSystems';
 import { UnitType } from '../unit/UnitType';
 
@@ -153,6 +157,78 @@ describe('unitSystems', () => {
       MovementComponent.current[eid] = 0;
 
       expect(canUnitMove(eid)).toBe(false);
+    });
+  });
+
+  describe('createUnitEntity with health', () => {
+    it('should create unit with default health of 100', () => {
+      const eid = createUnitEntity(world, 0, 0, UnitType.Warrior, 0, 2);
+
+      expect(HealthComponent.current[eid]).toBe(100);
+      expect(HealthComponent.max[eid]).toBe(100);
+    });
+
+    it('should allow custom max health', () => {
+      const eid = createUnitEntity(world, 0, 0, UnitType.Warrior, 0, 2, 50);
+
+      expect(HealthComponent.current[eid]).toBe(50);
+      expect(HealthComponent.max[eid]).toBe(50);
+    });
+  });
+
+  describe('getUnitHealth', () => {
+    it('should return current and max health', () => {
+      const eid = createUnitEntity(world, 0, 0, UnitType.Warrior, 0, 2);
+      HealthComponent.current[eid] = 75;
+
+      const health = getUnitHealth(eid);
+      expect(health.current).toBe(75);
+      expect(health.max).toBe(100);
+    });
+  });
+
+  describe('setUnitHealth', () => {
+    it('should set current health', () => {
+      const eid = createUnitEntity(world, 0, 0, UnitType.Warrior, 0, 2);
+
+      setUnitHealth(eid, 50);
+      expect(HealthComponent.current[eid]).toBe(50);
+    });
+
+    it('should clamp health to 0 minimum', () => {
+      const eid = createUnitEntity(world, 0, 0, UnitType.Warrior, 0, 2);
+
+      setUnitHealth(eid, -10);
+      expect(HealthComponent.current[eid]).toBe(0);
+    });
+
+    it('should clamp health to max health', () => {
+      const eid = createUnitEntity(world, 0, 0, UnitType.Warrior, 0, 2);
+
+      setUnitHealth(eid, 150);
+      expect(HealthComponent.current[eid]).toBe(100);
+    });
+  });
+
+  describe('isUnitAlive', () => {
+    it('should return true when health > 0', () => {
+      const eid = createUnitEntity(world, 0, 0, UnitType.Warrior, 0, 2);
+
+      expect(isUnitAlive(eid)).toBe(true);
+    });
+
+    it('should return true when health is 1', () => {
+      const eid = createUnitEntity(world, 0, 0, UnitType.Warrior, 0, 2);
+      HealthComponent.current[eid] = 1;
+
+      expect(isUnitAlive(eid)).toBe(true);
+    });
+
+    it('should return false when health is 0', () => {
+      const eid = createUnitEntity(world, 0, 0, UnitType.Warrior, 0, 2);
+      HealthComponent.current[eid] = 0;
+
+      expect(isUnitAlive(eid)).toBe(false);
     });
   });
 });
