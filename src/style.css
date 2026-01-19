@@ -215,6 +215,46 @@ canvas {
   padding-bottom: 6px;
 }
 
+/* Production Section */
+.production-section {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #6a8a6a;
+}
+
+.section-header {
+  font-weight: 500;
+  color: #a0a0b0;
+  margin-bottom: 8px;
+}
+
+#production-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.production-btn {
+  background: #4a4a6a;
+  border: 1px solid #6a6a8a;
+  border-radius: 4px;
+  color: #e0e0e0;
+  padding: 6px 12px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 13px;
+  transition: background 0.15s ease;
+}
+
+.production-btn:hover {
+  background: #5a5a7a;
+}
+
+.production-btn.active {
+  background: #5a8a5a;
+  border-color: #6a9a6a;
+}
+
 /* Combat Preview Panel */
 #combat-preview {
   position: fixed;

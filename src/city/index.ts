@@ -9,11 +9,7 @@ export {
 
 export { TerritoryManager } from './Territory';
 
-export {
-  getNextCityName,
-  getCityNameByIndex,
-  getCityNameCount,
-} from './CityNameGenerator';
+export { getNextCityName, getCityNameByIndex, getCityNameCount } from './CityNameGenerator';
 
 export {
   canFoundCity,

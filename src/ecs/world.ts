@@ -1,4 +1,12 @@
-import { createWorld, defineComponent, Types, addEntity, addComponent, IWorld, defineQuery } from 'bitecs';
+import {
+  createWorld,
+  defineComponent,
+  Types,
+  addEntity,
+  addComponent,
+  IWorld,
+  defineQuery,
+} from 'bitecs';
 import { CityComponent, PopulationComponent, ProductionComponent } from './cityComponents';
 import { calculateGrowthThreshold } from '../city/CityData';
 

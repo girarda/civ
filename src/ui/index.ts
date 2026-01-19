@@ -9,3 +9,4 @@ export { TurnControls } from './TurnControls';
 export { CityState } from './CityState';
 export { CityInfoPanel } from './CityInfoPanel';
 export { CombatPreviewPanel } from './CombatPreviewPanel';
+export { ProductionUI } from './ProductionUI';

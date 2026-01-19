@@ -25,12 +25,7 @@ export class CityRenderer {
   /**
    * Create and add a city graphic.
    */
-  createCityGraphic(
-    eid: number,
-    position: TilePosition,
-    name: string,
-    playerId: number
-  ): Graphics {
+  createCityGraphic(eid: number, position: TilePosition, name: string, playerId: number): Graphics {
     const worldPos = this.layout.hexToWorld(position);
     const color = PLAYER_COLORS[playerId % PLAYER_COLORS.length];
 

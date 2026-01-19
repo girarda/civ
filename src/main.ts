@@ -7,11 +7,30 @@ import { TileHighlight } from './render/TileHighlight';
 import { CameraController } from './render/CameraController';
 import { MapConfig } from './map/MapConfig';
 import { MapGenerator, GeneratedTile } from './map/MapGenerator';
-import { HoverState, HoverSystem, TileInfoPanel, MapControls, SelectionState, SelectionSystem, TurnControls, CityState, CityInfoPanel, CombatPreviewPanel } from './ui';
+import {
+  HoverState,
+  HoverSystem,
+  TileInfoPanel,
+  MapControls,
+  SelectionState,
+  SelectionSystem,
+  TurnControls,
+  CityState,
+  CityInfoPanel,
+  CombatPreviewPanel,
+  ProductionUI,
+} from './ui';
 import { getCityAtPosition } from './ecs/citySystems';
 import { getUnitAtPosition, getUnitHealth, getUnitOwner } from './ecs/unitSystems';
 import { Terrain } from './tile/Terrain';
-import { createGameWorld, createUnitEntity, Position, MovementComponent, OwnerComponent, UnitComponent } from './ecs/world';
+import {
+  createGameWorld,
+  createUnitEntity,
+  Position,
+  MovementComponent,
+  OwnerComponent,
+  UnitComponent,
+} from './ecs/world';
 import { CityComponent } from './ecs/cityComponents';
 import { UnitType, UNIT_TYPE_DATA, MovementExecutor, getUnitName } from './unit';
 import { UnitRenderer } from './render/UnitRenderer';
@@ -22,8 +41,20 @@ import { IWorld } from 'bitecs';
 import { GameState, TurnSystem } from './game';
 import { CityRenderer } from './render/CityRenderer';
 import { TerritoryRenderer } from './render/TerritoryRenderer';
-import { TerritoryManager, canFoundCity, tryFoundCity, getCityNameByIndex, CityProcessor } from './city';
-import { CombatExecutor, CombatPreviewState, calculateCombat, getTotalDefenseModifier, getDefenseModifierNames } from './combat';
+import {
+  TerritoryManager,
+  canFoundCity,
+  tryFoundCity,
+  getCityNameByIndex,
+  CityProcessor,
+} from './city';
+import {
+  CombatExecutor,
+  CombatPreviewState,
+  calculateCombat,
+  getTotalDefenseModifier,
+  getDefenseModifierNames,
+} from './combat';
 
 console.log('OpenCiv initializing...');
 
@@ -97,6 +128,12 @@ async function main() {
   // Initialize city UI
   const cityState = new CityState();
   const cityInfoPanel = new CityInfoPanel();
+  const productionUI = new ProductionUI({
+    onProductionSelected: (cityEid, buildableType) => {
+      cityProcessor.setProduction(cityEid, buildableType);
+      cityInfoPanel.refresh();
+    },
+  });
 
   // Initialize game state and combat systems
   const gameState = new GameState();
@@ -167,16 +204,35 @@ async function main() {
 
     // Spawn player 0 warrior
     const data = UNIT_TYPE_DATA[UnitType.Warrior];
-    const eid1 = createUnitEntity(world, spawnPos.q, spawnPos.r, UnitType.Warrior, 0, data.movement);
+    const eid1 = createUnitEntity(
+      world,
+      spawnPos.q,
+      spawnPos.r,
+      UnitType.Warrior,
+      0,
+      data.movement
+    );
     unitRenderer.createUnitGraphic(eid1, spawnPos, UnitType.Warrior, 0);
 
     // Spawn player 1 warrior adjacent to player 0's warrior for combat testing
     const neighbors = spawnPos.neighbors();
     for (const neighborPos of neighbors) {
       const tile = tileMap.get(neighborPos.key());
-      if (tile && tile.terrain !== Terrain.Ocean && tile.terrain !== Terrain.Coast &&
-          tile.terrain !== Terrain.Lake && tile.terrain !== Terrain.Mountain) {
-        const eid2 = createUnitEntity(world, neighborPos.q, neighborPos.r, UnitType.Warrior, 1, data.movement);
+      if (
+        tile &&
+        tile.terrain !== Terrain.Ocean &&
+        tile.terrain !== Terrain.Coast &&
+        tile.terrain !== Terrain.Lake &&
+        tile.terrain !== Terrain.Mountain
+      ) {
+        const eid2 = createUnitEntity(
+          world,
+          neighborPos.q,
+          neighborPos.r,
+          UnitType.Warrior,
+          1,
+          data.movement
+        );
         unitRenderer.createUnitGraphic(eid2, neighborPos, UnitType.Warrior, 1);
         break;
       }
@@ -418,8 +474,10 @@ async function main() {
   cityState.subscribe((cityEid) => {
     if (cityEid !== null) {
       cityInfoPanel.show(cityEid, world, territoryManager, tileMap);
+      productionUI.setCityEid(cityEid);
     } else {
       cityInfoPanel.hide();
+      productionUI.setCityEid(null);
     }
   });
 
@@ -466,7 +524,9 @@ async function main() {
     if (combatExecutor.hasEnemyAt(selectedUnit, hexPos)) {
       const result = combatExecutor.executeAttack(selectedUnit, hexPos);
       if (result) {
-        console.log(`Combat: Attacker took ${result.attackerDamage} damage, Defender took ${result.defenderDamage} damage`);
+        console.log(
+          `Combat: Attacker took ${result.attackerDamage} damage, Defender took ${result.defenderDamage} damage`
+        );
 
         // Hide combat preview after attack
         combatPreviewState.hide();

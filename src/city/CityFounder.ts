@@ -4,12 +4,7 @@
  */
 
 import { IWorld, removeEntity } from 'bitecs';
-import {
-  Position,
-  UnitComponent,
-  OwnerComponent,
-  createCityEntity,
-} from '../ecs/world';
+import { Position, UnitComponent, OwnerComponent, createCityEntity } from '../ecs/world';
 import { hasCityAtPosition, getCityCountForPlayer } from '../ecs/citySystems';
 import { TerritoryManager } from './Territory';
 import { TilePosition } from '../hex/TilePosition';

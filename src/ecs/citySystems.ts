@@ -9,7 +9,12 @@ import { CityComponent, PopulationComponent, ProductionComponent } from './cityC
 /**
  * Query for all city entities.
  */
-export const cityQuery = defineQuery([Position, CityComponent, OwnerComponent, PopulationComponent]);
+export const cityQuery = defineQuery([
+  Position,
+  CityComponent,
+  OwnerComponent,
+  PopulationComponent,
+]);
 
 /**
  * Get the city entity at a specific position, if any.
