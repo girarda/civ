@@ -124,9 +124,7 @@ export type GameEventType =
 export type EventInput<T extends GameEvent> = Omit<T, 'timestamp'>;
 
 /** Helper function to create event with timestamp */
-export function createEvent<T extends GameEvent>(
-  event: EventInput<T>
-): T {
+export function createEvent<T extends GameEvent>(event: EventInput<T>): T {
   return {
     ...event,
     timestamp: Date.now(),

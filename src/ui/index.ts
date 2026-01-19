@@ -10,3 +10,4 @@ export { CityState } from './CityState';
 export { CityInfoPanel } from './CityInfoPanel';
 export { CombatPreviewPanel } from './CombatPreviewPanel';
 export { ProductionUI } from './ProductionUI';
+export { QueueDisplay } from './QueueDisplay';

@@ -13,6 +13,7 @@ import { ProductionComponent } from '../ecs/cityComponents';
 
 export interface ProductionUICallbacks {
   onProductionSelected: (cityEid: number, buildableType: BuildableType) => void;
+  onProductionQueued?: (cityEid: number, buildableType: BuildableType) => void;
 }
 
 /**
@@ -47,10 +48,11 @@ export class ProductionUI {
       button.className = 'production-btn';
       button.textContent = `${name} (${cost})`;
       button.dataset.type = buildable.toString();
+      button.title = 'Click to build, Shift+click to queue';
 
       button.addEventListener('click', (e) => {
         e.stopPropagation(); // Prevent click from bubbling to canvas
-        this.handleClick(buildable);
+        this.handleClick(buildable, e.shiftKey);
       });
 
       this.container.appendChild(button);
@@ -59,13 +61,17 @@ export class ProductionUI {
   }
 
   /**
-   * Handle button click - set production for current city.
+   * Handle button click - set or queue production for current city.
    */
-  private handleClick(buildableType: BuildableType): void {
+  private handleClick(buildableType: BuildableType, shiftKey: boolean): void {
     if (this.currentCityEid === null) return;
 
-    this.callbacks.onProductionSelected(this.currentCityEid, buildableType);
-    this.updateActiveButton(buildableType);
+    if (shiftKey && this.callbacks.onProductionQueued) {
+      this.callbacks.onProductionQueued(this.currentCityEid, buildableType);
+    } else {
+      this.callbacks.onProductionSelected(this.currentCityEid, buildableType);
+      this.updateActiveButton(buildableType);
+    }
   }
 
   /**
@@ -109,6 +115,19 @@ export class ProductionUI {
     if (this.currentCityEid !== null) {
       const currentItem = ProductionComponent.currentItem[this.currentCityEid] as BuildableType;
       this.updateActiveButton(currentItem);
+    }
+  }
+
+  /**
+   * Update visual feedback when queue is full.
+   */
+  setQueueFull(isFull: boolean): void {
+    for (const button of this.buttons.values()) {
+      if (isFull) {
+        button.title = 'Queue is full';
+      } else {
+        button.title = 'Click to build, Shift+click to queue';
+      }
     }
   }
 }
