@@ -8,4 +8,6 @@ export enum TurnPhase {
   PlayerAction = 'PlayerAction',
   /** End of turn processing - apply end-of-turn effects */
   TurnEnd = 'TurnEnd',
+  /** Game has ended - victory or defeat */
+  GameOver = 'GameOver',
 }

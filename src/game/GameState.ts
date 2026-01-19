@@ -1,9 +1,11 @@
 import { TurnPhase } from './TurnPhase';
+import type { VictoryResult } from '../victory/VictoryTypes';
 
 export interface GameStateSnapshot {
   turnNumber: number;
   phase: TurnPhase;
   currentPlayer: number;
+  victoryResult: VictoryResult | null;
 }
 
 type GameStateListener = (state: GameStateSnapshot) => void;
@@ -16,6 +18,7 @@ export class GameState {
   private turnNumber: number = 1;
   private phase: TurnPhase = TurnPhase.PlayerAction;
   private currentPlayer: number = 0;
+  private victoryResult: VictoryResult | null = null;
   private listeners: GameStateListener[] = [];
 
   /** Get the current turn number */
@@ -39,14 +42,40 @@ export class GameState {
       turnNumber: this.turnNumber,
       phase: this.phase,
       currentPlayer: this.currentPlayer,
+      victoryResult: this.victoryResult,
     };
+  }
+
+  /** Check if the game is over */
+  isGameOver(): boolean {
+    return this.phase === TurnPhase.GameOver;
+  }
+
+  /** Get the victory result (null if game not over) */
+  getVictoryResult(): VictoryResult | null {
+    return this.victoryResult;
+  }
+
+  /**
+   * Set the game as over with the given victory result.
+   * Transitions to GameOver phase and notifies listeners.
+   */
+  setGameOver(result: VictoryResult): void {
+    this.victoryResult = result;
+    this.setPhase(TurnPhase.GameOver);
   }
 
   /**
    * Advance to the next turn.
    * Transitions through TurnEnd -> TurnStart -> PlayerAction phases.
+   * Does nothing if game is already over.
    */
   nextTurn(): void {
+    // Cannot advance turns after game over
+    if (this.isGameOver()) {
+      return;
+    }
+
     // Transition to TurnEnd phase
     this.setPhase(TurnPhase.TurnEnd);
 
@@ -94,5 +123,6 @@ export class GameState {
     this.turnNumber = 1;
     this.phase = TurnPhase.PlayerAction;
     this.currentPlayer = 0;
+    this.victoryResult = null;
   }
 }

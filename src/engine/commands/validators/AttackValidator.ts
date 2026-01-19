@@ -29,7 +29,10 @@ function unitExists(world: IWorld, unitEid: number): boolean {
 /**
  * Validate an AttackCommand.
  */
-export function validateAttack(command: AttackCommand, deps: AttackValidatorDeps): ValidationResult {
+export function validateAttack(
+  command: AttackCommand,
+  deps: AttackValidatorDeps
+): ValidationResult {
   const { world, gameState } = deps;
   const { attackerEid, defenderEid } = command;
 

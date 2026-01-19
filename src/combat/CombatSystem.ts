@@ -45,6 +45,11 @@ export class CombatExecutor {
    * Check if an attack can be made from attacker to target position.
    */
   canAttack(attackerEid: number, targetPos: TilePosition): boolean {
+    // Cannot attack if game is over
+    if (this.gameState.isGameOver()) {
+      return false;
+    }
+
     // Must be in PlayerAction phase
     if (this.gameState.getPhase() !== TurnPhase.PlayerAction) {
       return false;

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { GameState } from './GameState';
 import { TurnPhase } from './TurnPhase';
+import { VictoryType, type VictoryResult } from '../victory/VictoryTypes';
 
 describe('GameState', () => {
   describe('initial state', () => {
@@ -28,6 +29,7 @@ describe('GameState', () => {
       expect(snapshot.turnNumber).toBe(1);
       expect(snapshot.phase).toBe(TurnPhase.PlayerAction);
       expect(snapshot.currentPlayer).toBe(0);
+      expect(snapshot.victoryResult).toBeNull();
     });
   });
 
@@ -149,6 +151,87 @@ describe('GameState', () => {
       state.nextTurn();
 
       expect(listener.mock.calls.length).toBe(callCount);
+    });
+
+    it('should reset victory result to null', () => {
+      const state = new GameState();
+      const result: VictoryResult = {
+        type: VictoryType.Domination,
+        winnerId: 0,
+        winnerName: 'Player 1',
+        losers: [1],
+        turnNumber: 10,
+      };
+      state.setGameOver(result);
+      state.clear();
+      expect(state.getVictoryResult()).toBeNull();
+      expect(state.isGameOver()).toBe(false);
+    });
+  });
+
+  describe('game over', () => {
+    it('should start with isGameOver false', () => {
+      const state = new GameState();
+      expect(state.isGameOver()).toBe(false);
+    });
+
+    it('should start with victoryResult null', () => {
+      const state = new GameState();
+      expect(state.getVictoryResult()).toBeNull();
+    });
+
+    it('should set game over state', () => {
+      const state = new GameState();
+      const result: VictoryResult = {
+        type: VictoryType.Domination,
+        winnerId: 0,
+        winnerName: 'Player 1',
+        losers: [1],
+        turnNumber: 10,
+      };
+
+      state.setGameOver(result);
+
+      expect(state.isGameOver()).toBe(true);
+      expect(state.getPhase()).toBe(TurnPhase.GameOver);
+      expect(state.getVictoryResult()).toEqual(result);
+    });
+
+    it('should notify listeners when game ends', () => {
+      const state = new GameState();
+      const listener = vi.fn();
+      state.subscribe(listener);
+
+      const result: VictoryResult = {
+        type: VictoryType.Domination,
+        winnerId: 0,
+        winnerName: 'Player 1',
+        losers: [1],
+        turnNumber: 10,
+      };
+
+      state.setGameOver(result);
+
+      expect(listener).toHaveBeenCalled();
+      const lastCall = listener.mock.calls[listener.mock.calls.length - 1][0];
+      expect(lastCall.phase).toBe(TurnPhase.GameOver);
+      expect(lastCall.victoryResult).toEqual(result);
+    });
+
+    it('should include victoryResult in snapshot after game over', () => {
+      const state = new GameState();
+      const result: VictoryResult = {
+        type: VictoryType.Domination,
+        winnerId: 0,
+        winnerName: 'Player 1',
+        losers: [1],
+        turnNumber: 10,
+      };
+
+      state.setGameOver(result);
+      const snapshot = state.getSnapshot();
+
+      expect(snapshot.victoryResult).toEqual(result);
     });
   });
 });

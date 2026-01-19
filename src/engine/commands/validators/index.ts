@@ -50,7 +50,10 @@ export function getValidator(
     case COMMAND_TYPES.FOUND_CITY:
       return validateFoundCity as (command: GameCommand, deps: ValidatorDeps) => ValidationResult;
     case COMMAND_TYPES.SET_PRODUCTION:
-      return validateSetProduction as (command: GameCommand, deps: ValidatorDeps) => ValidationResult;
+      return validateSetProduction as (
+        command: GameCommand,
+        deps: ValidatorDeps
+      ) => ValidationResult;
     case COMMAND_TYPES.END_TURN:
       return validateEndTurn as (command: GameCommand, deps: ValidatorDeps) => ValidationResult;
     default: {

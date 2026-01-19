@@ -24,6 +24,7 @@ export {
   isProductionCompletedEvent,
   isProductionChangedEvent,
   isPopulationGrowthEvent,
+  isGameOverEvent,
 } from './events/types';
 export type {
   GameEvent,
@@ -38,6 +39,7 @@ export type {
   ProductionCompletedEvent,
   ProductionChangedEvent,
   PopulationGrowthEvent,
+  GameOverEvent,
 } from './events/types';
 
 // State snapshots

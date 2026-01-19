@@ -15,3 +15,4 @@ export { NotificationState, NotificationType } from './NotificationState';
 export type { Notification, NotificationEvent } from './NotificationState';
 export { NotificationPanel } from './NotificationPanel';
 export { DebugOverlay } from './DebugOverlay';
+export { VictoryOverlay } from './VictoryOverlay';

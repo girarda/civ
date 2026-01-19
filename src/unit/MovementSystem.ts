@@ -7,16 +7,24 @@ import { Position, MovementComponent, unitQuery } from '../ecs/world';
 import { TilePosition } from '../hex/TilePosition';
 import { Pathfinder } from '../pathfinding/Pathfinder';
 import { UnitRenderer } from '../render/UnitRenderer';
+import { GameState } from '../game/GameState';
 
 export class MovementExecutor {
   private world: IWorld;
   private pathfinder: Pathfinder;
   private unitRenderer: UnitRenderer;
+  private gameState: GameState | null = null;
 
-  constructor(world: IWorld, pathfinder: Pathfinder, unitRenderer: UnitRenderer) {
+  constructor(
+    world: IWorld,
+    pathfinder: Pathfinder,
+    unitRenderer: UnitRenderer,
+    gameState?: GameState
+  ) {
     this.world = world;
     this.pathfinder = pathfinder;
     this.unitRenderer = unitRenderer;
+    this.gameState = gameState ?? null;
   }
 
   /**
@@ -37,6 +45,11 @@ export class MovementExecutor {
    * Check if a unit can move to the target position.
    */
   canMove(unitEid: number, target: TilePosition): boolean {
+    // Cannot move if game is over
+    if (this.gameState?.isGameOver()) {
+      return false;
+    }
+
     const currentPos = this.getUnitPosition(unitEid);
     const currentMP = this.getMovementPoints(unitEid);
 
@@ -107,5 +120,12 @@ export class MovementExecutor {
    */
   setUnitRenderer(unitRenderer: UnitRenderer): void {
     this.unitRenderer = unitRenderer;
+  }
+
+  /**
+   * Update the game state reference.
+   */
+  setGameState(gameState: GameState): void {
+    this.gameState = gameState;
   }
 }
